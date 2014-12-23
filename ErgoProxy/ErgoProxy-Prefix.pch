@@ -7,3 +7,9 @@
 #ifdef __OBJC__
 	#import <Cocoa/Cocoa.h>
 #endif
+
+#import "AZEPAppCommons.h"
+#import "AZUtils.h"
+
+#define HAS_BIT(_v, _b) (((_v) & (_b)) == (_b))
+

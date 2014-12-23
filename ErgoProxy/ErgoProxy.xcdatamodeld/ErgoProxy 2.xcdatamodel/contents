@@ -2,13 +2,14 @@
 <model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3401" systemVersion="12F45" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
     <entity name="Download" representedClassName="AZDownload" syncable="YES">
         <attribute name="chapter" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
-        <attribute name="downloaded" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="downloaded" optional="YES" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
         <attribute name="fileURL" optional="YES" attributeType="Transformable" valueTransformerName="NSKeyedUnarchiveFromDataTransformerName" syncable="YES"/>
         <attribute name="manga" optional="YES" attributeType="String" syncable="YES"/>
-        <attribute name="page" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="page" optional="YES" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
         <attribute name="proxifierHash" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="scanID" optional="YES" attributeType="Integer 64" defaultValueString="0.0" indexed="YES" syncable="YES"/>
         <attribute name="sourceURL" optional="YES" attributeType="Transformable" valueTransformerName="NSKeyedUnarchiveFromDataTransformerName" syncable="YES"/>
-        <attribute name="totalSize" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="totalSize" optional="YES" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
     </entity>
     <elements>
         <element name="Download" positionX="0" positionY="0" width="0" height="0"/>

@@ -1,0 +1,114 @@
+//
+//  AZPreferencesTab.m
+//  AnkhReader
+//
+//  Created by Ankh on 29.03.14.
+//  Copyright (c) 2014 Ankh. All rights reserved.
+//
+
+#import "AZErgoPreferencesTab.h"
+#import "AZErgoTabsComons.h"
+
+
+@interface AZErgoPreferencesTab ()
+
+@property (weak) IBOutlet NSTextField *tfServerAddress;
+@property (weak) IBOutlet NSTextField *tfUserLogin;
+@property (weak) IBOutlet NSSecureTextField *tfUserPassword;
+@property (weak) IBOutlet NSButton *cbLoginAsGuest;
+@property (weak) IBOutlet NSButton *cbLoginAutomatically;
+@property (weak) IBOutlet NSTextField *tfMangaStorage;
+@property (weak) IBOutlet NSButton *cbGroupDownloads;
+@property (weak) IBOutlet NSButton *cbHideFinishedDownloads;
+
+@end
+
+@implementation AZErgoPreferencesTab
+
+- (NSString *) tabIdentifier {
+	return AZEPUIDPreferencesTab;
+}
+
+- (void) updateContents {
+	// server
+	self.tfServerAddress.stringValue = PREF_STR(PREFS_PROXY_URL);
+
+	// user
+	self.cbLoginAutomatically.state = PREF_BOOL(DEF_USER_LOGIN_AUTOMATICALY) ? NSOnState : NSOffState;
+	[self setLoginAsGuest:PREF_BOOL(DEF_USER_LOGIN_AS_GUEST)];
+
+	// common
+	self.tfMangaStorage.stringValue = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
+	self.cbGroupDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED) ? NSOnState : NSOffState;
+	self.cbHideFinishedDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED) ? NSOnState : NSOffState;
+}
+
+- (BOOL) loginAsGuest {
+	return [self.cbLoginAsGuest state] == NSOnState;
+}
+
+- (BOOL) loginAutomatically {
+	return [self.cbLoginAutomatically state] == NSOnState;
+}
+
+- (void) setLoginAsGuest:(BOOL)asGuest {
+	[self.cbLoginAsGuest setState:asGuest ? NSOnState : NSOffState];
+
+	[self.tfUserLogin setEnabled:!asGuest];
+	[self.tfUserPassword setEnabled:!asGuest];
+
+	if (asGuest) {
+		[self.tfUserLogin setStringValue:@""];
+		[self.tfUserPassword setStringValue:@""];
+	} else {
+		self.tfUserLogin.stringValue = PREF_STR(DEF_USER_LOGIN);
+		self.tfUserPassword.stringValue = PREF_STR(DEF_USER_PASSWORD);
+	}
+
+	PREF_SAVE_UI_BOOL(self.cbLoginAsGuest, DEF_USER_LOGIN_AS_GUEST);
+}
+
+- (IBAction)actionLoginAsGuestChecked:(id)sender {
+	[self setLoginAsGuest:[self loginAsGuest]];
+}
+
+- (IBAction)actionLoginAutomaticalyChecked:(id)sender {
+	PREF_SAVE_UI_BOOL(self.cbLoginAutomatically, DEF_USER_LOGIN_AUTOMATICALY);
+}
+
+- (IBAction)actionServerAddressChanged:(id)sender {
+	PREF_SAVE_UI_STR(self.tfServerAddress, PREFS_PROXY_URL);
+}
+
+- (IBAction)actionUserLoginChanged:(id)sender {
+	PREF_SAVE_UI_STR(self.tfUserLogin, DEF_USER_LOGIN);
+}
+
+- (IBAction)actionUserPasswordChanged:(id)sender {
+	PREF_SAVE_UI_STR(self.tfUserPassword, DEF_USER_PASSWORD);
+}
+
+- (IBAction)actionMangaStorageChanged:(id)sender {
+	PREF_SAVE_UI_STR(self.tfMangaStorage, PREFS_COMMON_MANGA_STORAGE);
+}
+
+- (IBAction)actionPickFolderForStorage:(id)sender {
+	NSOpenPanel *panel = [NSOpenPanel openPanel];
+	[panel setAllowsMultipleSelection:NO];
+	[panel setCanChooseDirectories:YES];
+	[panel setCanChooseFiles:NO];
+	if ([panel runModal] != NSFileHandlingPanelOKButton) return;
+
+	NSURL *storageURL = [[panel URLs] lastObject];
+	self.tfMangaStorage.stringValue = [storageURL path];
+	[self actionMangaStorageChanged:nil];
+}
+
+- (IBAction)actionGroupDownloadsChanged:(id)sender {
+	PREF_SAVE_UI_BOOL(self.cbGroupDownloads, PREFS_UI_DOWNLOADS_GROUPPED);
+}
+- (IBAction)actionHideFinishedDownloadChanged:(id)sender {
+	PREF_SAVE_UI_BOOL(self.cbHideFinishedDownloads, PREFS_UI_DOWNLOADS_HIDEFINISHED);
+}
+
+@end

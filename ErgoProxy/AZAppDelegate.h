@@ -8,14 +8,15 @@
 
 #import <Cocoa/Cocoa.h>
 
+@class AZTabsGroup, AZTabProvider;
 @interface AZAppDelegate : NSObject <NSApplicationDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
+@property (nonatomic) AZTabsGroup *tabsGroup;
 
-@property (readonly, strong, nonatomic) NSPersistentStoreCoordinator *persistentStoreCoordinator;
-@property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
-@property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 
-- (IBAction)saveAction:(id)sender;
+- (void) registerTabs;
+- (NSString *) initialTab;
+- (AZTabProvider *) registerTab:(Class)tabProviderClass;
 
 @end

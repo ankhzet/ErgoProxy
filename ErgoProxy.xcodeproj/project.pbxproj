@@ -7,6 +7,12 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
+		0A2DCE3A1A0C6BBC00E0E3B1 /* AZDataProxyContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2DCE351A0C6BBC00E0E3B1 /* AZDataProxyContainer.m */; };
+		0A2DCE3B1A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2DCE371A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m */; };
+		0A2DCE3C1A0C6BBC00E0E3B1 /* DataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2DCE391A0C6BBC00E0E3B1 /* DataProxy.m */; };
+		0A32ED8419F09CE600F6E2E3 /* AZErgoPreferencesTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A32ED8319F09CE600F6E2E3 /* AZErgoPreferencesTab.m */; };
+		0A32ED8619F09CF600F6E2E3 /* tabPreferences.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0A32ED8519F09CF600F6E2E3 /* tabPreferences.xib */; };
+		0A50F7221A01EE2800A2B350 /* AZErgoAppDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A50F7211A01EE2800A2B350 /* AZErgoAppDelegate.m */; };
 		0A816B7918E38E1D008B683B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A816B7818E38E1D008B683B /* Cocoa.framework */; };
 		0A816B8318E38E1D008B683B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A816B8118E38E1D008B683B /* InfoPlist.strings */; };
 		0A816B8518E38E1D008B683B /* main.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A816B8418E38E1D008B683B /* main.m */; };
@@ -18,7 +24,54 @@
 		0A816B9B18E38E1E008B683B /* XCTest.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A816B9A18E38E1E008B683B /* XCTest.framework */; };
 		0A816B9C18E38E1E008B683B /* Cocoa.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0A816B7818E38E1D008B683B /* Cocoa.framework */; };
 		0A816BA418E38E1E008B683B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A816BA218E38E1E008B683B /* InfoPlist.strings */; };
-		0A816BA618E38E1E008B683B /* ErgoProxyTests.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A816BA518E38E1E008B683B /* ErgoProxyTests.m */; };
+		0A816BB018E38F49008B683B /* AZErgoProxySpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A816BAF18E38F49008B683B /* AZErgoProxySpec.m */; };
+		0A816BB618E38F88008B683B /* AZErgoProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A816BB518E38F88008B683B /* AZErgoProxy.m */; };
+		0A816BB918E38FD3008B683B /* AZChapter.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A816BB818E38FD3008B683B /* AZChapter.m */; };
+		0A816BBB18E38FE9008B683B /* AZChapterSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A816BBA18E38FE9008B683B /* AZChapterSpec.m */; };
+		0A8D98FD1A13210D00585721 /* CustomDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A8D98FC1A13210D00585721 /* CustomDictionary.m */; };
+		0A8D98FF1A1326F300585721 /* NSString_AnkhUtilsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A8D98FE1A1326F300585721 /* NSString_AnkhUtilsSpec.m */; };
+		0AAE5DE119EF62A900F37AC1 /* AZProgressIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE5DE019EF62A900F37AC1 /* AZProgressIndicator.m */; };
+		0AB3988219EC73A900BBE2F4 /* AZDownload.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988119EC73A900BBE2F4 /* AZDownload.m */; };
+		0AB3988619EC73EA00BBE2F4 /* AZDownloadParams.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988519EC73EA00BBE2F4 /* AZDownloadParams.m */; };
+		0AB3988919EC73FC00BBE2F4 /* AZProxyServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988819EC73FC00BBE2F4 /* AZProxyServer.m */; };
+		0AB3988D19EC742500BBE2F4 /* AZProxifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988C19EC742500BBE2F4 /* AZProxifier.m */; };
+		0AB3989019EC742F00BBE2F4 /* AZStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988F19EC742F00BBE2F4 /* AZStorage.m */; };
+		0AB3989219EC744200BBE2F4 /* AZProxyServerSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989119EC744200BBE2F4 /* AZProxyServerSpec.m */; };
+		0AB3989519EC74D200BBE2F4 /* AZDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989419EC74D200BBE2F4 /* AZDownloader.m */; };
+		0AB3989719EC753500BBE2F4 /* AZDownloaderSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989619EC753500BBE2F4 /* AZDownloaderSpec.m */; };
+		0AB3989919EC767800BBE2F4 /* AZProxifierSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989819EC767800BBE2F4 /* AZProxifierSpec.m */; };
+		0AB3989B19EC777100BBE2F4 /* AZDownloadParamsSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989A19EC777100BBE2F4 /* AZDownloadParamsSpec.m */; };
+		0AB3989D19EC7D1F00BBE2F4 /* AZStorageSpec.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989C19EC7D1F00BBE2F4 /* AZStorageSpec.m */; };
+		0AB3992619ECBB0700BBE2F4 /* AZAPIProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991619ECBB0700BBE2F4 /* AZAPIProvider.m */; };
+		0AB3992719ECBB0700BBE2F4 /* AZClientAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991819ECBB0700BBE2F4 /* AZClientAPI.m */; };
+		0AB3992819ECBB0700BBE2F4 /* AZHTMLRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991C19ECBB0700BBE2F4 /* AZHTMLRequest.m */; };
+		0AB3992919ECBB0700BBE2F4 /* AZHTTPRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991E19ECBB0700BBE2F4 /* AZHTTPRequest.m */; };
+		0AB3992A19ECBB0700BBE2F4 /* AZJSONAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3992119ECBB0700BBE2F4 /* AZJSONAPI.m */; };
+		0AB3992B19ECBB0700BBE2F4 /* AZJSONRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3992319ECBB0700BBE2F4 /* AZJSONRequest.m */; };
+		0AB3992C19ECBB0700BBE2F4 /* AZJSONUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3992519ECBB0700BBE2F4 /* AZJSONUtils.m */; };
+		0AB3993819ECBB3E00BBE2F4 /* AZUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3992F19ECBB3E00BBE2F4 /* AZUtils.m */; };
+		0AB3993919ECBB3E00BBE2F4 /* NSArray+AnkhUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3993119ECBB3E00BBE2F4 /* NSArray+AnkhUtils.m */; };
+		0AB3993A19ECBB3E00BBE2F4 /* NSColor+AnkhColors.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3993319ECBB3E00BBE2F4 /* NSColor+AnkhColors.m */; };
+		0AB3993B19ECBB3E00BBE2F4 /* NSString+AnkhUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3993519ECBB3E00BBE2F4 /* NSString+AnkhUtils.m */; };
+		0AB3993C19ECBB3E00BBE2F4 /* NSURL+AnkhUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3993719ECBB3E00BBE2F4 /* NSURL+AnkhUtils.m */; };
+		0AB3994419ECBDF300BBE2F4 /* AZErgoAPIRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994319ECBDF300BBE2F4 /* AZErgoAPIRequest.m */; };
+		0AB3994719ECBEC700BBE2F4 /* AZErgoProxifierAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994619ECBEC700BBE2F4 /* AZErgoProxifierAPI.m */; };
+		0AB3994E19ED955B00BBE2F4 /* AZTabProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994A19ED955B00BBE2F4 /* AZTabProvider.m */; };
+		0AB3994F19ED955B00BBE2F4 /* AZTabsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994D19ED955B00BBE2F4 /* AZTabsGroup.m */; };
+		0AB3995219ED96BE00BBE2F4 /* AZErgoManualScheduleTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3995119ED96BE00BBE2F4 /* AZErgoManualScheduleTab.m */; };
+		0AB3995519ED96E000BBE2F4 /* tabManualSchedule.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AB3995419ED96E000BBE2F4 /* tabManualSchedule.xib */; };
+		0AB3995D19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3995B19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m */; };
+		0AB3995E19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AB3995C19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib */; };
+		0AB3996219EDE35800BBE2F4 /* AZErgoMainTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3996119EDE35800BBE2F4 /* AZErgoMainTab.m */; };
+		0AB3996419EDE36D00BBE2F4 /* tabMain.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AB3996319EDE36D00BBE2F4 /* tabMain.xib */; };
+		0AB3996919EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3996819EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.m */; };
+		0AB3996C19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3996B19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.m */; };
+		0AB3997019EDF31300BBE2F4 /* AZErgoGroupCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3996F19EDF31300BBE2F4 /* AZErgoGroupCellView.m */; };
+		0AB3997319EDF6F300BBE2F4 /* AZErgoDownloadCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997219EDF6F300BBE2F4 /* AZErgoDownloadCellView.m */; };
+		0AB3997619EE1AF200BBE2F4 /* KeyedHolder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997519EE1AF200BBE2F4 /* KeyedHolder.m */; };
+		0AB3997C19EE2A0A00BBE2F4 /* AZErgoDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997B19EE2A0A00BBE2F4 /* AZErgoDownloader.m */; };
+		0AC408101A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AC4080F1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m */; };
+		C7F65B9BD0EC461C938F59AD /* libPods-ErgoProxyTests.a in Frameworks */ = {isa = PBXBuildFile; fileRef = DE2F44D59CE5415088E05857 /* libPods-ErgoProxyTests.a */; };
 /* End PBXBuildFile section */
 
 /* Begin PBXContainerItemProxy section */
@@ -32,6 +85,19 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
+		0A2DCE341A0C6BBC00E0E3B1 /* AZDataProxyContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataProxyContainer.h; sourceTree = "<group>"; };
+		0A2DCE351A0C6BBC00E0E3B1 /* AZDataProxyContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDataProxyContainer.m; sourceTree = "<group>"; };
+		0A2DCE361A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZSynkEnabledStorage.h; sourceTree = "<group>"; };
+		0A2DCE371A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZSynkEnabledStorage.m; sourceTree = "<group>"; };
+		0A2DCE381A0C6BBC00E0E3B1 /* DataProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = DataProxy.h; sourceTree = "<group>"; };
+		0A2DCE391A0C6BBC00E0E3B1 /* DataProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = DataProxy.m; sourceTree = "<group>"; };
+		0A2DCE3F1A0C765300E0E3B1 /* ErgoProxy 2.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ErgoProxy 2.xcdatamodel"; sourceTree = "<group>"; };
+		0A2DCE401A0C782B00E0E3B1 /* ErgoProxy 3.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ErgoProxy 3.xcdatamodel"; sourceTree = "<group>"; };
+		0A32ED8219F09CE600F6E2E3 /* AZErgoPreferencesTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoPreferencesTab.h; sourceTree = "<group>"; };
+		0A32ED8319F09CE600F6E2E3 /* AZErgoPreferencesTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoPreferencesTab.m; sourceTree = "<group>"; };
+		0A32ED8519F09CF600F6E2E3 /* tabPreferences.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = tabPreferences.xib; sourceTree = "<group>"; };
+		0A50F7201A01EE2800A2B350 /* AZErgoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoAppDelegate.h; sourceTree = "<group>"; };
+		0A50F7211A01EE2800A2B350 /* AZErgoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoAppDelegate.m; sourceTree = "<group>"; };
 		0A816B7518E38E1D008B683B /* ErgoProxy.app */ = {isa = PBXFileReference; explicitFileType = wrapper.application; includeInIndex = 0; path = ErgoProxy.app; sourceTree = BUILT_PRODUCTS_DIR; };
 		0A816B7818E38E1D008B683B /* Cocoa.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Cocoa.framework; path = System/Library/Frameworks/Cocoa.framework; sourceTree = SDKROOT; };
 		0A816B7B18E38E1D008B683B /* AppKit.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = AppKit.framework; path = System/Library/Frameworks/AppKit.framework; sourceTree = SDKROOT; };
@@ -51,7 +117,95 @@
 		0A816B9A18E38E1E008B683B /* XCTest.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = XCTest.framework; path = Library/Frameworks/XCTest.framework; sourceTree = DEVELOPER_DIR; };
 		0A816BA118E38E1E008B683B /* ErgoProxyTests-Info.plist */ = {isa = PBXFileReference; lastKnownFileType = text.plist.xml; path = "ErgoProxyTests-Info.plist"; sourceTree = "<group>"; };
 		0A816BA318E38E1E008B683B /* en */ = {isa = PBXFileReference; lastKnownFileType = text.plist.strings; name = en; path = en.lproj/InfoPlist.strings; sourceTree = "<group>"; };
-		0A816BA518E38E1E008B683B /* ErgoProxyTests.m */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.objc; path = ErgoProxyTests.m; sourceTree = "<group>"; };
+		0A816BAF18E38F49008B683B /* AZErgoProxySpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoProxySpec.m; sourceTree = "<group>"; };
+		0A816BB418E38F88008B683B /* AZErgoProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoProxy.h; sourceTree = "<group>"; };
+		0A816BB518E38F88008B683B /* AZErgoProxy.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoProxy.m; sourceTree = "<group>"; };
+		0A816BB718E38FD3008B683B /* AZChapter.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZChapter.h; sourceTree = "<group>"; };
+		0A816BB818E38FD3008B683B /* AZChapter.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZChapter.m; sourceTree = "<group>"; };
+		0A816BBA18E38FE9008B683B /* AZChapterSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZChapterSpec.m; sourceTree = "<group>"; };
+		0A8D98FB1A13210D00585721 /* CustomDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomDictionary.h; sourceTree = "<group>"; };
+		0A8D98FC1A13210D00585721 /* CustomDictionary.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = CustomDictionary.m; sourceTree = "<group>"; };
+		0A8D98FE1A1326F300585721 /* NSString_AnkhUtilsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = NSString_AnkhUtilsSpec.m; sourceTree = "<group>"; };
+		0AAE5DDF19EF62A900F37AC1 /* AZProgressIndicator.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZProgressIndicator.h; sourceTree = "<group>"; };
+		0AAE5DE019EF62A900F37AC1 /* AZProgressIndicator.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZProgressIndicator.m; sourceTree = "<group>"; };
+		0AB3988019EC73A900BBE2F4 /* AZDownload.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDownload.h; sourceTree = "<group>"; };
+		0AB3988119EC73A900BBE2F4 /* AZDownload.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDownload.m; sourceTree = "<group>"; };
+		0AB3988419EC73EA00BBE2F4 /* AZDownloadParams.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDownloadParams.h; sourceTree = "<group>"; };
+		0AB3988519EC73EA00BBE2F4 /* AZDownloadParams.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDownloadParams.m; sourceTree = "<group>"; };
+		0AB3988719EC73FC00BBE2F4 /* AZProxyServer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZProxyServer.h; sourceTree = "<group>"; };
+		0AB3988819EC73FC00BBE2F4 /* AZProxyServer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZProxyServer.m; sourceTree = "<group>"; };
+		0AB3988B19EC742500BBE2F4 /* AZProxifier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZProxifier.h; sourceTree = "<group>"; };
+		0AB3988C19EC742500BBE2F4 /* AZProxifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZProxifier.m; sourceTree = "<group>"; };
+		0AB3988E19EC742F00BBE2F4 /* AZStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZStorage.h; sourceTree = "<group>"; };
+		0AB3988F19EC742F00BBE2F4 /* AZStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZStorage.m; sourceTree = "<group>"; };
+		0AB3989119EC744200BBE2F4 /* AZProxyServerSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZProxyServerSpec.m; sourceTree = "<group>"; };
+		0AB3989319EC74D200BBE2F4 /* AZDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDownloader.h; sourceTree = "<group>"; };
+		0AB3989419EC74D200BBE2F4 /* AZDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDownloader.m; sourceTree = "<group>"; };
+		0AB3989619EC753500BBE2F4 /* AZDownloaderSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDownloaderSpec.m; sourceTree = "<group>"; };
+		0AB3989819EC767800BBE2F4 /* AZProxifierSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZProxifierSpec.m; sourceTree = "<group>"; };
+		0AB3989A19EC777100BBE2F4 /* AZDownloadParamsSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDownloadParamsSpec.m; sourceTree = "<group>"; };
+		0AB3989C19EC7D1F00BBE2F4 /* AZStorageSpec.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZStorageSpec.m; sourceTree = "<group>"; };
+		0AB3991519ECBB0700BBE2F4 /* AZAPIProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZAPIProvider.h; sourceTree = "<group>"; };
+		0AB3991619ECBB0700BBE2F4 /* AZAPIProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZAPIProvider.m; sourceTree = "<group>"; };
+		0AB3991719ECBB0700BBE2F4 /* AZClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZClientAPI.h; sourceTree = "<group>"; };
+		0AB3991819ECBB0700BBE2F4 /* AZClientAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZClientAPI.m; sourceTree = "<group>"; };
+		0AB3991919ECBB0700BBE2F4 /* AZClientAPICore.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZClientAPICore.h; sourceTree = "<group>"; };
+		0AB3991B19ECBB0700BBE2F4 /* AZHTMLRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZHTMLRequest.h; sourceTree = "<group>"; };
+		0AB3991C19ECBB0700BBE2F4 /* AZHTMLRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZHTMLRequest.m; sourceTree = "<group>"; };
+		0AB3991D19ECBB0700BBE2F4 /* AZHTTPRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZHTTPRequest.h; sourceTree = "<group>"; };
+		0AB3991E19ECBB0700BBE2F4 /* AZHTTPRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZHTTPRequest.m; sourceTree = "<group>"; };
+		0AB3992019ECBB0700BBE2F4 /* AZJSONAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZJSONAPI.h; sourceTree = "<group>"; };
+		0AB3992119ECBB0700BBE2F4 /* AZJSONAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZJSONAPI.m; sourceTree = "<group>"; };
+		0AB3992219ECBB0700BBE2F4 /* AZJSONRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZJSONRequest.h; sourceTree = "<group>"; };
+		0AB3992319ECBB0700BBE2F4 /* AZJSONRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZJSONRequest.m; sourceTree = "<group>"; };
+		0AB3992419ECBB0700BBE2F4 /* AZJSONUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZJSONUtils.h; sourceTree = "<group>"; };
+		0AB3992519ECBB0700BBE2F4 /* AZJSONUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZJSONUtils.m; sourceTree = "<group>"; };
+		0AB3992E19ECBB3E00BBE2F4 /* AZUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZUtils.h; sourceTree = "<group>"; };
+		0AB3992F19ECBB3E00BBE2F4 /* AZUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZUtils.m; sourceTree = "<group>"; };
+		0AB3993019ECBB3E00BBE2F4 /* NSArray+AnkhUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSArray+AnkhUtils.h"; sourceTree = "<group>"; };
+		0AB3993119ECBB3E00BBE2F4 /* NSArray+AnkhUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSArray+AnkhUtils.m"; sourceTree = "<group>"; };
+		0AB3993219ECBB3E00BBE2F4 /* NSColor+AnkhColors.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSColor+AnkhColors.h"; sourceTree = "<group>"; };
+		0AB3993319ECBB3E00BBE2F4 /* NSColor+AnkhColors.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSColor+AnkhColors.m"; sourceTree = "<group>"; };
+		0AB3993419ECBB3E00BBE2F4 /* NSString+AnkhUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSString+AnkhUtils.h"; sourceTree = "<group>"; };
+		0AB3993519ECBB3E00BBE2F4 /* NSString+AnkhUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSString+AnkhUtils.m"; sourceTree = "<group>"; };
+		0AB3993619ECBB3E00BBE2F4 /* NSURL+AnkhUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSURL+AnkhUtils.h"; sourceTree = "<group>"; };
+		0AB3993719ECBB3E00BBE2F4 /* NSURL+AnkhUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSURL+AnkhUtils.m"; sourceTree = "<group>"; };
+		0AB3993D19ECBB8A00BBE2F4 /* AZEPAppCommons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AZEPAppCommons.h; sourceTree = "<group>"; };
+		0AB3994219ECBDF300BBE2F4 /* AZErgoAPIRequest.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoAPIRequest.h; sourceTree = "<group>"; };
+		0AB3994319ECBDF300BBE2F4 /* AZErgoAPIRequest.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoAPIRequest.m; sourceTree = "<group>"; };
+		0AB3994519ECBEC700BBE2F4 /* AZErgoProxifierAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoProxifierAPI.h; sourceTree = "<group>"; };
+		0AB3994619ECBEC700BBE2F4 /* AZErgoProxifierAPI.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoProxifierAPI.m; sourceTree = "<group>"; };
+		0AB3994919ED955B00BBE2F4 /* AZTabProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZTabProvider.h; sourceTree = "<group>"; };
+		0AB3994A19ED955B00BBE2F4 /* AZTabProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZTabProvider.m; sourceTree = "<group>"; };
+		0AB3994B19ED955B00BBE2F4 /* AZTabsCommons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZTabsCommons.h; sourceTree = "<group>"; };
+		0AB3994C19ED955B00BBE2F4 /* AZTabsGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZTabsGroup.h; sourceTree = "<group>"; };
+		0AB3994D19ED955B00BBE2F4 /* AZTabsGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZTabsGroup.m; sourceTree = "<group>"; };
+		0AB3995019ED96BE00BBE2F4 /* AZErgoManualScheduleTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; name = AZErgoManualScheduleTab.h; path = ../../CommonAPIs/UITabs/AZErgoManualScheduleTab.h; sourceTree = "<group>"; };
+		0AB3995119ED96BE00BBE2F4 /* AZErgoManualScheduleTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; name = AZErgoManualScheduleTab.m; path = ../../CommonAPIs/UITabs/AZErgoManualScheduleTab.m; sourceTree = "<group>"; };
+		0AB3995419ED96E000BBE2F4 /* tabManualSchedule.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = tabManualSchedule.xib; sourceTree = "<group>"; };
+		0AB3995719ED971200BBE2F4 /* AZErgoTabsComons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AZErgoTabsComons.h; sourceTree = "<group>"; };
+		0AB3995A19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloadPrefsWindowController.h; sourceTree = "<group>"; };
+		0AB3995B19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadPrefsWindowController.m; sourceTree = "<group>"; };
+		0AB3995C19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AZErgoDownloadPrefsWindowController.xib; sourceTree = "<group>"; };
+		0AB3996019EDE35800BBE2F4 /* AZErgoMainTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoMainTab.h; sourceTree = "<group>"; };
+		0AB3996119EDE35800BBE2F4 /* AZErgoMainTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoMainTab.m; sourceTree = "<group>"; };
+		0AB3996319EDE36D00BBE2F4 /* tabMain.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = tabMain.xib; sourceTree = "<group>"; };
+		0AB3996719EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloadsDataSource.h; sourceTree = "<group>"; };
+		0AB3996819EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadsDataSource.m; sourceTree = "<group>"; };
+		0AB3996A19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoConfigurableTableCellView.h; sourceTree = "<group>"; };
+		0AB3996B19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoConfigurableTableCellView.m; sourceTree = "<group>"; };
+		0AB3996E19EDF31300BBE2F4 /* AZErgoGroupCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoGroupCellView.h; sourceTree = "<group>"; };
+		0AB3996F19EDF31300BBE2F4 /* AZErgoGroupCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoGroupCellView.m; sourceTree = "<group>"; };
+		0AB3997119EDF6F300BBE2F4 /* AZErgoDownloadCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloadCellView.h; sourceTree = "<group>"; };
+		0AB3997219EDF6F300BBE2F4 /* AZErgoDownloadCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadCellView.m; sourceTree = "<group>"; };
+		0AB3997419EE1AF200BBE2F4 /* KeyedHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyedHolder.h; sourceTree = "<group>"; };
+		0AB3997519EE1AF200BBE2F4 /* KeyedHolder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyedHolder.m; sourceTree = "<group>"; };
+		0AB3997A19EE2A0A00BBE2F4 /* AZErgoDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloader.h; sourceTree = "<group>"; };
+		0AB3997B19EE2A0A00BBE2F4 /* AZErgoDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloader.m; sourceTree = "<group>"; };
+		0AC4080E1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloadDetailsPopover.h; sourceTree = "<group>"; };
+		0AC4080F1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadDetailsPopover.m; sourceTree = "<group>"; };
+		0D6E24C339544962AE6A76D5 /* Pods-ErgoProxyTests.xcconfig */ = {isa = PBXFileReference; includeInIndex = 1; lastKnownFileType = text.xcconfig; name = "Pods-ErgoProxyTests.xcconfig"; path = "Pods/Pods-ErgoProxyTests.xcconfig"; sourceTree = "<group>"; };
+		DE2F44D59CE5415088E05857 /* libPods-ErgoProxyTests.a */ = {isa = PBXFileReference; explicitFileType = archive.ar; includeInIndex = 0; path = "libPods-ErgoProxyTests.a"; sourceTree = BUILT_PRODUCTS_DIR; };
 /* End PBXFileReference section */
 
 /* Begin PBXFrameworksBuildPhase section */
@@ -69,12 +223,50 @@
 			files = (
 				0A816B9C18E38E1E008B683B /* Cocoa.framework in Frameworks */,
 				0A816B9B18E38E1E008B683B /* XCTest.framework in Frameworks */,
+				C7F65B9BD0EC461C938F59AD /* libPods-ErgoProxyTests.a in Frameworks */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
 /* End PBXFrameworksBuildPhase section */
 
 /* Begin PBXGroup section */
+		0A2DCE3D1A0C6BC500E0E3B1 /* Core Data Stack */ = {
+			isa = PBXGroup;
+			children = (
+				0A2DCE341A0C6BBC00E0E3B1 /* AZDataProxyContainer.h */,
+				0A2DCE351A0C6BBC00E0E3B1 /* AZDataProxyContainer.m */,
+				0A2DCE361A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.h */,
+				0A2DCE371A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m */,
+				0A2DCE381A0C6BBC00E0E3B1 /* DataProxy.h */,
+				0A2DCE391A0C6BBC00E0E3B1 /* DataProxy.m */,
+			);
+			name = "Core Data Stack";
+			sourceTree = "<group>";
+		};
+		0A2DCE3E1A0C6BED00E0E3B1 /* Data Storage */ = {
+			isa = PBXGroup;
+			children = (
+				0A816B9018E38E1E008B683B /* ErgoProxy.xcdatamodeld */,
+				0A2DCE3D1A0C6BC500E0E3B1 /* Core Data Stack */,
+			);
+			name = "Data Storage";
+			sourceTree = "<group>";
+		};
+		0A32ED8719F09D2100F6E2E3 /* Tabs */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3996019EDE35800BBE2F4 /* AZErgoMainTab.h */,
+				0AB3996119EDE35800BBE2F4 /* AZErgoMainTab.m */,
+				0AB3995019ED96BE00BBE2F4 /* AZErgoManualScheduleTab.h */,
+				0AB3995119ED96BE00BBE2F4 /* AZErgoManualScheduleTab.m */,
+				0A32ED8219F09CE600F6E2E3 /* AZErgoPreferencesTab.h */,
+				0A32ED8319F09CE600F6E2E3 /* AZErgoPreferencesTab.m */,
+				0AC4080E1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.h */,
+				0AC4080F1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m */,
+			);
+			name = Tabs;
+			sourceTree = "<group>";
+		};
 		0A816B6C18E38E1D008B683B = {
 			isa = PBXGroup;
 			children = (
@@ -82,6 +274,7 @@
 				0A816B9F18E38E1E008B683B /* ErgoProxyTests */,
 				0A816B7718E38E1D008B683B /* Frameworks */,
 				0A816B7618E38E1D008B683B /* Products */,
+				0D6E24C339544962AE6A76D5 /* Pods-ErgoProxyTests.xcconfig */,
 			);
 			sourceTree = "<group>";
 		};
@@ -100,6 +293,7 @@
 				0A816B7818E38E1D008B683B /* Cocoa.framework */,
 				0A816B9A18E38E1E008B683B /* XCTest.framework */,
 				0A816B7A18E38E1D008B683B /* Other Frameworks */,
+				DE2F44D59CE5415088E05857 /* libPods-ErgoProxyTests.a */,
 			);
 			name = Frameworks;
 			sourceTree = "<group>";
@@ -117,11 +311,16 @@
 		0A816B7E18E38E1D008B683B /* ErgoProxy */ = {
 			isa = PBXGroup;
 			children = (
-				0A816B8A18E38E1D008B683B /* AZAppDelegate.h */,
-				0A816B8B18E38E1D008B683B /* AZAppDelegate.m */,
-				0A816B8D18E38E1E008B683B /* MainMenu.xib */,
-				0A816B9318E38E1E008B683B /* Images.xcassets */,
-				0A816B9018E38E1E008B683B /* ErgoProxy.xcdatamodeld */,
+				0AB3993D19ECBB8A00BBE2F4 /* AZEPAppCommons.h */,
+				0A816BB118E38F57008B683B /* UI */,
+				0A816BB318E38F6B008B683B /* Utils */,
+				0A816BB418E38F88008B683B /* AZErgoProxy.h */,
+				0A816BB518E38F88008B683B /* AZErgoProxy.m */,
+				0A816BB718E38FD3008B683B /* AZChapter.h */,
+				0A816BB818E38FD3008B683B /* AZChapter.m */,
+				0AB3993E19ECBD4000BBE2F4 /* Ergo API */,
+				0AB3988319EC73D000BBE2F4 /* Downloads Core */,
+				0A2DCE3E1A0C6BED00E0E3B1 /* Data Storage */,
 				0A816B7F18E38E1D008B683B /* Supporting Files */,
 			);
 			path = ErgoProxy;
@@ -142,8 +341,15 @@
 		0A816B9F18E38E1E008B683B /* ErgoProxyTests */ = {
 			isa = PBXGroup;
 			children = (
-				0A816BA518E38E1E008B683B /* ErgoProxyTests.m */,
 				0A816BA018E38E1E008B683B /* Supporting Files */,
+				0A816BAF18E38F49008B683B /* AZErgoProxySpec.m */,
+				0A8D98FE1A1326F300585721 /* NSString_AnkhUtilsSpec.m */,
+				0A816BBA18E38FE9008B683B /* AZChapterSpec.m */,
+				0AB3989119EC744200BBE2F4 /* AZProxyServerSpec.m */,
+				0AB3989619EC753500BBE2F4 /* AZDownloaderSpec.m */,
+				0AB3989819EC767800BBE2F4 /* AZProxifierSpec.m */,
+				0AB3989A19EC777100BBE2F4 /* AZDownloadParamsSpec.m */,
+				0AB3989C19EC7D1F00BBE2F4 /* AZStorageSpec.m */,
 			);
 			path = ErgoProxyTests;
 			sourceTree = "<group>";
@@ -155,6 +361,193 @@
 				0A816BA218E38E1E008B683B /* InfoPlist.strings */,
 			);
 			name = "Supporting Files";
+			sourceTree = "<group>";
+		};
+		0A816BB118E38F57008B683B /* UI */ = {
+			isa = PBXGroup;
+			children = (
+				0A816B9318E38E1E008B683B /* Images.xcassets */,
+				0A816B8A18E38E1D008B683B /* AZAppDelegate.h */,
+				0A816B8B18E38E1D008B683B /* AZAppDelegate.m */,
+				0A50F7201A01EE2800A2B350 /* AZErgoAppDelegate.h */,
+				0A50F7211A01EE2800A2B350 /* AZErgoAppDelegate.m */,
+				0A816B8D18E38E1E008B683B /* MainMenu.xib */,
+				0AB3995F19EDBA5400BBE2F4 /* Download Prefs Controller */,
+				0AB3995319ED96C800BBE2F4 /* Tabs */,
+			);
+			name = UI;
+			sourceTree = "<group>";
+		};
+		0A816BB318E38F6B008B683B /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3992D19ECBB3E00BBE2F4 /* Utils */,
+			);
+			name = Utils;
+			sourceTree = "<group>";
+		};
+		0AB3988319EC73D000BBE2F4 /* Downloads Core */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3988419EC73EA00BBE2F4 /* AZDownloadParams.h */,
+				0AB3988519EC73EA00BBE2F4 /* AZDownloadParams.m */,
+				0AB3988019EC73A900BBE2F4 /* AZDownload.h */,
+				0AB3988119EC73A900BBE2F4 /* AZDownload.m */,
+				0AB3989319EC74D200BBE2F4 /* AZDownloader.h */,
+				0AB3989419EC74D200BBE2F4 /* AZDownloader.m */,
+				0AB3997A19EE2A0A00BBE2F4 /* AZErgoDownloader.h */,
+				0AB3997B19EE2A0A00BBE2F4 /* AZErgoDownloader.m */,
+				0AB3988A19EC740100BBE2F4 /* Proxies */,
+			);
+			name = "Downloads Core";
+			sourceTree = "<group>";
+		};
+		0AB3988A19EC740100BBE2F4 /* Proxies */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3988719EC73FC00BBE2F4 /* AZProxyServer.h */,
+				0AB3988819EC73FC00BBE2F4 /* AZProxyServer.m */,
+				0AB3988B19EC742500BBE2F4 /* AZProxifier.h */,
+				0AB3988C19EC742500BBE2F4 /* AZProxifier.m */,
+				0AB3988E19EC742F00BBE2F4 /* AZStorage.h */,
+				0AB3988F19EC742F00BBE2F4 /* AZStorage.m */,
+			);
+			name = Proxies;
+			sourceTree = "<group>";
+		};
+		0AB3991419ECBB0700BBE2F4 /* ClientAPICore */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3991919ECBB0700BBE2F4 /* AZClientAPICore.h */,
+				0AB3991519ECBB0700BBE2F4 /* AZAPIProvider.h */,
+				0AB3991619ECBB0700BBE2F4 /* AZAPIProvider.m */,
+				0AB3991719ECBB0700BBE2F4 /* AZClientAPI.h */,
+				0AB3991819ECBB0700BBE2F4 /* AZClientAPI.m */,
+				0AB3991A19ECBB0700BBE2F4 /* HTTPRequests */,
+			);
+			name = ClientAPICore;
+			path = ../../CommonAPIs/ClientAPICore;
+			sourceTree = "<group>";
+		};
+		0AB3991A19ECBB0700BBE2F4 /* HTTPRequests */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3991B19ECBB0700BBE2F4 /* AZHTMLRequest.h */,
+				0AB3991C19ECBB0700BBE2F4 /* AZHTMLRequest.m */,
+				0AB3991D19ECBB0700BBE2F4 /* AZHTTPRequest.h */,
+				0AB3991E19ECBB0700BBE2F4 /* AZHTTPRequest.m */,
+				0AB3991F19ECBB0700BBE2F4 /* JSON */,
+			);
+			path = HTTPRequests;
+			sourceTree = "<group>";
+		};
+		0AB3991F19ECBB0700BBE2F4 /* JSON */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3992019ECBB0700BBE2F4 /* AZJSONAPI.h */,
+				0AB3992119ECBB0700BBE2F4 /* AZJSONAPI.m */,
+				0AB3992219ECBB0700BBE2F4 /* AZJSONRequest.h */,
+				0AB3992319ECBB0700BBE2F4 /* AZJSONRequest.m */,
+				0AB3992419ECBB0700BBE2F4 /* AZJSONUtils.h */,
+				0AB3992519ECBB0700BBE2F4 /* AZJSONUtils.m */,
+			);
+			path = JSON;
+			sourceTree = "<group>";
+		};
+		0AB3992D19ECBB3E00BBE2F4 /* Utils */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3992E19ECBB3E00BBE2F4 /* AZUtils.h */,
+				0AB3992F19ECBB3E00BBE2F4 /* AZUtils.m */,
+				0AB3993019ECBB3E00BBE2F4 /* NSArray+AnkhUtils.h */,
+				0AB3993119ECBB3E00BBE2F4 /* NSArray+AnkhUtils.m */,
+				0AB3993219ECBB3E00BBE2F4 /* NSColor+AnkhColors.h */,
+				0AB3993319ECBB3E00BBE2F4 /* NSColor+AnkhColors.m */,
+				0AB3993419ECBB3E00BBE2F4 /* NSString+AnkhUtils.h */,
+				0AB3993519ECBB3E00BBE2F4 /* NSString+AnkhUtils.m */,
+				0AB3993619ECBB3E00BBE2F4 /* NSURL+AnkhUtils.h */,
+				0AB3993719ECBB3E00BBE2F4 /* NSURL+AnkhUtils.m */,
+			);
+			name = Utils;
+			path = ../../CommonAPIs/Utils;
+			sourceTree = "<group>";
+		};
+		0AB3993E19ECBD4000BBE2F4 /* Ergo API */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3994219ECBDF300BBE2F4 /* AZErgoAPIRequest.h */,
+				0AB3994319ECBDF300BBE2F4 /* AZErgoAPIRequest.m */,
+				0AB3994519ECBEC700BBE2F4 /* AZErgoProxifierAPI.h */,
+				0AB3994619ECBEC700BBE2F4 /* AZErgoProxifierAPI.m */,
+				0AB3991419ECBB0700BBE2F4 /* ClientAPICore */,
+			);
+			name = "Ergo API";
+			sourceTree = "<group>";
+		};
+		0AB3994819ED955B00BBE2F4 /* UITabs */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3994919ED955B00BBE2F4 /* AZTabProvider.h */,
+				0AB3994A19ED955B00BBE2F4 /* AZTabProvider.m */,
+				0AB3994B19ED955B00BBE2F4 /* AZTabsCommons.h */,
+				0AB3994C19ED955B00BBE2F4 /* AZTabsGroup.h */,
+				0AB3994D19ED955B00BBE2F4 /* AZTabsGroup.m */,
+			);
+			name = UITabs;
+			path = ../../CommonAPIs/UITabs;
+			sourceTree = "<group>";
+		};
+		0AB3995319ED96C800BBE2F4 /* Tabs */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3995719ED971200BBE2F4 /* AZErgoTabsComons.h */,
+				0AB3996319EDE36D00BBE2F4 /* tabMain.xib */,
+				0AB3995419ED96E000BBE2F4 /* tabManualSchedule.xib */,
+				0A32ED8519F09CF600F6E2E3 /* tabPreferences.xib */,
+				0A32ED8719F09D2100F6E2E3 /* Tabs */,
+				0AB3996519EDE73000BBE2F4 /* Data sources */,
+				0AB3994819ED955B00BBE2F4 /* UITabs */,
+			);
+			name = Tabs;
+			sourceTree = "<group>";
+		};
+		0AB3995F19EDBA5400BBE2F4 /* Download Prefs Controller */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3995A19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.h */,
+				0AB3995B19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m */,
+				0AB3995C19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib */,
+			);
+			name = "Download Prefs Controller";
+			sourceTree = "<group>";
+		};
+		0AB3996519EDE73000BBE2F4 /* Data sources */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3996719EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.h */,
+				0AB3996819EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.m */,
+				0AB3996D19EDF2FA00BBE2F4 /* CellViews */,
+			);
+			name = "Data sources";
+			sourceTree = "<group>";
+		};
+		0AB3996D19EDF2FA00BBE2F4 /* CellViews */ = {
+			isa = PBXGroup;
+			children = (
+				0AB3996E19EDF31300BBE2F4 /* AZErgoGroupCellView.h */,
+				0AB3996F19EDF31300BBE2F4 /* AZErgoGroupCellView.m */,
+				0AB3997119EDF6F300BBE2F4 /* AZErgoDownloadCellView.h */,
+				0AB3997219EDF6F300BBE2F4 /* AZErgoDownloadCellView.m */,
+				0AB3996A19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.h */,
+				0AB3996B19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.m */,
+				0AB3997419EE1AF200BBE2F4 /* KeyedHolder.h */,
+				0AB3997519EE1AF200BBE2F4 /* KeyedHolder.m */,
+				0A8D98FB1A13210D00585721 /* CustomDictionary.h */,
+				0A8D98FC1A13210D00585721 /* CustomDictionary.m */,
+				0AAE5DDF19EF62A900F37AC1 /* AZProgressIndicator.h */,
+				0AAE5DE019EF62A900F37AC1 /* AZProgressIndicator.m */,
+			);
+			name = CellViews;
 			sourceTree = "<group>";
 		};
 /* End PBXGroup section */
@@ -181,9 +574,11 @@
 			isa = PBXNativeTarget;
 			buildConfigurationList = 0A816BAC18E38E1E008B683B /* Build configuration list for PBXNativeTarget "ErgoProxyTests" */;
 			buildPhases = (
+				85ADA81592964942ADE634C2 /* Check Pods Manifest.lock */,
 				0A816B9518E38E1E008B683B /* Sources */,
 				0A816B9618E38E1E008B683B /* Frameworks */,
 				0A816B9718E38E1E008B683B /* Resources */,
+				6F0173F1ECCE4A798F86E201 /* Copy Pods Resources */,
 			);
 			buildRules = (
 			);
@@ -235,8 +630,12 @@
 			buildActionMask = 2147483647;
 			files = (
 				0A816B8318E38E1D008B683B /* InfoPlist.strings in Resources */,
+				0AB3995E19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib in Resources */,
+				0AB3995519ED96E000BBE2F4 /* tabManualSchedule.xib in Resources */,
 				0A816B9418E38E1E008B683B /* Images.xcassets in Resources */,
+				0A32ED8619F09CF600F6E2E3 /* tabPreferences.xib in Resources */,
 				0A816B8918E38E1D008B683B /* Credits.rtf in Resources */,
+				0AB3996419EDE36D00BBE2F4 /* tabMain.xib in Resources */,
 				0A816B8F18E38E1E008B683B /* MainMenu.xib in Resources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
@@ -251,14 +650,88 @@
 		};
 /* End PBXResourcesBuildPhase section */
 
+/* Begin PBXShellScriptBuildPhase section */
+		6F0173F1ECCE4A798F86E201 /* Copy Pods Resources */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Copy Pods Resources";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "\"${SRCROOT}/Pods/Pods-ErgoProxyTests-resources.sh\"\n";
+			showEnvVarsInLog = 0;
+		};
+		85ADA81592964942ADE634C2 /* Check Pods Manifest.lock */ = {
+			isa = PBXShellScriptBuildPhase;
+			buildActionMask = 2147483647;
+			files = (
+			);
+			inputPaths = (
+			);
+			name = "Check Pods Manifest.lock";
+			outputPaths = (
+			);
+			runOnlyForDeploymentPostprocessing = 0;
+			shellPath = /bin/sh;
+			shellScript = "diff \"${PODS_ROOT}/../Podfile.lock\" \"${PODS_ROOT}/Manifest.lock\" > /dev/null\nif [[ $? != 0 ]] ; then\n    cat << EOM\nerror: The sandbox is not in sync with the Podfile.lock. Run 'pod install' or update your CocoaPods installation.\nEOM\n    exit 1\nfi\n";
+			showEnvVarsInLog = 0;
+		};
+/* End PBXShellScriptBuildPhase section */
+
 /* Begin PBXSourcesBuildPhase section */
 		0A816B7118E38E1D008B683B /* Sources */ = {
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
+				0AB3988219EC73A900BBE2F4 /* AZDownload.m in Sources */,
+				0A32ED8419F09CE600F6E2E3 /* AZErgoPreferencesTab.m in Sources */,
+				0AB3994E19ED955B00BBE2F4 /* AZTabProvider.m in Sources */,
+				0A2DCE3A1A0C6BBC00E0E3B1 /* AZDataProxyContainer.m in Sources */,
+				0AB3992B19ECBB0700BBE2F4 /* AZJSONRequest.m in Sources */,
+				0AB3997C19EE2A0A00BBE2F4 /* AZErgoDownloader.m in Sources */,
+				0AB3992819ECBB0700BBE2F4 /* AZHTMLRequest.m in Sources */,
+				0AB3993819ECBB3E00BBE2F4 /* AZUtils.m in Sources */,
+				0A2DCE3B1A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m in Sources */,
+				0AB3988D19EC742500BBE2F4 /* AZProxifier.m in Sources */,
+				0AB3993B19ECBB3E00BBE2F4 /* NSString+AnkhUtils.m in Sources */,
 				0A816B9218E38E1E008B683B /* ErgoProxy.xcdatamodeld in Sources */,
+				0AAE5DE119EF62A900F37AC1 /* AZProgressIndicator.m in Sources */,
+				0AB3996C19EDEBEB00BBE2F4 /* AZErgoConfigurableTableCellView.m in Sources */,
+				0A2DCE3C1A0C6BBC00E0E3B1 /* DataProxy.m in Sources */,
 				0A816B8518E38E1D008B683B /* main.m in Sources */,
+				0AB3994419ECBDF300BBE2F4 /* AZErgoAPIRequest.m in Sources */,
+				0AC408101A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m in Sources */,
+				0AB3995219ED96BE00BBE2F4 /* AZErgoManualScheduleTab.m in Sources */,
+				0AB3993C19ECBB3E00BBE2F4 /* NSURL+AnkhUtils.m in Sources */,
+				0AB3992A19ECBB0700BBE2F4 /* AZJSONAPI.m in Sources */,
+				0AB3996919EDE78B00BBE2F4 /* AZErgoDownloadsDataSource.m in Sources */,
+				0AB3993919ECBB3E00BBE2F4 /* NSArray+AnkhUtils.m in Sources */,
+				0A816BB618E38F88008B683B /* AZErgoProxy.m in Sources */,
+				0A816BB918E38FD3008B683B /* AZChapter.m in Sources */,
+				0AB3992919ECBB0700BBE2F4 /* AZHTTPRequest.m in Sources */,
+				0AB3989519EC74D200BBE2F4 /* AZDownloader.m in Sources */,
 				0A816B8C18E38E1D008B683B /* AZAppDelegate.m in Sources */,
+				0AB3992C19ECBB0700BBE2F4 /* AZJSONUtils.m in Sources */,
+				0AB3996219EDE35800BBE2F4 /* AZErgoMainTab.m in Sources */,
+				0A50F7221A01EE2800A2B350 /* AZErgoAppDelegate.m in Sources */,
+				0AB3988919EC73FC00BBE2F4 /* AZProxyServer.m in Sources */,
+				0AB3994719ECBEC700BBE2F4 /* AZErgoProxifierAPI.m in Sources */,
+				0AB3993A19ECBB3E00BBE2F4 /* NSColor+AnkhColors.m in Sources */,
+				0A8D98FD1A13210D00585721 /* CustomDictionary.m in Sources */,
+				0AB3997319EDF6F300BBE2F4 /* AZErgoDownloadCellView.m in Sources */,
+				0AB3994F19ED955B00BBE2F4 /* AZTabsGroup.m in Sources */,
+				0AB3997019EDF31300BBE2F4 /* AZErgoGroupCellView.m in Sources */,
+				0AB3989019EC742F00BBE2F4 /* AZStorage.m in Sources */,
+				0AB3992719ECBB0700BBE2F4 /* AZClientAPI.m in Sources */,
+				0AB3992619ECBB0700BBE2F4 /* AZAPIProvider.m in Sources */,
+				0AB3995D19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m in Sources */,
+				0AB3997619EE1AF200BBE2F4 /* KeyedHolder.m in Sources */,
+				0AB3988619EC73EA00BBE2F4 /* AZDownloadParams.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -266,7 +739,14 @@
 			isa = PBXSourcesBuildPhase;
 			buildActionMask = 2147483647;
 			files = (
-				0A816BA618E38E1E008B683B /* ErgoProxyTests.m in Sources */,
+				0A8D98FF1A1326F300585721 /* NSString_AnkhUtilsSpec.m in Sources */,
+				0AB3989919EC767800BBE2F4 /* AZProxifierSpec.m in Sources */,
+				0A816BB018E38F49008B683B /* AZErgoProxySpec.m in Sources */,
+				0AB3989219EC744200BBE2F4 /* AZProxyServerSpec.m in Sources */,
+				0AB3989D19EC7D1F00BBE2F4 /* AZStorageSpec.m in Sources */,
+				0AB3989B19EC777100BBE2F4 /* AZDownloadParamsSpec.m in Sources */,
+				0AB3989719EC753500BBE2F4 /* AZDownloaderSpec.m in Sources */,
+				0A816BBB18E38FE9008B683B /* AZChapterSpec.m in Sources */,
 			);
 			runOnlyForDeploymentPostprocessing = 0;
 		};
@@ -412,6 +892,7 @@
 		};
 		0A816BAD18E38E1E008B683B /* Debug */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0D6E24C339544962AE6A76D5 /* Pods-ErgoProxyTests.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ErgoProxy.app/Contents/MacOS/ErgoProxy";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -434,6 +915,7 @@
 		};
 		0A816BAE18E38E1E008B683B /* Release */ = {
 			isa = XCBuildConfiguration;
+			baseConfigurationReference = 0D6E24C339544962AE6A76D5 /* Pods-ErgoProxyTests.xcconfig */;
 			buildSettings = {
 				BUNDLE_LOADER = "$(BUILT_PRODUCTS_DIR)/ErgoProxy.app/Contents/MacOS/ErgoProxy";
 				COMBINE_HIDPI_IMAGES = YES;
@@ -469,6 +951,7 @@
 				0A816BAB18E38E1E008B683B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 		0A816BAC18E38E1E008B683B /* Build configuration list for PBXNativeTarget "ErgoProxyTests" */ = {
 			isa = XCConfigurationList;
@@ -477,6 +960,7 @@
 				0A816BAE18E38E1E008B683B /* Release */,
 			);
 			defaultConfigurationIsVisible = 0;
+			defaultConfigurationName = Release;
 		};
 /* End XCConfigurationList section */
 
@@ -484,9 +968,11 @@
 		0A816B9018E38E1E008B683B /* ErgoProxy.xcdatamodeld */ = {
 			isa = XCVersionGroup;
 			children = (
+				0A2DCE401A0C782B00E0E3B1 /* ErgoProxy 3.xcdatamodel */,
+				0A2DCE3F1A0C765300E0E3B1 /* ErgoProxy 2.xcdatamodel */,
 				0A816B9118E38E1E008B683B /* ErgoProxy.xcdatamodel */,
 			);
-			currentVersion = 0A816B9118E38E1E008B683B /* ErgoProxy.xcdatamodel */;
+			currentVersion = 0A2DCE401A0C782B00E0E3B1 /* ErgoProxy 3.xcdatamodel */;
 			path = ErgoProxy.xcdatamodeld;
 			sourceTree = "<group>";
 			versionGroupType = wrapper.xcdatamodel;
