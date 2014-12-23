@@ -1,0 +1,6 @@
+*.xcbkptlist
+*.xccheckout
+
+Pods/Pods.xcodeproj/xcuserdata/ankh.xcuserdatad/xcschemes/xcschememanagement.plist
+
+*.plist

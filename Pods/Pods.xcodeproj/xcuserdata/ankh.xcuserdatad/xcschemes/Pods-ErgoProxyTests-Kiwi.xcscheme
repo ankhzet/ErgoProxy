@@ -1,0 +1,59 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<Scheme
+   version = "1.3"
+   LastUpgradeVersion = "0500">
+   <BuildAction
+      buildImplicitDependencies = "YES"
+      parallelizeBuildables = "YES">
+      <BuildActionEntries>
+         <BuildActionEntry
+            buildForRunning = "YES"
+            buildForAnalyzing = "YES"
+            buildForTesting = "YES"
+            buildForArchiving = "YES"
+            buildForProfiling = "YES">
+            <BuildableReference
+               BlueprintName = "Pods-ErgoProxyTests-Kiwi"
+               BlueprintIdentifier = "E9B5727CCA8F4A83B7E5648E"
+               ReferencedContainer = "container:Pods.xcodeproj"
+               BuildableName = "libPods-ErgoProxyTests-Kiwi.a"
+               BuildableIdentifier = "primary">
+            </BuildableReference>
+         </BuildActionEntry>
+      </BuildActionEntries>
+   </BuildAction>
+   <TestAction
+      buildConfiguration = "Debug"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB">
+      <Testables>
+      </Testables>
+   </TestAction>
+   <LaunchAction
+      ignoresPersistentStateOnLaunch = "NO"
+      buildConfiguration = "Debug"
+      launchStyle = "0"
+      selectedLauncherIdentifier = "Xcode.DebuggerFoundation.Launcher.LLDB"
+      debugDocumentVersioning = "YES"
+      selectedDebuggerIdentifier = "Xcode.DebuggerFoundation.Debugger.LLDB"
+      allowLocationSimulation = "YES"
+      useCustomWorkingDirectory = "NO">
+      <AdditionalOptions>
+      </AdditionalOptions>
+   </LaunchAction>
+   <ProfileAction
+      buildConfiguration = "Release"
+      debugDocumentVersioning = "YES"
+      shouldUseLaunchSchemeArgsEnv = "YES"
+      useCustomWorkingDirectory = "NO"
+      savedToolIdentifier = "">
+   </ProfileAction>
+   <AnalyzeAction
+      buildConfiguration = "Debug">
+   </AnalyzeAction>
+   <ArchiveAction
+      revealArchiveInOrganizer = "YES"
+      buildConfiguration = "Release">
+   </ArchiveAction>
+</Scheme>
