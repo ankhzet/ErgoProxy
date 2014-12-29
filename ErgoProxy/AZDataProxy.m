@@ -1,19 +1,23 @@
 //
-//  DataProxy.m
-//  PhotoGallery
+//  AZDataProxy.m
+//  AnkhZet
 //
 //  Created by Ankh on 08.01.14.
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import "DataProxy.h"
+#import "AZDataProxy.h"
 #import "AZUtils.h"
 
 NSString *const kDPParameterModelName = @"kDPParameterModelName";
 NSString *const kDPParameterStorageFile = @"kDPParameterStorageFile";
 NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 
-@implementation DataProxy
+// notification, that will be send on iCloud data update
+NSString *const changeNotificationName = @"CoreDataChangeNotification";
+
+
+@implementation AZDataProxy
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
@@ -64,24 +68,46 @@ NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 }
 
 // save CoreData-managed data
--(BOOL)saveContext
-{
+-(BOOL)saveContext {
 	NSError *error = nil;
 	NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
 	if (managedObjectContext != nil) {
-		if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
-			NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-			return NO;
+		@try {
+			if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
+				NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+				return NO;
+			}
+		}
+		@catch (NSException *exception) {
+			NSLog(@"CoreData error: %@", exception);
+		}
+		@finally {
 		}
 	}
 	
 	return YES;
 }
 
+#pragma mark - Notifications
+
+-(void) notifyChangedWithUserInfo: (id) userInfo {
+	[[NSNotificationCenter defaultCenter] postNotificationName:changeNotificationName object:self userInfo:userInfo];
+}
+
+-(void) subscribeForUpdateNotifications: (id)observer selector: (SEL)selector {
+	[[NSNotificationCenter defaultCenter] addObserver:observer
+																					 selector:selector
+																							 name:changeNotificationName
+																						 object:self];
+
+}
+-(void) unSubscribeFromUpdateNotifications: (id)observer {
+	[[NSNotificationCenter defaultCenter] removeObserver:observer name:changeNotificationName object:self];
+
+}
 // Returns the managed object context for the application.
 // If the context doesn't already exist, it is created and bound to the persistent store coordinator for the application.
-- (NSManagedObjectContext *)managedObjectContext
-{
+- (NSManagedObjectContext *)managedObjectContext {
 	if (_managedObjectContext != nil) {
 		return _managedObjectContext;
 	}
@@ -94,10 +120,11 @@ NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 	return _managedObjectContext;
 }
 
+#pragma mark - Basic Core Data functionality
+
 // Returns the managed object model for the application.
 // If the model doesn't already exist, it is created from the application's model.
-- (NSManagedObjectModel *)managedObjectModel
-{
+- (NSManagedObjectModel *)managedObjectModel {
 	if (_managedObjectModel != nil) {
 		return _managedObjectModel;
 	}
@@ -109,8 +136,7 @@ NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 
 // Returns the persistent store coordinator for the application.
 // If the coordinator doesn't already exist, it is created and the application's store added to it.
-- (NSPersistentStoreCoordinator *)persistentStoreCoordinator
-{
+- (NSPersistentStoreCoordinator *)persistentStoreCoordinator {
 	if (_persistentStoreCoordinator != nil) {
 		return _persistentStoreCoordinator;
 	}
@@ -159,7 +185,8 @@ NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 		 If you encounter schema incompatibility errors during development, you can reduce their frequency by:
 		 * Simply deleting the existing store:
 		 */
-		[[NSFileManager defaultManager] removeItemAtURL:localStore error:nil];
+
+//		[[NSFileManager defaultManager] removeItemAtURL:localStore error:nil];
 		 /* */
 	}
 	[coordinator unlock];

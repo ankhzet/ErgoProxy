@@ -1,6 +1,6 @@
 //
-//  DataProxy.h
-//  PhotoGallery
+//  AZDataProxy.h
+//  AnkhZet
 //
 //  CoreData managing wrapper
 //
@@ -16,7 +16,7 @@ extern NSString *const kDPParameterModelName;
 extern NSString *const kDPParameterStorageFile;
 extern NSString *const kDPParameterSyncDirectory;
 
-@interface DataProxy : NSObject
+@interface AZDataProxy : NSObject
 
 // CoreData stuff
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
@@ -57,5 +57,12 @@ extern NSString *const kDPParameterSyncDirectory;
 -(NSURL *) localStorageFileURL;
 
 - (NSPersistentStore *) addPersistentStore:(NSPersistentStoreCoordinator *)coordinator;
+
+-(void) notifyChangedWithUserInfo: (id) userInfo;
+
+// subscribe for notifications on remote Core Data changes import
+-(void) subscribeForUpdateNotifications: (id)observer selector: (SEL)selector;
+-(void) unSubscribeFromUpdateNotifications: (id)observer;
+
 
 @end

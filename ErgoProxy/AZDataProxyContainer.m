@@ -1,13 +1,13 @@
 //
-//  PGDataPproxyContainer.m
-//  PhotoGallery
+//  AZDataPproxyContainer.m
+//  AnkhZet
 //
 //  Created by Ankh on 08.01.14.
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
 #import "AZDataProxyContainer.h"
-#import "DataProxy.h"
+#import "AZDataProxy.h"
 
 @interface AZDataProxyContainer ()
 
@@ -18,7 +18,7 @@
 @synthesize managedObjectContext;
 
 // instantiation of singletone object
-+(AZDataProxyContainer *) initInstance: (DataProxy *)proxy {
++(AZDataProxyContainer *) initInstance: (AZDataProxy *)proxy {
 	static AZDataProxyContainer *instance;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
@@ -39,7 +39,7 @@
 }
 
 // direct initialization
--(id) initWithProxy: (DataProxy *)proxy {
+-(id) initWithProxy: (AZDataProxy *)proxy {
 	if (!(self = [self init]))
 		return nil;
 	

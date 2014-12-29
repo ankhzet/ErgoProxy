@@ -9,11 +9,11 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DataProxy.h"
+#import "AZDataProxy.h"
 
 @interface AZDataProxyContainer : NSObject
 
-@property (nonatomic, strong) DataProxy *dataProxy;
+@property (nonatomic, strong) AZDataProxy *dataProxy;
 
 @property (readonly, strong, nonatomic) NSManagedObjectContext *managedObjectContext;
 @property (readonly, strong, nonatomic) NSManagedObjectModel *managedObjectModel;
@@ -23,7 +23,7 @@
 +(AZDataProxyContainer *) getInstance;
 
 // singletone configuration. Only first call have impact
-+(AZDataProxyContainer *) initInstance: (DataProxy *)proxy;
++(AZDataProxyContainer *) initInstance: (AZDataProxy *)proxy;
 
 // commit all changes in CoreData storage
 +(BOOL) saveContext;

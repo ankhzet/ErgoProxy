@@ -43,7 +43,6 @@
 
 	[(id)[[AZDataProxyContainer getInstance] dataProxy] subscribeForUpdateNotifications:self
 																																						 selector:@selector(synkNotification:)];
-
 	return self;
 }
 
