@@ -24,7 +24,7 @@
 PREF_SAVE_STR((_string).stringValue, _pref_key)
 
 #define PREF_SAVE_UI_INT(_integer, _pref_key) \
-PREF_SAVE_INT((_string).integerValue, _pref_key)
+PREF_SAVE_INT((_integer).integerValue, _pref_key)
 
 #define PREF_SAVE_UI_BOOL(_checkbox, _pref_key) \
 PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)

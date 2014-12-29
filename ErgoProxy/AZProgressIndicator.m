@@ -11,8 +11,6 @@
 @implementation AZProgressIndicator
 
 - (void)drawRect:(NSRect)dirtyRect {
-//	[super drawRect:dirtyRect];
-
 	CGRect rect = self.bounds;
 
 	NSRect slice, remainder;

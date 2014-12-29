@@ -29,13 +29,4 @@
 	return url;
 }
 
-/*- (void) setParameters:(NSDictionary *)parameters {
- if (parameters[kDownloadParamServer]) {
- self.serverURL = parameters[kDownloadParamServer];
- parameters = [parameters mutableCopy];
- [(NSMutableDictionary *)parameters removeObjectForKey:kDownloadParamServer];
- }
- [super setParameters:parameters];
- }*/
-
 @end

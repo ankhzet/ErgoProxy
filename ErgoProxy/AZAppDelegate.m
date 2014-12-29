@@ -10,6 +10,8 @@
 
 #import "AZTabsCommons.h"
 
+static BOOL isRunningTests(void) __attribute__((const));
+
 @interface AZAppDelegate () <AZTabsGroupDelegate> {
 	AZTabsGroup *_tabsGroup;
 }
@@ -22,6 +24,9 @@
 @synthesize tabsGroup = _tabsGroup;
 
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
+	if (isRunningTests())
+		return;
+
 	_tabsGroup = [[AZTabsGroup alloc] initWithTabView:self.tvTabView];
 	_tabsGroup.delegate = self;
 
@@ -79,3 +84,9 @@
 }
 
 @end
+
+static BOOL isRunningTests(void) {
+	NSDictionary* environment = [[NSProcessInfo processInfo] environment];
+	NSString* injectBundle = environment[@"XCInjectBundle"];
+	return [[injectBundle pathExtension] isEqualToString:@"xctest"];
+}

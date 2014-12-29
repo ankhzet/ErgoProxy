@@ -149,6 +149,13 @@
 					return r;
 			}]);
 
+//			candidates = (id) ([candidates count] <= available
+//												 ? candidates
+//												 : [candidates sortedArrayUsingComparator:^NSComparisonResult(AZDownload *d1, AZDownload *d2) {
+//
+//				return [@(d1.state) compare:@(d2.state)];
+//			}]);
+
 			for (AZDownload *download in candidates)
 				if (inProcess++ >= self.concurentTasks)
 					break;

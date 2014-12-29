@@ -23,31 +23,22 @@
 @end
 
 @implementation AZProxifier
-//@synthesize delegate;
-//@dynamic storages, downloads;
+@synthesize delegate;
+@dynamic storages, downloads;
 
 + (instancetype) sharedProxy {
 	static AZProxifier *instance;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-    instance = [self new];
+    instance = [self unique:[NSPredicate predicateWithFormat:@"url = null"] initWith:^(AZProxifier *instantiated) {
+			instantiated.url = nil;
+		}];
 	});
 	return instance;
 }
 
 
-- (id)init {
-	if (!(self = [super init]))
-		return self;
-
-	downloaders = [NSMutableDictionary dictionary];
-	return self;
-}
-
 - (void) registerStorage:(AZStorage *)storage {
-	if (!self.storages) self.storages = [NSMutableSet set];
-
-	[((NSMutableSet *)self.storages) addObject:storage];
 	storage.proxifier = self;
 }
 
@@ -77,8 +68,13 @@
 	NSString *hash = [NSString stringWithFormat:@"%@@%@", storage ? [storage fullURL] : @"", [params hashed]];
 	AZDownloader *downloader = downloaders[hash];
 
-	if (!downloader)
+	if (!downloader) {
+		if (!downloaders)
+			downloaders = [NSMutableDictionary dictionary];
+
 		downloader = downloaders[hash] = [AZDownloader downloaderForStorage:storage];
+		downloader.delegate = self;
+	}
 
 	return downloader;
 }
@@ -104,15 +100,18 @@
 	if (downloader)
 		return;
 
-	if (!((!!download.storage) && !!download.proxifierHash)) {
-		download.state = AZErgoDownloadStateNone;
-	}
+//	if (!download.proxifierHash)
+//		UNSET_BIT(download.state,AZErgoDownloadStateAquired);
 
-	if (!download.downloadParams) {
-		download.downloadParams = [AZDownloadParams defaultParams];
-	}
+	if (!download.storage)
+		UNSET_BIT(download.state,  AZErgoDownloadStateResolved);
 
-	downloader = [self newDownloaderForStorage:download.storage andParams:download.downloadParams];
+	UNSET_BIT(download.state, AZErgoDownloadStateAquired);
+
+	if (!download.downloadParameters)
+		download.downloadParameters = [AZDownloadParams defaultParams];
+
+	downloader = [self newDownloaderForStorage:download.storage andParams:download.downloadParameters];
 	[downloader addDownload:download];
 
 	download.proxifier = self;
@@ -122,6 +121,14 @@
 - (void) notifyListeners:(AZDownload *)download {
 	if (self.delegate)
 		[self.delegate download:download stateChanged:download.state];
+}
+
+- (void) downloader:(AZErgoDownloader *)downloader readyForNextStage:(AZDownload *)download {
+	[self notifyListeners:download];
+}
+
+- (void) downloader:(AZErgoDownloader *)downloader stateSchanged:(AZErgoDownloaderState)state {
+	//TODO: reaction to downloader:stateChanged:
 }
 
 - (void) runDownloaders:(BOOL)run {

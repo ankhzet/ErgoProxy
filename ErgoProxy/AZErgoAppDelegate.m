@@ -29,7 +29,6 @@
 	[AZDataProxyContainer initInstance:storage];
 	[storage synkToggled];
 
-
 	PREF_SAVE_BOOL(NO, @"NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints");
 	if (![PREF_STR(PREFS_PROXY_URL) length])
 		PREF_SAVE_STR(@"http://ankh.ua/", PREFS_PROXY_URL);
@@ -38,7 +37,7 @@
 
 	running = NO;
 	paused = NO;
-	
+
 	[self registerTab:[AZErgoManualScheduleTab class]];
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
@@ -64,15 +63,11 @@
 
 // Performs the save action for the application, which is to send the save: message to the application's managed object context. Any encountered errors are presented to the user.
 - (IBAction)saveAction:(id)sender {
-	NSError *error = nil;
-
 	if (![[[AZDataProxyContainer getInstance] managedObjectContext] commitEditing]) {
 		NSLog(@"%@:%@ unable to commit editing before saving", [self class], NSStringFromSelector(_cmd));
 	}
 
-	if (![[[AZDataProxyContainer getInstance] managedObjectContext] save:&error]) {
-		[[NSApplication sharedApplication] presentError:error];
-	}
+	[AZDataProxyContainer saveContext];
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
