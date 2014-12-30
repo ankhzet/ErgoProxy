@@ -23,6 +23,10 @@
 @property (weak) IBOutlet NSTextField *tfMangaStorage;
 @property (weak) IBOutlet NSButton *cbGroupDownloads;
 @property (weak) IBOutlet NSButton *cbHideFinishedDownloads;
+@property (weak) IBOutlet NSTextField *tfSimultaneousDownloadsPerStorage;
+
+@property (weak) IBOutlet NSTextField *tfWatcherAutocheckInterval;
+@property (weak) IBOutlet NSButton *cbHideDownloadedChapters;
 
 @property (weak) IBOutlet AZSyncedScrollView *ssvScrollView;
 @property (weak) IBOutlet NSLayoutConstraint *lcFloatWidth;
@@ -52,10 +56,15 @@
 	self.cbLoginAutomatically.state = PREF_BOOL(DEF_USER_LOGIN_AUTOMATICALY) ? NSOnState : NSOffState;
 	[self setLoginAsGuest:PREF_BOOL(DEF_USER_LOGIN_AS_GUEST)];
 
-	// common
+	// schedule ui
 	self.tfMangaStorage.stringValue = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
 	self.cbGroupDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED) ? NSOnState : NSOffState;
 	self.cbHideFinishedDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED) ? NSOnState : NSOffState;
+	self.tfSimultaneousDownloadsPerStorage.integerValue = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
+
+	// watcher
+	self.tfWatcherAutocheckInterval.stringValue = PREF_STR(PREFS_WATCHER_AUTOCHECK_INTERVAL);
+	self.cbHideDownloadedChapters.state = PREF_BOOL(PREFS_UI_WATCHER_HIDEFINISHED) ? NSOnState : NSOffState;
 }
 
 - (BOOL) loginAsGuest {
@@ -106,6 +115,9 @@
 - (IBAction)actionMangaStorageChanged:(id)sender {
 	PREF_SAVE_UI_STR(self.tfMangaStorage, PREFS_COMMON_MANGA_STORAGE);
 }
+- (IBAction)actionSimultaneousDownloadsChanged:(id)sender {
+	PREF_SAVE_UI_INT(self.tfSimultaneousDownloadsPerStorage, PREFS_DOWNLOAD_PER_STORAGE);
+}
 
 - (IBAction)actionPickFolderForStorage:(id)sender {
 	NSOpenPanel *panel = [NSOpenPanel openPanel];
@@ -124,6 +136,13 @@
 }
 - (IBAction)actionHideFinishedDownloadChanged:(id)sender {
 	PREF_SAVE_UI_BOOL(self.cbHideFinishedDownloads, PREFS_UI_DOWNLOADS_HIDEFINISHED);
+}
+
+- (IBAction)actionWatcherAutocheckIntervalChanged:(id)sender {
+	PREF_SAVE_INT([self.tfWatcherAutocheckInterval integerValue], PREFS_WATCHER_AUTOCHECK_INTERVAL);
+}
+- (IBAction)actionHideDownloadedChaptersChanged:(id)sender {
+	PREF_SAVE_UI_BOOL(self.cbHideDownloadedChapters, PREFS_UI_WATCHER_HIDEFINISHED);
 }
 
 @end

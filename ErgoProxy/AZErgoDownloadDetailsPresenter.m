@@ -18,6 +18,9 @@
 #import "AZDataProxyContainer.h"
 
 #import "AZErgoDownloadsDataSource.h"
+
+#import "AZErgoUpdatesCommons.h"
+
 @implementation AZErgoEntityDetailsPresenter {
 @public
 	id _entity;
@@ -79,13 +82,84 @@
 	return [self.entity description];
 }
 
+/*
+ manga:
+
+ chapterTitle = @relatedChapter ? "@relatedChapter" : ""
+ mangaTitle = @relatedManga ?: "@entity (not checked by wather yet)"
+ mangaTitle = @chapterTitle ? " @relatedManga - " : @mangaTitle
+
+ formattedPageIDX = @formattedPageIDX ? ", @formattedPageIDX" : ""
+ idxses = (@formattedChIDX || @formattedPageIDX) ? "[@formattedChIDX@formattedPageIDX]" : ""
+ title = "@idxes@mangaTitle@chapterTitle"
+ */
+
+
 - (NSString *) detailsTitle {
-	return [self plainTitle];
+	AZErgoUpdateWatch *relatedManga = [AZErgoDownloadsDataSource relatedManga:self.entity];
+	AZErgoUpdateChapter *relatedChapter = [AZErgoDownloadsDataSource relatedChapter:self.entity];
+	NSString *chapterIDX = nil;
+	NSString *pageIDX = nil;
+
+	AZDownload *downloadEntity = self.entity;
+	if ([self.entity isKindOfClass:[AZDownload class]]) {
+		chapterIDX = [AZErgoDownloadsDataSource formattedChapterIDX:downloadEntity.chapter];
+		pageIDX = [AZErgoDownloadsDataSource formattedChapterPageIDX:downloadEntity.page];
+	} else
+		if ([self.entity isKindOfClass:[ItemsDictionary class]]) {
+			chapterIDX = [self plainTitle];
+			float idx = [chapterIDX floatValue];
+			chapterIDX = [AZErgoDownloadsDataSource formattedChapterIDX:idx];
+		}
+
+	NSString *idxes = nil;
+	if (!(!chapterIDX && !pageIDX)) {
+		pageIDX = pageIDX ? [@", " stringByAppendingString:pageIDX] : nil;
+		idxes = [NSString stringWithFormat:@"[%@%@]", chapterIDX, pageIDX ?: @""];
+	} else
+		idxes = @"";
+
+	NSString *chapterTitle = relatedChapter ? relatedChapter.title : nil;
+	NSString *mangaTitle = relatedManga ? relatedManga.title : nil;
+
+	if (!mangaTitle) {
+		if (pageIDX)
+			mangaTitle = download.manga;
+		else {
+			if ([GroupsDictionary isDictionary:self.entity])
+				mangaTitle = [self plainTitle];
+			else {
+				CustomDictionary *downloads = self.entity;
+				AZDownload *anyDownload = [[downloads allValues] firstObject];
+				if (anyDownload)
+					mangaTitle = anyDownload.manga;
+			}
+		}
+	}
+
+	if (!chapterTitle) {
+		if (chapterIDX)
+			chapterTitle = mangaTitle ? chapterIDX : nil;
+		else
+			if ([ItemsDictionary isDictionary:downloadEntity])
+				chapterTitle = [self plainTitle];
+	}
+
+	if (chapterTitle)
+		mangaTitle = mangaTitle ? [@[@" ", mangaTitle, @" - "] componentsJoinedByString:@""] : nil;
+
+
+	mangaTitle = mangaTitle ?: @"";
+	chapterTitle = chapterTitle ?: @"";
+
+	NSString *title = [[idxes stringByAppendingString:mangaTitle] stringByAppendingString:chapterTitle];
+
+	return title;
 }
 
 - (void) presentEntity:(id)entity detailsIn:(AZErgoDownloadDetailsPopover *)popover {
 	[self presenterForEntity:entity in:popover];
-	
+
 	[popover.tfURL setCollapsed:NO];
 	[popover.bPreview setCollapsed:NO];
 
@@ -223,10 +297,10 @@
 														 break;
 												 }
 											 }];
-				
+
 				return;
 			}
-		
+
 		[AZUtils notifyErrorMsg:[error localizedDescription]];
 	}
 }
@@ -284,9 +358,9 @@
 - (void) recursiveTrash:(id)entity {
 	if ([entity isKindOfClass:[AZDownload class]])
 		[[super presenterForEntity:entity in:self.popover] trashDownload:[NSURL fileURLWithPath:[entity localFilePath]]];
-//	else
-//		for (id sub in [entity allValues])
-//			[self recursiveTrash:sub];
+	//	else
+	//		for (id sub in [entity allValues])
+	//			[self recursiveTrash:sub];
 }
 
 @end

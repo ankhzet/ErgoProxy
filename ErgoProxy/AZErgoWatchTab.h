@@ -8,6 +8,8 @@
 
 #import "AZErgoTabsComons.h"
 
+#import "AZErgoUpdatesDataSource.h"
+
 @interface AZErgoWatchTab : AZTabProvider
 @property (weak) IBOutlet NSOutlineView *ovUpdates;
 
