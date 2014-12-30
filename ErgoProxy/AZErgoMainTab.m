@@ -69,7 +69,7 @@
 
 - (void) showDownload:(AZDownload *)download detailsFromSender:(id)sender {
 	NSView *view = sender;
-	[self.pDownloadPopover showDetailsFor:download alignedTo:view];
+	[self.pDownloadPopover showDetailsFor:entity alignedTo:view];
 }
 
 - (void) fetchDownloads {

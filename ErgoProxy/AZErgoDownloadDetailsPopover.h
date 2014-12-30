@@ -20,6 +20,6 @@
 @property (weak) IBOutlet NSTextField *tfHash;
 @property (weak) IBOutlet NSTextField *tfError;
 
-- (void) showDetailsFor:(AZDownload *)download alignedTo:(NSView *)view;
+- (void) showDetailsFor:(id)entity alignedTo:(NSView *)view;
 
 @end
