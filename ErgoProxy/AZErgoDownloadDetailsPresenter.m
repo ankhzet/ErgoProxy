@@ -8,6 +8,7 @@
 
 #import "AZErgoDownloadDetailsPresenter.h"
 #import "AZErgoDownloadDetailsPopover.h"
+#import "AZCollapsingView.h"
 
 #import "AZProxifier.h"
 #import "AZStorage.h"
@@ -84,6 +85,10 @@
 
 - (void) presentEntity:(id)entity detailsIn:(AZErgoDownloadDetailsPopover *)popover {
 	[self presenterForEntity:entity in:popover];
+	
+	[popover.tfURL setCollapsed:NO];
+	[popover.bPreview setCollapsed:NO];
+
 	popover.tfURL.stringValue = [download.sourceURL absoluteString];
 	popover.tfWidth.stringValue = [NSString stringWithFormat:@"Width: %@ or less", [download.downloadParameters downloadParameter:kDownloadParamMaxWidth].value];
 	popover.tfHeight.stringValue = [NSString stringWithFormat:@"Height: %@ or less", [download.downloadParameters downloadParameter:kDownloadParamMaxHeight].value];
@@ -107,6 +112,7 @@
 
 	popover.tfHash.stringValue = download.proxifierHash ? download.proxifierHash : @"<hash not aquired yet>";
 
+	[popover.tfError setCollapsed:!HAS_BIT(download.state, AZErgoDownloadStateFailed)];
 	popover.tfError.stringValue = download.error ? download.error : @"";
 }
 
