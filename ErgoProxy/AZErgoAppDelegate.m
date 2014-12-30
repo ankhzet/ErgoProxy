@@ -16,6 +16,8 @@
 #import "AZSynkEnabledStorage.h"
 #import "AZDataProxyContainer.h"
 
+#import "AZAPIProvider.h"
+
 @implementation AZErgoAppDelegate {
 	BOOL running, paused;
 }
@@ -42,6 +44,7 @@
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
 	[self registerTab:[AZErgoWatchTab class]];
+	[self registerTab:[AZErgoBrowserTab class]];
 }
 
 - (NSString *) initialTab {
@@ -59,6 +62,8 @@
 			return;
 		}
 		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+
+		[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
 
 		[[AZProxifier sharedProxy] runDownloaders:(running = !running)];
 		((NSToolbarItem *) sender).label = running ? @"Stop" : @"Download";

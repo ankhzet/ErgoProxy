@@ -220,7 +220,7 @@ Gw
                             <font key="font" metaFont="system"/>
                         </buttonCell>
                         <connections>
-                            <action selector="actionSaveDefaults:" target="-2" id="6eX-FW-Igw"/>
+                            <action selector="actionApply:" target="-2" id="H1T-ne-tdG"/>
                         </connections>
                     </button>
                 </subviews>
@@ -245,6 +245,5 @@ Gw
                 <outlet property="delegate" destination="-2" id="4"/>
             </connections>
         </window>
-        <userDefaultsController representsSharedInstance="YES" id="Ovv-H5-ioo"/>
     </objects>
 </document>

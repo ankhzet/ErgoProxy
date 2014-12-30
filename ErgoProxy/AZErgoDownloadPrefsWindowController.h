@@ -6,10 +6,10 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import <Cocoa/Cocoa.h>
+#import "AZSheetWindowController.h"
 
 @class AZDownloadParams;
-@interface AZErgoDownloadPrefsWindowController : NSWindowController
+@interface AZErgoDownloadPrefsWindowController : AZSheetWindowController
 
 - (AZDownloadParams *) aquireParams:(BOOL)useDefaults;
 

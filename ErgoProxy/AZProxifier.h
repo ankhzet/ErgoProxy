@@ -8,21 +8,16 @@
 
 #import "AZProxyServer.h"
 #import "AZDownload.h"
+#import "AZErgoDownloader.h"
 
 @class AZStorage, AZDownloader;
 
-@protocol AZErgoProxifierDelegate <NSObject>
-
-- (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state;
-
-@end
-
-@interface AZProxifier : AZProxyServer
+@interface AZProxifier : AZProxyServer <AZErgoDownloaderDelegate>
 
 @property (nonatomic, retain) NSSet *storages;
 @property (nonatomic, retain) NSSet *downloads;
 
-@property (nonatomic) id<AZErgoProxifierDelegate> delegate;
+@property (nonatomic) id<AZErgoDownloadStateListener> delegate;
 
 + (instancetype) sharedProxy;
 

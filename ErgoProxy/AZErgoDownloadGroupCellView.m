@@ -22,8 +22,31 @@
 	self.bindedEntity = entity;
 
 	NSString *title = nil;
+	if ([GroupsDictionary isDictionary:entity]) {
+		// this is a manga group
+
+		AZErgoUpdateWatch *manga = [AZErgoDownloadsDataSource relatedManga:entity];
+
+		title = manga ? (manga.title ?: manga.manga) : [self plainTitle];
+	} else
+		if ([ItemsDictionary isDictionary:entity]) {
+			// this is a manga chapter group
+
+			AZErgoUpdateChapter *chapter = [AZErgoDownloadsDataSource relatedChapter:entity];
+
 			title = [self plainTitle];
+			float idx = [title floatValue];
+			title = [AZErgoDownloadsDataSource formattedChapterIDX:idx];
+			title = [title stringByAppendingString:chapter ? [@" \t- " stringByAppendingString:chapter.title] : @""];
+		} else
+			;
+
 	self.tfGroupTitle.stringValue = title ?: @"<cant aquire title!>";
+
+	AZErgoDownloadedAmount amount = [(AZErgoDownloadsDataSource *)view.dataSource downloaded:entity reclaim:NO];
+	NSString *downloaded = [NSString cvtFileSize:amount.downloaded];
+	NSString *total = [NSString cvtFileSize:amount.total];
+	self.tfDownloadsCount.stringValue = [NSString stringWithFormat:@"%@/%@", downloaded, total];
 }
 
 @end

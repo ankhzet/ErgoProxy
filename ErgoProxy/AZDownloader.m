@@ -22,11 +22,22 @@
 	if (!(self = [super init]))
 		return self;
 
-	_concurentTasks = 3;
-	_consecutiveIterationsInterval = 5.;//30.;
+	_concurentTasks = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
+	_consecutiveIterationsInterval = 10.;//30.;
 	_paused = NO;
 	_running = NO;
+
+	[NSUserDefaults notify:self onDefaultsChange:@selector(defaultsChanged:)];
+
 	return self;
+}
+
+- (void) dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) defaultsChanged:(NSNotification *)notification {
+	_concurentTasks = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
 }
 
 - (AZDownload *) addDownload:(AZDownload *)download {
@@ -133,9 +144,11 @@
 		NSMutableArray *candidates2 = [NSMutableArray array];
 
 		NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
-		for (AZDownload *download in candidates)
-			if (download.lastDownloadIteration < (now - self.consecutiveIterationsInterval))
+		for (AZDownload *download in candidates) {
+			NSTimeInterval delay = self.consecutiveIterationsInterval * MIN(6, download.httpError);
+			if (download.lastDownloadIteration < now - delay)
 				[candidates2 addObject:download];
+		}
 
 		if ([candidates2 count]) {
 			candidates = (id) ([candidates2 count] <= available

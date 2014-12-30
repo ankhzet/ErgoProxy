@@ -15,7 +15,7 @@ typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 @class AZDownload;
 @protocol AZErgoDownloadsDataSourceDelegate <NSObject>
 
-- (void) showDownload:(AZDownload *)download detailsFromSender:(id)sender;
+- (void) showEntity:(id)entity detailsFromSender:(id)sender;
 
 @end
 
@@ -25,7 +25,16 @@ typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 @property (nonatomic) IBOutlet id<AZErgoDownloadsDataSourceDelegate> delegate;
 
 
-- (AZErgoDownloadedAmount) downloaded:(id)node;
+- (AZErgoDownloadedAmount) downloaded:(id)node reclaim:(BOOL)reclaim;
 - (void) expandUnfinishedInOutlineView:(NSOutlineView *)outlineView;
+
+@end
+
+@interface AZErgoDownloadsDataSource (DataFormatting)
+
++ (AZErgoUpdateWatch *) relatedManga:(id)node;
++ (AZErgoUpdateChapter *) relatedChapter:(id)node;
++ (NSString *) formattedChapterIDX:(float) chapter;
++ (NSString *) formattedChapterPageIDX:(NSUInteger) page;
 
 @end
