@@ -11,10 +11,10 @@
 
 
 @implementation AZProxyServer
-//@dynamic url;
+@dynamic url;
 
 + (instancetype) serverWithURL:(NSURL *)url {
-	AZProxyServer *server = [self new];
+	AZProxyServer *server = [self insertNew];
 	server.url = url;
 	return server;
 }

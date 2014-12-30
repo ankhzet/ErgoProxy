@@ -8,59 +8,30 @@
 
 #import "AZDownloadParams.h"
 #import "AZDataProxyContainer.h"
+#import "AZDownloadParameter.h"
 
 NSString *kDownloadParamMaxWidth = @"kDownloadParamMaxWidth";
 NSString *kDownloadParamMaxHeight = @"kDownloadParamMaxHeight";
 NSString *kDownloadParamQuality = @"kDownloadParamQuality";
 NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 
-@interface AZDownloadParams () {
-	NSMutableDictionary *parameters;
-}
-
-@end
-
 @implementation AZDownloadParams
+@dynamic parameters;
 
-- (id)initWithParameters:(NSDictionary *)parameters {
-	if (!(self = [super init]))
-		return self;
-
-	for (NSString *param in [parameters allKeys]) {
-    
-	}
-	return self;
-}
-
-+ (AZDownloadParams *) sharedParams:(NSString *)hash {
-	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
-
-	NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-	NSEntityDescription *entity = [NSEntityDescription entityForName:@"DownloadParams"
-																						inManagedObjectContext:context];
-	[fetchRequest setEntity:entity];
-
-	NSPredicate *predicate = [NSPredicate predicateWithFormat:@"hashed = %@", hash];
-
-	[fetchRequest setPredicate:predicate];
-
-	NSError *_error = nil;
-	NSArray *fetchedObjects = [context executeFetchRequest:fetchRequest error:&_error];
-
-	return [fetchedObjects lastObject];
-}
-
-+ (instancetype) new {
-	return [NSEntityDescription insertNewObjectForEntityForName:@"DownloadParams"
-																			 inManagedObjectContext:[[AZDataProxyContainer getInstance] managedObjectContext]];
+- (void) applyParams:(NSDictionary *)parameters {
+	for (NSString *param in [parameters allKeys])
+		[self addParametersObject:[AZDownloadParameter param:param withValue:parameters[param]]];
 }
 
 + (instancetype) params:(NSDictionary *)parameters {
-	AZDownloadParams *instance = [self sharedParams:[self hashedParams:parameters]];
-	if (!instance) {
-		instance = [self new];
-		instance->parameters = [parameters mutableCopy];
-	}
+	NSString *hash = [self hashedParams:parameters];
+
+	AZDownloadParams *instance = [self unique:[NSPredicate predicateWithBlock:^BOOL(AZDownloadParams *entity, NSDictionary *bindings) {
+		return [entity.hashed isEqualToString:hash];
+	}] initWith:^(id instantiated) {
+		[instantiated applyParams:parameters];
+	}];
+
 	return instance;
 }
 
@@ -80,12 +51,27 @@ NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 	return [self params:params];
 }
 
-- (id) downloadParameter:(NSString *)parameter {
-	return parameters[parameter];
+- (void) addParametersObject:(AZDownloadParameter *)object {
+	object.ownedBy = self;
 }
 
-- (void) setDownloadParameter:(NSString *)parameter value:(id)value {
-	parameters[parameter] = value;
+
+- (AZDownloadParameter *) downloadParameter:(NSString *)parameter {
+	for (AZDownloadParameter *param in self.parameters)
+		if ([param.name isEqualToString:parameter])
+			return param;
+
+	return nil;
+}
+
+- (AZDownloadParams *) setDownloadParameter:(NSString *)parameter value:(id)value {
+	AZDownloadParameter *param = [self downloadParameter:parameter];
+	BOOL recreate = !(param && [param.value isEqual:value]);
+
+	if (recreate)
+		return [[self class] params:[self paramsDictionary]];
+
+	return self;
 }
 
 + (NSString *) hashedParams:(NSDictionary *)parameters {
@@ -94,8 +80,20 @@ NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 					[[parameters allValues] componentsJoinedByString:@";"]];
 }
 
+- (NSDictionary *) paramsDictionary {
+	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:[self.parameters count]];
+	for (AZDownloadParameter *param in self.parameters)
+		d[param.name] = param.value;
+
+	return d;
+}
+
 - (NSString *) hashed {
-	return [[self class] hashedParams:parameters];
+	return [[self class] hashedParams:[self paramsDictionary]];
+}
+
+- (NSString *) description {
+	return [self hashed];
 }
 
 @end

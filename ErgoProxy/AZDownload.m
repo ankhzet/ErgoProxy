@@ -8,6 +8,7 @@
 
 #import "AZDownload.h"
 #import "AZDownloadParams.h"
+#import "AZDownloadParameter.h"
 #import "AZJSONUtils.h"
 #import "AZStorage.h"
 
@@ -23,13 +24,13 @@
 #define LOCAL_FILE_PATTERN @"%@/%@/%@/%@.%@"
 
 #define API_PUT_PARAM(_p1, _k1, _p2, _k2)\
-  ({id value = [_p2 downloadParameter:_k2]; if (value) (_p1)[_k1] = value;})
+  ({AZDownloadParameter *param = [_p2 downloadParameter:_k2]; if (param) (_p1)[_k1] = param.value;})
 
 @implementation AZDownload
-@dynamic proxifier, downloadParams, storage;
+@dynamic proxifier, downloadParameters, storage, totalSize, downloaded;
 @synthesize lastDownloadIteration, fileURL, supportsPartialDownload;
 @dynamic page, chapter, manga, sourceURL, proxifierHash, scanID;
-@synthesize stateListener, state, totalSize, downloaded, error;
+@synthesize stateListener, state, error, httpError;
 
 
 - (void) setState:(AZErgoDownloadState)_state {
@@ -41,16 +42,12 @@
 		[stateListener download:self stateChanged:state];
 }
 
-- (void) setDownloaded:(NSUInteger)_downloaded {
-	if (downloaded == _downloaded)
+- (void) setDownloadedAmount:(NSUInteger)_downloaded {
+	if (self.downloaded == _downloaded)
 		return;
 
-	downloaded = _downloaded;
+	self.downloaded = _downloaded;
 	[self notifyProgressChanged];
-}
-
-- (void) setDownloadParams:(AZDownloadParams *)downloadParams {
-
 }
 
 - (BOOL) isBonusChapter {
@@ -70,13 +67,10 @@
 	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
 
 	NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
-	NSEntityDescription *entity = [NSEntityDescription entityForName:@"Download"
-																						inManagedObjectContext:context];
-	[fetchRequest setEntity:entity];
 
-	NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"scanID"
-																																 ascending:NO];
+	[fetchRequest setEntity:[self entityDescription]];
 
+	NSSortDescriptor *sortDescriptor = [[NSSortDescriptor alloc] initWithKey:@"scanID" ascending:NO];
 	NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
 	[fetchRequest setSortDescriptors:sortDescriptors];
 
@@ -102,11 +96,29 @@
 	return fetchedObjects;
 }
 
-- (void) remove {
-	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
-	[context deleteObject:self];
-	[AZDataProxyContainer saveContext];
-	[(id)[[AZDataProxyContainer getInstance] dataProxy] notifyChangedWithUserInfo:nil];
++ (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter {
+	NSArray *fetch = [self filter:[NSPredicate predicateWithFormat:@"(manga like[c] %@) and (abs(chapter - %lf) < 0.01)", manga, chapter]
+													limit:0];
+
+	for (AZDownload *download in fetch) {
+		if (download.state == AZErgoDownloadStateNone) {
+			AZErgoDownloadState state = AZErgoDownloadStateNone;
+
+			if (download.proxifierHash && download.storage) {
+				state |= AZErgoDownloadStateResolved;
+			}
+
+			if (download.totalSize) {
+				state |= AZErgoDownloadStateAquired;
+				if (download.downloaded >= download.totalSize)
+					state |= AZErgoDownloadStateDownloaded;
+			}
+
+			download.state = state;
+		}
+	}
+
+	return fetch;
 }
 
 @end
@@ -123,7 +135,7 @@
 }
 
 - (double) percentProgress {
-	return totalSize ? MIN(MAX((double)downloaded / (double)totalSize, 0), 1.0) : 0.;
+	return self.totalSize ? MIN(MAX((double)self.downloaded / (double)self.totalSize, 0), 1.0) : 0.;
 }
 
 - (NSString *) localFilePath {
@@ -168,11 +180,10 @@
 @implementation AZDownload (Instantiation)
 
 + (AZDownload *) downloadForURL:(NSURL *)url withParams:(AZDownloadParams *)params {
-	AZDownload *download = [NSEntityDescription insertNewObjectForEntityForName:@"Download"
-																											 inManagedObjectContext:[[AZDataProxyContainer getInstance] managedObjectContext]];
-
-	download.sourceURL = url;
-	download.downloadParams = params;
+	AZDownload *download = [self unique:[NSPredicate predicateWithFormat:@"sourceURL = %@", url] initWith:^(AZDownload *instantiated) {
+		instantiated.sourceURL = url;
+	}];
+	download.downloadParameters = params;
 	return download;
 }
 
@@ -187,10 +198,10 @@
 
 	//	API_PUT_PARAM(downloadParams, kDownloadParamServer, self.downloadParams, kDownloadParamServer);
 
-	API_PUT_PARAM(params, API_AQUIRE_PARAM_WIDTH, self.downloadParams, kDownloadParamMaxWidth);
-	API_PUT_PARAM(params, API_AQUIRE_PARAM_HEIGHT, self.downloadParams, kDownloadParamMaxHeight);
-	API_PUT_PARAM(params, API_AQUIRE_PARAM_QUALITY, self.downloadParams, kDownloadParamQuality);
-	API_PUT_PARAM(params, API_AQUIRE_PARAM_WEBTOON, self.downloadParams, kDownloadParamIsWebtoon);
+	API_PUT_PARAM(params, API_AQUIRE_PARAM_WIDTH, self.downloadParameters, kDownloadParamMaxWidth);
+	API_PUT_PARAM(params, API_AQUIRE_PARAM_HEIGHT, self.downloadParameters, kDownloadParamMaxHeight);
+	API_PUT_PARAM(params, API_AQUIRE_PARAM_QUALITY, self.downloadParameters, kDownloadParamQuality);
+	API_PUT_PARAM(params, API_AQUIRE_PARAM_WEBTOON, self.downloadParameters, kDownloadParamIsWebtoon);
 
 	return params;
 }
