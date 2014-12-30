@@ -9,6 +9,7 @@
 #import "AZErgoConfigurableTableCellView.h"
 
 @implementation AZErgoConfigurableTableCellView
+@synthesize bindedEntity;
 
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle {
 	BOOL isDark = backgroundStyle == NSBackgroundStyleDark;
@@ -19,7 +20,7 @@
 }
 
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
-
+	bindedEntity = entity;
 }
 
 
