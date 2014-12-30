@@ -25,3 +25,7 @@
 + (BOOL) isDictionary:(id)object;
 
 @end
+
+@interface RootDictionary : CustomDictionary @end
+@interface GroupsDictionary : CustomDictionary @end
+@interface ItemsDictionary : CustomDictionary @end

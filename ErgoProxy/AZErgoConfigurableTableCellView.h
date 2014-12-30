@@ -10,6 +10,8 @@
 
 @interface AZErgoConfigurableTableCellView : NSTableCellView
 
+@property (nonatomic, weak) id bindedEntity;
+
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view;
 
 @end

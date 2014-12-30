@@ -8,6 +8,11 @@
 
 #import "CustomDictionary.h"
 
+@implementation RootDictionary @end
+@implementation GroupsDictionary @end
+@implementation ItemsDictionary @end
+
+
 @implementation CustomDictionary
 
 + (instancetype) custom:(id)owner {

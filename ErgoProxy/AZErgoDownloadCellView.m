@@ -11,9 +11,7 @@
 #import "AZDownload.h"
 #import "AZProgressIndicator.h"
 
-@interface AZErgoDownloadCellView () <AZErgoDownloadStateListener> {
-	AZDownload *_download;
-}
+@interface AZErgoDownloadCellView () <AZErgoDownloadStateListener>
 
 @property (weak) IBOutlet NSTextField *tfURL;
 @property (weak) IBOutlet NSTextField *tfChapter;
@@ -24,22 +22,21 @@
 @end
 
 @implementation AZErgoDownloadCellView
-@synthesize download = _download;
 
-- (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
-	if (_download)
-		_download.stateListener = nil;
+- (void) configureForEntity:(AZDownload *)entity inOutlineView:(NSOutlineView *)view {
+	if (self.bindedEntity)
+		((AZDownload *)self.bindedEntity).stateListener = nil;
 
-	_download = entity;
+	self.bindedEntity = entity;
 
-	self.tfURL.stringValue = [_download.sourceURL path];
-	self.tfPage.integerValue = _download.page;
-	self.tfChapter.floatValue = _download.chapter;
+	self.tfURL.stringValue = [entity.sourceURL path];
+	self.tfPage.integerValue = entity.page;
+	self.tfChapter.floatValue = entity.chapter;
 
-	[self setState:_download.state forDownload:_download];
-	[self setProgress:_download];
+	[self setState:entity.state forDownload:entity];
+	[self setProgress:entity];
 
-	_download.stateListener = self;
+	entity.stateListener = self;
 }
 
 - (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state {

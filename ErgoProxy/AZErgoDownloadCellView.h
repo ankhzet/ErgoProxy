@@ -11,6 +11,4 @@
 @class AZProgressIndicator, AZDownload;
 @interface AZErgoDownloadCellView : AZErgoConfigurableTableCellView
 
-@property AZDownload *download;
-
 @end

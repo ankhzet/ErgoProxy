@@ -19,3 +19,5 @@
 
 @end
 
+@interface RootHolder : KeyedHolder @end
+@interface GroupHolder : KeyedHolder @end
