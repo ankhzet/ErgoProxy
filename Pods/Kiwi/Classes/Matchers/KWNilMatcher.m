@@ -35,9 +35,9 @@
 
 - (BOOL)evaluate {
     if (self.expectsNil) {
-        return (self.subject == nil);
+        return (self.subject == nil) || (self.subject == [NSNull null]);
     } else {
-        return (self.subject != nil);
+        return (self.subject != nil) && (self.subject != [NSNull null]);
     }
 }
 

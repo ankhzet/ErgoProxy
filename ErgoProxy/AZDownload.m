@@ -59,7 +59,11 @@
 }
 
 - (void) downloadError:(id)_error {
-	self.state = _error ? (state | AZErgoDownloadStateFailed) : (state ^ AZErgoDownloadStateFailed);
+	if (_error)
+		self.state |= AZErgoDownloadStateFailed;
+	else
+		UNSET_BIT(self.state, AZErgoDownloadStateFailed);
+
 	self.error = _error;
 }
 
@@ -191,10 +195,17 @@
 
 @implementation AZDownload (Proxifying)
 
-- (NSDictionary *) fetchParams {
+- (NSDictionary *) fetchParams:(BOOL)base64 {
 	NSMutableDictionary *params = [NSMutableDictionary dictionary];
 
-	params[API_AQUIRE_PARAM_URL] = [[self.sourceURL absoluteString] stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+	NSString *url = [self.sourceURL absoluteString];
+	if (base64)
+		url = [NSString stringWithFormat:@"@64!%@",[[url dataUsingEncoding:NSASCIIStringEncoding] base64Encoding]];
+	else
+		url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+
+	NSAssert(!!url, @"URL is nil (%@, %@)!", self.sourceURL, base64 ? @"base-64" : @"percent-encoded");
+	params[API_AQUIRE_PARAM_URL] = url;
 
 	//	API_PUT_PARAM(downloadParams, kDownloadParamServer, self.downloadParams, kDownloadParamServer);
 

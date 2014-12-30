@@ -55,9 +55,8 @@
 }
 
 - (void) show {
-	if (!downloads) {
+	if (!downloads)
 		downloads = (id)self.ovDownloads.delegate;
-	}
 
 	[AZProxifier sharedProxy].delegate = self;
 	[super show];

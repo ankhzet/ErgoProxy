@@ -50,6 +50,16 @@
 
 - (IBAction)actionRunDownloader:(id)sender {
 	@synchronized(self) {
+		NSError *error = nil;
+		NSString *path = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
+		NSString *test = [path stringByAppendingPathComponent:@".~test"];
+		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+		if (![[NSFileManager defaultManager] createDirectoryAtPath:test withIntermediateDirectories:NO attributes:@{} error:&error]) {
+			[NSApp presentError:error];
+			return;
+		}
+		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+
 		[[AZProxifier sharedProxy] runDownloaders:(running = !running)];
 		((NSToolbarItem *) sender).label = running ? @"Stop" : @"Download";
 	}

@@ -8,18 +8,24 @@
 
 #import "AZErgoPreferencesTab.h"
 #import "AZErgoTabsComons.h"
+#import "AZSyncedScrollView.h"
 
 
-@interface AZErgoPreferencesTab ()
+@interface AZErgoPreferencesTab () <AZSyncedScrollViewProtocol>
 
 @property (weak) IBOutlet NSTextField *tfServerAddress;
+
 @property (weak) IBOutlet NSTextField *tfUserLogin;
 @property (weak) IBOutlet NSSecureTextField *tfUserPassword;
 @property (weak) IBOutlet NSButton *cbLoginAsGuest;
 @property (weak) IBOutlet NSButton *cbLoginAutomatically;
+
 @property (weak) IBOutlet NSTextField *tfMangaStorage;
 @property (weak) IBOutlet NSButton *cbGroupDownloads;
 @property (weak) IBOutlet NSButton *cbHideFinishedDownloads;
+
+@property (weak) IBOutlet AZSyncedScrollView *ssvScrollView;
+@property (weak) IBOutlet NSLayoutConstraint *lcFloatWidth;
 
 @end
 
@@ -27,6 +33,15 @@
 
 - (NSString *) tabIdentifier {
 	return AZEPUIDPreferencesTab;
+}
+
+- (void) show {
+	self.ssvScrollView.delegate = self;
+	[super show];
+}
+
+- (void) frame:(NSScrollView *)view sizeChanged:(NSSize)size {
+	self.lcFloatWidth.constant = size.width;
 }
 
 - (void) updateContents {

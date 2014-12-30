@@ -78,6 +78,10 @@ static BOOL isRunningTests(void) __attribute__((const));
 	[self.tbToolBar setSelectedItemIdentifier:[tab tabIdentifier]];
 }
 
+- (NSToolbar *)tabGroupAssociatedToolbar:(AZTabsGroup *)tabGroup {
+	return self.tbToolBar;
+}
+
 - (IBAction)actionToolbarNavigate:(id)sender {
 	NSString *uid = ((NSToolbarItem *)sender).itemIdentifier;
 	[_tabsGroup navigateTo:uid withNavData:nil];

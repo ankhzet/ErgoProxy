@@ -95,7 +95,7 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 @interface AZDownload (Proxifying)
 
-- (NSDictionary *) fetchParams;
+- (NSDictionary *) fetchParams:(BOOL)base64;
 
 + (NSURL *) storageToken:(id)jsonProxifierResponse;
 + (NSString *) hashToken:(id)jsonProxifierResponse;

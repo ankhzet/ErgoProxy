@@ -34,7 +34,7 @@
 
 	AZErgoAPIRequest *proxifyRequest = [AZErgoAPIRequest actionWithName:@"aquire"];
 	proxifyRequest.serverURL = proxifier.url;
-	[proxifyRequest setParameters:[download fetchParams]];
+	[proxifyRequest setParameters:[download fetchParams:!!download.httpError]];
 	proxifyRequest.showErrors = NO;
 
 	[[[proxifyRequest success:^(AZHTTPRequest *request, id *data) {
@@ -53,9 +53,11 @@
 		download.proxifierHash = [AZDownload hashToken:*data];
 		download.scanID = [AZDownload scanToken:*data];
 		download.state |= AZErgoDownloadStateResolved;
+		download.httpError = 0;
 		[download downloadError:nil];
 		return YES;
 	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
+		download.httpError++;
 		[download downloadError:[NSString stringWithFormat:@"Download data resolve failed: %@", response]];
 		return YES;
 	}] executeSynked];
@@ -76,6 +78,11 @@
 - (void) aquireData:(AZDownload *)download {
 //	NSLog(@"Aquiring [%@]...", download.sourceURL);
 
+	if (!download.proxifierHash) {
+		UNSET_BIT(download.state, AZErgoDownloadStateResolved);
+		return;
+	}
+
 	download.fileURL = nil;
 
 	AZErgoAPIRequest *request = [AZErgoAPIRequest actionWithName:@"proxy"];
@@ -84,7 +91,7 @@
 	request.acceptEmptyResponseAsSuccess = YES;
 	request.showErrors = NO;
 	[request setParameters:@{@"data": download.proxifierHash}];
-	[[[[request success:^BOOL(AZHTTPRequest *_request, __autoreleasing id *data) {
+	[[[[request success:^BOOL(AZHTTPRequest *_request, id *data) {
 		NSDictionary *headers = [_request.response allHeaderFields];
 		if (!download.fileURL) {
 			[self aquireFailReason:download];
@@ -126,18 +133,19 @@
 - (void) downloadFile:(AZDownload *)download {
 //	NSLog(@"Downloading [%@]...", download.fileURL);
 
-	BOOL partial = download.supportsPartialDownload;
-	NSUInteger downloadedSize = 0;
-	if (partial) {
-		downloadedSize = [download localFileSize];
-		download.downloaded = downloadedSize;
-	}
-
-	if (download.downloaded >= download.totalSize) {
+	NSUInteger downloadedSize = [download localFileSize];
+	if (downloadedSize >= download.totalSize) {
+		[download setDownloadedAmount:downloadedSize];
 		download.state |= AZErgoDownloadStateDownloaded;
 		[download downloadError:nil];
 		return;
 	}
+
+	BOOL partial = download.supportsPartialDownload;
+	if (partial)
+		[download setDownloadedAmount:downloadedSize];
+	else
+		[download setDownloadedAmount:downloadedSize = 0];
 
 	NSString *filePath = [download localFilePath];
 	NSError *error = nil;
@@ -165,7 +173,7 @@
 			NSUInteger length = [receivedData length];
 			if (length) {
 				[stream write:[receivedData bytes] maxLength:length];
-				download.downloaded += length;
+				[download setDownloadedAmount:download.downloaded + length];
 			}
 
 			return NO; // forbidd azhttprequest to collect downloaded data to it's storage
@@ -192,7 +200,7 @@
     block(download);
 	}
 	@finally {
-    download.state ^= state;
+		UNSET_BIT(download.state, state);
 		[self notifyStageChange:download];
 	}
 }
@@ -224,7 +232,7 @@
 				[strongSelf processTask:download];
 			}
 			@finally {
-				download.state ^= AZErgoDownloadStateProcessing;
+				UNSET_BIT(download.state, AZErgoDownloadStateProcessing);
 			}
 		}
 	});

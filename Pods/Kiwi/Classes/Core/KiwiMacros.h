@@ -36,6 +36,12 @@
 #pragma mark - Keywords
 
 // Kiwi macros used in specs for verifying expectations.
+
+#define expect(_expression) [({\
+id tmp = (_expression);\
+if (tmp==nil) tmp = [NSNull null];\
+(tmp);}) should]\
+
 #define should attachToVerifier:KW_ADD_MATCH_VERIFIER(KWExpectationTypeShould)
 #define shouldNot attachToVerifier:KW_ADD_MATCH_VERIFIER(KWExpectationTypeShouldNot)
 #define shouldBeNil attachToVerifier:KW_ADD_EXIST_VERIFIER(KWExpectationTypeShouldNot)
@@ -102,7 +108,7 @@
 		\
 		+ (NSString *)file { return @__FILE__; }
 
-#define SPEC_BODY(name) \
+#define SPEC_BODY \
 		\
 		+ (void)buildExampleGroups { \
 
