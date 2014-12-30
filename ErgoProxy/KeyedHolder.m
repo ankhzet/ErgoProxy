@@ -8,6 +8,9 @@
 
 #import "KeyedHolder.h"
 
+@implementation RootHolder @end
+@implementation GroupHolder @end
+
 @implementation KeyedHolder
 + (instancetype) holderFor:(id)object {
 	KeyedHolder *holder = [self new];
@@ -20,10 +23,12 @@
 + (BOOL) isA:(id)object {
 	return [object isKindOfClass:self];
 }
+
 - (NSComparisonResult) caseInsensitiveCompare:(id)another {
 	return [holdedObject caseInsensitiveCompare:((KeyedHolder *)another)->holdedObject];
 }
 - (NSComparisonResult) compare:(id)another {
 	return [holdedObject compare:((KeyedHolder *)another)->holdedObject];
 }
+
 @end
