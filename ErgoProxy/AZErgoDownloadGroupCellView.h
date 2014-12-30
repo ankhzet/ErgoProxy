@@ -1,5 +1,5 @@
 //
-//  AZErgoGroupCellView.h
+//  AZErgoDownloadGroupCellView.h
 //  ErgoProxy
 //
 //  Created by Ankh on 15.10.14.
@@ -8,7 +8,7 @@
 
 #import "AZErgoConfigurableTableCellView.h"
 
-@interface AZErgoGroupCellView : AZErgoConfigurableTableCellView
+@interface AZErgoDownloadGroupCellView : AZErgoConfigurableTableCellView
 
 @property (weak) IBOutlet NSTextField *tfGroupTitle;
 @property (weak) IBOutlet NSTextField *tfDownloadsCount;

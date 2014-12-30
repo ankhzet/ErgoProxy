@@ -1,6 +1,6 @@
 //
-//  PGSynkEnabledStorage.h
-//  PhotoGallery
+//  AZSynkEnabledStorage.h
+//  AnkhZet
 //
 //  Enables "Local data storage <-> Remote storage" synchronization
 //
@@ -9,7 +9,7 @@
 //
 
 #import <Foundation/Foundation.h>
-#import "DataProxy.h"
+#import "AZDataProxy.h"
 
 typedef NS_ENUM(NSUInteger, AZFileSynkState) {
 	AZFileSynkStateNone        = 1 << 0,
@@ -19,7 +19,7 @@ typedef NS_ENUM(NSUInteger, AZFileSynkState) {
 	AZFileSynkStateDownloading = 1 << 4,
 };
 
-@interface AZSynkEnabledStorage : DataProxy
+@interface AZSynkEnabledStorage : AZDataProxy
 
 /*! @brief Is synk enabled by user? */
 @property (atomic) BOOL performSynk;
@@ -31,12 +31,6 @@ typedef NS_ENUM(NSUInteger, AZFileSynkState) {
  @brief Notify storage about synk state changes.
  */
 - (void) synkToggled;
-
--(void) notifyChangedWithUserInfo: (id) userInfo;
-
-// subscribe for notifications on remote Core Data changes import
--(void) subscribeForUpdateNotifications: (id)observer selector: (SEL)selector;
--(void) unSubscribeFromUpdateNotifications: (id)observer;
 
 // When CoreData has committed changes, this method will be called to perform all required operations on relative data.
 // Currently do nothing. Can be overriden by subclasses.

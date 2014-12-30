@@ -1,6 +1,6 @@
 //
-//  PGSynkEnabledStorage.h
-//  PhotoGallery
+//  AZSynkEnabledStorage.h
+//  AnkhZet
 //
 //  Created by Ankh on 01.01.14.
 //  Copyright (c) 2014 Ankh. All rights reserved.
@@ -17,9 +17,6 @@
 
 @implementation AZSynkEnabledStorage
 @synthesize performSynk = _performSynk;
-
-// notification, that will be send on iCloud data update
-NSString *changeNotificationName = @"CoreDataChangeNotification";
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize persistentStoreCoordinator = _persistentStoreCoordinator;
@@ -54,10 +51,10 @@ NSString *changeNotificationName = @"CoreDataChangeNotification";
  @return Yes, if processed succesfully. No, if synkchronization unavailable.
  */
 -(BOOL) performSynkIfRequiredFromRemote:(BOOL)fromRemote withChanges:(NSDictionary *)changes {
-	NSLog(@"%s", __PRETTY_FUNCTION__);
 	if (![self synkable])
 		return NO;
 
+	NSLog(@"%s", __PRETTY_FUNCTION__);
 	if (fromRemote) {
 		remoteChanges = changes;
 		return YES;
@@ -74,10 +71,8 @@ NSString *changeNotificationName = @"CoreDataChangeNotification";
 
     if ([iRemote member:local]) {
 			// arrived from remote storage
-			//TODO: download from remote end, if needed
 			[self doDownload:fileToSynk];
 		} else {
-			//TODO: upload to remote end, if needed
 			[self doUpload:fileToSynk];
 		}
 	}
@@ -166,9 +161,9 @@ NSString *changeNotificationName = @"CoreDataChangeNotification";
 			NSLog(@"Not a synk-enabled device (or disabled in preferences) - using a local store");
 			[self addPersistentStore:coordinator];
 		}
-		
-		[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(userDefaultsChanged:) name:NSUserDefaultsDidChangeNotification object:nil];
 
+		[NSUserDefaults notify:self onDefaultsChange:@selector(userDefaultsChanged:)];
+		
 		dispatch_async(dispatch_get_main_queue(), ^{
 			[self notifyChangedWithUserInfo:nil];
 		});
@@ -192,14 +187,13 @@ NSString *changeNotificationName = @"CoreDataChangeNotification";
 	NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
 	
 	if (coordinator != nil) {
-		NSManagedObjectContext *moc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSMainQueueConcurrencyType];
+		NSManagedObjectContext *moc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
 		
-		[moc setPersistentStoreCoordinator: coordinator];
-//		[moc performBlockAndWait:^{
-//			[moc setPersistentStoreCoordinator: coordinator];
+		[moc performBlockAndWait:^{
+			[moc setPersistentStoreCoordinator: coordinator];
 //			//TODO: modify to accept NSPersistentStoreDidImportContentChangesNotification-like notifications
 //			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteChangesImport:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:coordinator];
-//		}];
+		}];
 		_managedObjectContext = moc;
 	}
 
@@ -230,27 +224,10 @@ NSString *changeNotificationName = @"CoreDataChangeNotification";
 }
 
 /*! @brief Save CoreData db updates. If there are related file updates - they will be pushed on to remote storage. */
--(BOOL) saveContext {
-	return [super saveContext];
-}
+//-(BOOL) saveContext {
+//	return [super saveContext];
+//}
 
-#pragma mark - Notifications
-
--(void) notifyChangedWithUserInfo: (id) userInfo {
-	[[NSNotificationCenter defaultCenter] postNotificationName:changeNotificationName object:self userInfo:userInfo];
-}
-
--(void) subscribeForUpdateNotifications: (id)observer selector: (SEL)selector {
-	[[NSNotificationCenter defaultCenter] addObserver:observer
-																					 selector:selector
-																							 name:changeNotificationName
-																						 object:self];
-	
-}
--(void) unSubscribeFromUpdateNotifications: (id)observer {
-	[[NSNotificationCenter defaultCenter] removeObserver:observer name:changeNotificationName object:self];
-	
-}
 
 - (void) userDefaultsChanged: (NSNotification *) notification {
 	self.performSynk = [[NSUserDefaults standardUserDefaults] boolForKey:@"useSynchronization"];

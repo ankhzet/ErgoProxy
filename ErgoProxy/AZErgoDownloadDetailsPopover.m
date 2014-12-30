@@ -9,48 +9,55 @@
 #import "AZErgoDownloadDetailsPopover.h"
 
 #import "AZDownload.h"
-#import "AZDownloadParams.h"
+
+#import "AZErgoDownloadDetailsPresenter.h"
 
 @implementation AZErgoDownloadDetailsPopover {
-	AZDownload *_download;
+	id entity;
+	AZErgoDownloadDetailsPresenter *presenter;
 }
 
-- (void) showDetailsFor:(AZDownload *)download alignedTo:(NSView *)view {
-	_download = download;
+- (void) showDetailsFor:(id)_entity alignedTo:(NSView *)view {
+	entity = _entity;
 
-	self.tfTitle.stringValue = [NSString stringWithFormat:@"%@ [ch. %.1f, p. %lu]", [download.manga capitalizedString], download.chapter, download.page];
-	self.tfURL.stringValue = [download.sourceURL absoluteString];
-	self.tfWidth.stringValue = [NSString stringWithFormat:@"Width: %@ or less", [download.downloadParams downloadParameter:kDownloadParamMaxWidth]];
-	self.tfHeight.stringValue = [NSString stringWithFormat:@"Height: %@ or less", [download.downloadParams downloadParameter:kDownloadParamMaxHeight]];
-	self.tfQuality.stringValue = [NSString stringWithFormat:@"Quality: %@", [download.downloadParams downloadParameter:kDownloadParamQuality]];
+	if ([entity isKindOfClass:[AZDownload class]])
+		presenter = [AZErgoDownloadDetailsPresenter new];
+	else
+		presenter = [AZErgoChapterDetailsPresenter new];
 
-	NSNumber *isWebtoon = [download.downloadParams downloadParameter:kDownloadParamIsWebtoon];
-	self.tfIsWebtoon.stringValue = [isWebtoon boolValue] ? @"Is a webtoon" : @"";
-
-	self.tfHash.stringValue = download.proxifierHash ? download.proxifierHash : @"<hash not aquired yet>";
-
-	if (!HAS_BIT(download.state, AZErgoDownloadStateFailed)) {
-		self.tfError.stringValue = @"";
-	} else {
-		self.tfError.stringValue = download.error ? download.error : @"";
-	}
+	[presenter presentEntity:entity detailsIn:self];
 
 	self.behavior = NSPopoverBehaviorTransient;
 	[self showRelativeToRect:view.bounds ofView:view preferredEdge:NSMaxYEdge];
 }
 
 - (IBAction)actionDropHash:(id)sender {
-	self.tfHash.stringValue = @"";
-	[_download downloadError:nil];
-	_download.state ^= AZErgoDownloadStateResolved;
+	[presenter dropHash];
 }
 
 - (IBAction)actionDropDownload:(id)sender {
-	[_download remove];
+	[presenter deleteEntity];
 }
 
 - (IBAction)actionPreviewDownload:(id)sender {
-	[[NSWorkspace sharedWorkspace] openFile:[_download localFilePath]];
+	[presenter previewEntity];
 }
+
+- (IBAction)actionPreviewDelete:(id)sender {
+	[presenter trashEntity];
+}
+
+- (IBAction)actionBrowseStorage:(id)sender {
+	[presenter browseEntityStorage];
+}
+
+- (IBAction)actionBrowseScan:(id)sender {
+	[presenter browseEntity];
+}
+
+- (IBAction)actionLockScan:(id)sender {
+	[presenter lockEntity];
+}
+
 
 @end

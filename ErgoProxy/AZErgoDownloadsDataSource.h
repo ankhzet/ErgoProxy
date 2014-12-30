@@ -8,8 +8,7 @@
 
 #import <Foundation/Foundation.h>
 
-#import "AZErgoGroupCellView.h"
-#import "AZErgoDownloadCellView.h"
+#import "AZGroupableDataSource.h"
 
 typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 
@@ -20,10 +19,8 @@ typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 
 @end
 
-@interface AZErgoDownloadsDataSource : NSObject <NSOutlineViewDataSource, NSOutlineViewDelegate>
-
-@property (nonatomic) NSArray *data;
-@property (nonatomic) BOOL groupped;
+@class AZErgoUpdateWatch, AZErgoUpdateChapter;
+@interface AZErgoDownloadsDataSource : AZGroupableDataSource
 
 @property (nonatomic) IBOutlet id<AZErgoDownloadsDataSourceDelegate> delegate;
 
