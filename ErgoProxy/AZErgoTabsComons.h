@@ -14,9 +14,11 @@
 static NSString *AZEPUIDMainTab = @"main";
 static NSString *AZEPUIDManualScheduleTab = @"manual schedule";
 static NSString *AZEPUIDPreferencesTab = @"preferences";
+static NSString *AZEPUIDBrowserTab = @"browser";
 
 #import "AZErgoManualScheduleTab.h"
 #import "AZErgoMainTab.h"
 #import "AZErgoPreferencesTab.h"
+#import "AZErgoBrowserTab.h"
 
 #endif
