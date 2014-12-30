@@ -89,3 +89,27 @@
 }
 
 @end
+
+@implementation AZErgoDownloadsDataSource (GroupableDataSource)
+
+- (NSString *) rootIdentifierFromItem:(id)item {
+	return [self rootNodeOf:item];
+}
+
+- (NSString *) groupIdentifierFromItem:(id)item {
+	return [self groupNodeOf:item];
+}
+
+- (id) rootNodeOf:(AZDownload *)item {
+	return item.manga;
+}
+
+- (id) groupNodeOf:(AZDownload *)item {
+	return [NSString stringWithFormat:@"%06.1f",item.chapter];
+}
+
+- (NSNumber *) orderedUID:(AZDownload *)item {
+	return @(truncf(item.chapter * 10) + (item.page / 1000.f));
+}
+
+@end
