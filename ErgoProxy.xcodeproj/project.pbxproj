@@ -51,7 +51,6 @@
 		0A816BA418E38E1E008B683B /* InfoPlist.strings in Resources */ = {isa = PBXBuildFile; fileRef = 0A816BA218E38E1E008B683B /* InfoPlist.strings */; };
 		0A8B94C81A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A8B94C61A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.m */; };
 		0A8B94C91A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0A8B94C71A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.xib */; };
-		0A8B94D01A520BE600A29CF4 /* AZErgoManualScheduleTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A8B94CF1A520BE600A29CF4 /* AZErgoManualScheduleTab.m */; };
 		0A8B94D81A5248E600A29CF4 /* AZErgoBrowserTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A8B94D71A5248E600A29CF4 /* AZErgoBrowserTab.m */; };
 		0A8D98FD1A13210D00585721 /* CustomDictionary.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A8D98FC1A13210D00585721 /* CustomDictionary.m */; };
 		0AAE5DE119EF62A900F37AC1 /* AZProgressIndicator.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AAE5DE019EF62A900F37AC1 /* AZProgressIndicator.m */; };
@@ -77,7 +76,6 @@
 		0AB3994719ECBEC700BBE2F4 /* AZErgoProxifierAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994619ECBEC700BBE2F4 /* AZErgoProxifierAPI.m */; };
 		0AB3994E19ED955B00BBE2F4 /* AZTabProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994A19ED955B00BBE2F4 /* AZTabProvider.m */; };
 		0AB3994F19ED955B00BBE2F4 /* AZTabsGroup.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3994D19ED955B00BBE2F4 /* AZTabsGroup.m */; };
-		0AB3995519ED96E000BBE2F4 /* tabManualSchedule.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AB3995419ED96E000BBE2F4 /* tabManualSchedule.xib */; };
 		0AB3995D19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3995B19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m */; };
 		0AB3995E19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AB3995C19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib */; };
 		0AB3996219EDE35800BBE2F4 /* AZErgoMainTab.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3996119EDE35800BBE2F4 /* AZErgoMainTab.m */; };
@@ -200,8 +198,6 @@
 		0A8B94C51A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoManualSchedulerWindowController.h; sourceTree = "<group>"; };
 		0A8B94C61A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoManualSchedulerWindowController.m; sourceTree = "<group>"; };
 		0A8B94C71A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AZErgoManualSchedulerWindowController.xib; sourceTree = "<group>"; };
-		0A8B94CE1A520BE600A29CF4 /* AZErgoManualScheduleTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoManualScheduleTab.h; sourceTree = "<group>"; };
-		0A8B94CF1A520BE600A29CF4 /* AZErgoManualScheduleTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoManualScheduleTab.m; sourceTree = "<group>"; };
 		0A8B94D61A5248E600A29CF4 /* AZErgoBrowserTab.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoBrowserTab.h; sourceTree = "<group>"; };
 		0A8B94D71A5248E600A29CF4 /* AZErgoBrowserTab.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoBrowserTab.m; sourceTree = "<group>"; };
 		0A8D98FB1A13210D00585721 /* CustomDictionary.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = CustomDictionary.h; sourceTree = "<group>"; };
@@ -255,7 +251,6 @@
 		0AB3994B19ED955B00BBE2F4 /* AZTabsCommons.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZTabsCommons.h; sourceTree = "<group>"; };
 		0AB3994C19ED955B00BBE2F4 /* AZTabsGroup.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZTabsGroup.h; sourceTree = "<group>"; };
 		0AB3994D19ED955B00BBE2F4 /* AZTabsGroup.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZTabsGroup.m; sourceTree = "<group>"; };
-		0AB3995419ED96E000BBE2F4 /* tabManualSchedule.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = tabManualSchedule.xib; sourceTree = "<group>"; };
 		0AB3995719ED971200BBE2F4 /* AZErgoTabsComons.h */ = {isa = PBXFileReference; lastKnownFileType = sourcecode.c.h; path = AZErgoTabsComons.h; sourceTree = "<group>"; };
 		0AB3995A19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloadPrefsWindowController.h; sourceTree = "<group>"; };
 		0AB3995B19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadPrefsWindowController.m; sourceTree = "<group>"; };
@@ -359,7 +354,6 @@
 			children = (
 				0A8B94D11A520BFD00A29CF4 /* Main tab */,
 				0A418A0B1A4B2C370025108A /* Watch tab */,
-				0A8B94D21A520C0E00A29CF4 /* Manual Schedule Tab */,
 				0A8B94D41A520C2200A29CF4 /* Browser Tab */,
 				0A8B94D31A520C1900A29CF4 /* Preferences Tab */,
 			);
@@ -665,15 +659,6 @@
 			name = "Main tab";
 			sourceTree = "<group>";
 		};
-		0A8B94D21A520C0E00A29CF4 /* Manual Schedule Tab */ = {
-			isa = PBXGroup;
-			children = (
-				0A8B94CE1A520BE600A29CF4 /* AZErgoManualScheduleTab.h */,
-				0A8B94CF1A520BE600A29CF4 /* AZErgoManualScheduleTab.m */,
-			);
-			name = "Manual Schedule Tab";
-			sourceTree = "<group>";
-		};
 		0A8B94D31A520C1900A29CF4 /* Preferences Tab */ = {
 			isa = PBXGroup;
 			children = (
@@ -826,7 +811,6 @@
 			children = (
 				0AB3995719ED971200BBE2F4 /* AZErgoTabsComons.h */,
 				0AB3996319EDE36D00BBE2F4 /* tabMain.xib */,
-				0AB3995419ED96E000BBE2F4 /* tabManualSchedule.xib */,
 				0A32ED8519F09CF600F6E2E3 /* tabPreferences.xib */,
 				0A418A091A4B29580025108A /* tabWatch.xib */,
 				0AFE56361A4D32A10001EF3A /* tabBrowser.xib */,
@@ -942,7 +926,6 @@
 				0A37AD4E1A50B08F007558A2 /* AZErgoUpdateWatchSubmitterWindowController.xib in Resources */,
 				0AB3995E19EDA27000BBE2F4 /* AZErgoDownloadPrefsWindowController.xib in Resources */,
 				0A418A0A1A4B29580025108A /* tabWatch.xib in Resources */,
-				0AB3995519ED96E000BBE2F4 /* tabManualSchedule.xib in Resources */,
 				0A816B9418E38E1E008B683B /* Images.xcassets in Resources */,
 				0A32ED8619F09CF600F6E2E3 /* tabPreferences.xib in Resources */,
 				0AFE56371A4D32A10001EF3A /* tabBrowser.xib in Resources */,
@@ -1047,7 +1030,6 @@
 				0AFE56201A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m in Sources */,
 				0AFE56321A4CD83F0001EF3A /* NSUserDefaults+AnkhUtils.m in Sources */,
 				0A50F7221A01EE2800A2B350 /* AZErgoAppDelegate.m in Sources */,
-				0A8B94D01A520BE600A29CF4 /* AZErgoManualScheduleTab.m in Sources */,
 				0A418A2B1A4B42C70025108A /* XPathQuery.m in Sources */,
 				0AB3988919EC73FC00BBE2F4 /* AZProxyServer.m in Sources */,
 				0A8B94C81A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.m in Sources */,

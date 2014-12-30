@@ -398,7 +398,7 @@
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="780D4AEC-3F58-4504-8DF6-BD0492FC6421" explicitItemIdentifier="manual schedule" label="Scheduling" paletteLabel="Scheduling" tag="-1" image="NSAddTemplate" autovalidates="NO" selectable="YES" id="4st-Uv-AaN">
                         <connections>
-                            <action selector="actionToolbarNavigate:" target="494" id="AnO-Cx-2BC"/>
+                            <action selector="actionManualSchedule:" target="494" id="Iww-gI-BgK"/>
                         </connections>
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="66FCEE23-7137-4262-9888-D9E2F7CC66C0" label="Download" paletteLabel="Download" tag="-1" image="NSSlideshowTemplate" id="6Jm-AT-2IB">

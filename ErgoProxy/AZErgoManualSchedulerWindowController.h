@@ -10,4 +10,9 @@
 
 @interface AZErgoManualSchedulerWindowController : AZSheetWindowController
 
+@property (nonatomic) BOOL isUsingDefault;
+@property (nonatomic) NSString *mangaDirectory;
+@property (nonatomic) float mangaChapter;
+@property (nonatomic) NSArray *scansList;
+
 @end

@@ -16,7 +16,7 @@
 #import "AZSynkEnabledStorage.h"
 #import "AZDataProxyContainer.h"
 
-#import "AZAPIProvider.h"
+#import "AZErgoManualSchedulerWindowController.h"
 
 @implementation AZErgoAppDelegate {
 	BOOL running, paused;
@@ -40,7 +40,6 @@
 	running = NO;
 	paused = NO;
 
-	[self registerTab:[AZErgoManualScheduleTab class]];
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
 	[self registerTab:[AZErgoWatchTab class]];
@@ -49,6 +48,10 @@
 
 - (NSString *) initialTab {
 	return AZEPUIDMainTab;
+}
+
+- (IBAction)actionManualSchedule:(id)sender {
+	[[AZErgoManualSchedulerWindowController sharedController] beginSheet];
 }
 
 - (IBAction)actionRunDownloader:(id)sender {
