@@ -10,7 +10,7 @@
 #import "AZProxifier.h"
 
 @implementation AZStorage
-//@dynamic downloads, proxifier;
+@dynamic downloads, proxifier;
 
 /*!
  @brief Returns new storage with specified url.

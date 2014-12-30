@@ -44,7 +44,7 @@
 		if (downloader.storage != storage) {
 			[downloader removeDownload:download];
 
-			downloader = [proxifier newDownloaderForStorage:storage andParams:download.downloadParams];
+			downloader = [proxifier newDownloaderForStorage:storage andParams:download.downloadParameters];
 			[downloader processDownloads];
 		}
 

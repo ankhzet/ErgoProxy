@@ -7,8 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AZCoreDataEntity.h"
 
-@interface AZProxyServer : NSObject
+@interface AZProxyServer : AZCoreDataEntity
 
 @property (nonatomic, retain) NSURL *url;
 

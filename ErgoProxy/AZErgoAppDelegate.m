@@ -41,6 +41,7 @@
 	[self registerTab:[AZErgoManualScheduleTab class]];
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
+	[self registerTab:[AZErgoWatchTab class]];
 }
 
 - (NSString *) initialTab {

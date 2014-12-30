@@ -7,6 +7,7 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AZCoreDataEntity.h"
 
 typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 	AZErgoDownloadStateNone        = 0 << 0, // newly created download
@@ -29,9 +30,9 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 @end
 
 @class AZDownloadParams, AZProxifier, AZStorage;
-@interface AZDownload : NSManagedObject
+@interface AZDownload : AZCoreDataEntity
 
-@property (nonatomic) NSURL *sourceURL;
+@property (nonatomic, retain) NSURL *sourceURL;
 
 @property (nonatomic) NSString *manga;
 @property (nonatomic) float chapter;
@@ -44,12 +45,14 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 @property (nonatomic) BOOL supportsPartialDownload;
 @property (nonatomic) NSTimeInterval lastDownloadIteration;
 
-@property (nonatomic, retain) AZDownloadParams *downloadParams;
+@property (nonatomic) NSUInteger httpError;
+
+@property (nonatomic, retain) AZDownloadParams *downloadParameters;
 
 @property (nonatomic, retain) AZProxifier *proxifier;
 @property (nonatomic, retain) AZStorage *storage;
 
-@property (nonatomic) NSString *proxifierHash;
+@property (nonatomic, retain) NSString *proxifierHash;
 @property (nonatomic) NSUInteger scanID;
 
 @property (nonatomic) id error;
@@ -60,9 +63,11 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 - (NSUInteger) indexHash;
 
 + (NSArray *) fetchDownloads;
-- (void) remove;
++ (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter;
 
 - (void) downloadError:(id)error;
+
+- (void) setDownloadedAmount:(NSUInteger)_downloaded;
 
 @end
 

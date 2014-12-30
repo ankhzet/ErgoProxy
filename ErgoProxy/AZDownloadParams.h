@@ -7,19 +7,25 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AZCoreDataEntity.h"
 
 extern NSString *kDownloadParamMaxWidth;
 extern NSString *kDownloadParamMaxHeight;
 extern NSString *kDownloadParamQuality;
 extern NSString *kDownloadParamIsWebtoon;
 
-@interface AZDownloadParams : NSManagedObject
+@class AZDownloadParameter;
+@interface AZDownloadParams : AZCoreDataEntity
+
+@property (nonatomic, retain) NSSet *parameters;
+@property (nonatomic, readonly) NSString *hashed;
 
 + (instancetype) params:(NSDictionary *)parameters;
 + (instancetype) defaultParams;
 
-- (id) downloadParameter:(NSString *)parameter;
-- (void) setDownloadParameter:(NSString *)parameter value:(id)value;
-- (NSString *) hashed;
+- (AZDownloadParameter *) downloadParameter:(NSString *)parameter;
+- (AZDownloadParams *) setDownloadParameter:(NSString *)parameter value:(id)value;
+
+- (void) addParametersObject:(AZDownloadParameter *)object;
 
 @end

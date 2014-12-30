@@ -59,4 +59,9 @@ PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)
 #define PREFS_UI_DOWNLOADS_GROUPPED @"ui.downloads.groupped"
 #define PREFS_UI_DOWNLOADS_HIDEFINISHED @"ui.downloads.hidefinished"
 
+
+#define PREFS_WATCHER_AUTOCHECK_INTERVAL @"watcher.autocheck.interval"
+#define PREFS_UI_WATCHER_HIDEFINISHED @"ui.watcher.hidefinished"
+
+
 #endif
