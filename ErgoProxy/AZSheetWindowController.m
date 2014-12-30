@@ -20,15 +20,15 @@
 	if (!(self = [super initWithWindow:window]))
 		return self;
 
+	processBlock = [self makeProcessor:nil];
+
 	return self;
 }
 
-- (AZDialogReturnCode) showWithSetup:(AZDialogSetupBlock)setup andFiltering:(AZDialogProcessBlock)filtering {
-	processBlock = ^(AZDialogReturnCode code, AZSheetWindowController *controller) {
+- (AZDialogProcessBlock) makeProcessor:(AZDialogProcessBlock)filter {
+	return ^(AZDialogReturnCode code, AZSheetWindowController *controller) {
 
-		code = filtering(code, controller);
-
-		switch (code) {
+		switch (filter ? (code = filter(code, controller)) : code) {
 			case AZDialogNoReturn:
 				break;
 
@@ -42,8 +42,21 @@
 
 		return code;
 	};
+}
 
-	return ABS(setup ? setup(self) : [self beginSheet]);
+- (AZDialogReturnCode) showWithSetup:(AZDialogSetupBlock)setup andFiltering:(AZDialogProcessBlock)filtering {
+	AZDialogReturnCode code = AZDialogReturnCancel;
+
+	AZDialogProcessBlock old = processBlock;
+	@try {
+		processBlock = [self makeProcessor:filtering];
+		code = ABS(setup ? setup(self) : [self beginSheet]);
+	}
+	@finally {
+    processBlock = old;
+	}
+
+	return code;
 }
 
 + (NSString *) windowNibName {
