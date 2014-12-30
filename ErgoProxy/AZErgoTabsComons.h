@@ -12,11 +12,13 @@
 #import "AZTabsCommons.h"
 
 static NSString *AZEPUIDMainTab = @"main";
+static NSString *AZEPUIDWatchTab = @"watch";
 static NSString *AZEPUIDManualScheduleTab = @"manual schedule";
 static NSString *AZEPUIDPreferencesTab = @"preferences";
 
 #import "AZErgoManualScheduleTab.h"
 #import "AZErgoMainTab.h"
 #import "AZErgoPreferencesTab.h"
+#import "AZErgoWatchTab.h"
 
 #endif
