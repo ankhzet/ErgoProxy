@@ -11,6 +11,13 @@
 @class AZDownload;
 @interface AZErgoDownloadDetailsPopover : NSPopover
 
+@property (weak) IBOutlet NSButton *bPreview;
+@property (weak) IBOutlet NSButton *bPreviewTrash;
+@property (weak) IBOutlet NSButton *bLock;
+
+@property (weak) IBOutlet NSTextField *tfStorage;
+@property (weak) IBOutlet NSTextField *tfScanID;
+
 @property (weak) IBOutlet NSTextField *tfTitle;
 @property (weak) IBOutlet NSTextField *tfURL;
 @property (weak) IBOutlet NSTextField *tfWidth;

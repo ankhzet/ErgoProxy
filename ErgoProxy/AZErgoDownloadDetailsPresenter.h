@@ -13,6 +13,13 @@
 
 - (instancetype) presenterForEntity:(id)entity in:(AZErgoDownloadDetailsPopover *)popover;
 - (void) presentEntity:(id)entity detailsIn:(AZErgoDownloadDetailsPopover *)popover;
+- (void) dropHash;
+- (void) deleteEntity;
+- (void) previewEntity;
+- (void) browseEntityStorage;
+- (void) browseEntity;
+- (void) trashEntity;
+- (void) lockEntity;
 
 @end
 

@@ -9,8 +9,6 @@
 #import "AZErgoDownloadDetailsPopover.h"
 
 #import "AZDownload.h"
-#import "AZDownloadParams.h"
-
 
 #import "AZErgoDownloadDetailsPresenter.h"
 
@@ -34,12 +32,32 @@
 }
 
 - (IBAction)actionDropHash:(id)sender {
+	[presenter dropHash];
 }
 
 - (IBAction)actionDropDownload:(id)sender {
+	[presenter deleteEntity];
 }
 
 - (IBAction)actionPreviewDownload:(id)sender {
+	[presenter previewEntity];
 }
+
+- (IBAction)actionPreviewDelete:(id)sender {
+	[presenter trashEntity];
+}
+
+- (IBAction)actionBrowseStorage:(id)sender {
+	[presenter browseEntityStorage];
+}
+
+- (IBAction)actionBrowseScan:(id)sender {
+	[presenter browseEntity];
+}
+
+- (IBAction)actionLockScan:(id)sender {
+	[presenter lockEntity];
+}
+
 
 @end
