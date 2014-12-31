@@ -1,0 +1,67 @@
+<?xml version="1.0" encoding="UTF-8" standalone="yes"?>
+<model userDefinedModelVersionIdentifier="" type="com.apple.IDECoreDataModeler.DataModel" documentVersion="1.0" lastSavedToolsVersion="3401" systemVersion="12F45" minimumToolsVersion="Automatic" macOSVersion="Automatic" iOSVersion="Automatic">
+    <entity name="Download" representedClassName="AZDownload" syncable="YES">
+        <attribute name="chapter" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="downloaded" optional="YES" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="fileURL" optional="YES" attributeType="Transformable" valueTransformerName="NSKeyedUnarchiveFromDataTransformerName" syncable="YES"/>
+        <attribute name="manga" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="page" optional="YES" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="proxifierHash" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="scanID" optional="YES" attributeType="Integer 64" defaultValueString="0.0" indexed="YES" syncable="YES"/>
+        <attribute name="sourceURL" optional="YES" attributeType="Transformable" valueTransformerName="NSKeyedUnarchiveFromDataTransformerName" syncable="YES"/>
+        <attribute name="totalSize" optional="YES" attributeType="Integer 64" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="downloadParameters" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadParams" inverseName="downloads" inverseEntity="DownloadParams" syncable="YES"/>
+        <relationship name="proxifier" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Proxifier" inverseName="downloads" inverseEntity="Proxifier" syncable="YES"/>
+        <relationship name="storage" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Storage" inverseName="downloads" inverseEntity="Storage" syncable="YES"/>
+    </entity>
+    <entity name="DownloadParameter" representedClassName="AZDownloadParameter" syncable="YES">
+        <attribute name="name" attributeType="String" syncable="YES"/>
+        <attribute name="value" optional="YES" attributeType="Decimal" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="ownedBy" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="DownloadParams" inverseName="parameters" inverseEntity="DownloadParams" syncable="YES"/>
+    </entity>
+    <entity name="DownloadParams" representedClassName="AZDownloadParams" syncable="YES">
+        <relationship name="downloads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Download" inverseName="downloadParameters" inverseEntity="Download" syncable="YES"/>
+        <relationship name="parameters" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="DownloadParameter" inverseName="ownedBy" inverseEntity="DownloadParameter" syncable="YES"/>
+    </entity>
+    <entity name="ErgoUpdateChapter" representedClassName="AZErgoUpdateChapter" syncable="YES">
+        <attribute name="date" optional="YES" attributeType="Date" syncable="YES"/>
+        <attribute name="genData" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="idx" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" indexed="YES" elementID="link" syncable="YES"/>
+        <attribute name="volume" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <relationship name="watch" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ErgoUpdateWatch" inverseName="updates" inverseEntity="ErgoUpdateWatch" syncable="YES"/>
+    </entity>
+    <entity name="ErgoUpdatesSourceDescription" representedClassName="AZErgoUpdatesSourceDescription" syncable="YES">
+        <attribute name="serverURL" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="watches" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ErgoUpdateWatch" inverseName="source" inverseEntity="ErgoUpdateWatch" syncable="YES"/>
+    </entity>
+    <entity name="ErgoUpdateWatch" representedClassName="AZErgoUpdateWatch" syncable="YES">
+        <attribute name="genData" optional="YES" attributeType="String" syncable="YES"/>
+        <attribute name="manga" optional="YES" attributeType="String" indexed="YES" elementID="link" syncable="YES"/>
+        <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
+        <relationship name="source" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ErgoUpdatesSourceDescription" inverseName="watches" inverseEntity="ErgoUpdatesSourceDescription" syncable="YES"/>
+        <relationship name="updates" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ErgoUpdateChapter" inverseName="watch" inverseEntity="ErgoUpdateChapter" syncable="YES"/>
+    </entity>
+    <entity name="Proxifier" representedClassName="AZProxifier" parentEntity="Server" syncable="YES">
+        <relationship name="downloads" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="Download" inverseName="proxifier" inverseEntity="Download" syncable="YES"/>
+        <relationship name="storages" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Storage" inverseName="proxifier" inverseEntity="Storage" syncable="YES"/>
+    </entity>
+    <entity name="Server" representedClassName="AZProxyServer" syncable="YES">
+        <attribute name="url" optional="YES" attributeType="Transformable" valueTransformerName="NSKeyedUnarchiveFromDataTransformerName" syncable="YES"/>
+    </entity>
+    <entity name="Storage" representedClassName="AZStorage" parentEntity="Server" syncable="YES">
+        <relationship name="downloads" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="Download" inverseName="storage" inverseEntity="Download" syncable="YES"/>
+        <relationship name="proxifier" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Proxifier" inverseName="storages" inverseEntity="Proxifier" syncable="YES"/>
+    </entity>
+    <elements>
+        <element name="Download" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="DownloadParameter" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="DownloadParams" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ErgoUpdateChapter" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ErgoUpdatesSourceDescription" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="ErgoUpdateWatch" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Proxifier" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Server" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Storage" positionX="0" positionY="0" width="0" height="0"/>
+    </elements>
+</model>

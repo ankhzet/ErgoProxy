@@ -13,3 +13,4 @@
 
 #define HAS_BIT(_v, _b) (((_v) & (_b)) == (_b))
 
+#define UNSET_BIT(_v, _b) ((_v) = ((_v) | (_b)) ^ (_b))

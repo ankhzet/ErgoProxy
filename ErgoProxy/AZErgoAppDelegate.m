@@ -16,6 +16,8 @@
 #import "AZSynkEnabledStorage.h"
 #import "AZDataProxyContainer.h"
 
+#import "AZErgoManualSchedulerWindowController.h"
+
 @implementation AZErgoAppDelegate {
 	BOOL running, paused;
 }
@@ -38,9 +40,9 @@
 	running = NO;
 	paused = NO;
 
-	[self registerTab:[AZErgoManualScheduleTab class]];
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
+	[self registerTab:[AZErgoWatchTab class]];
 	[self registerTab:[AZErgoBrowserTab class]];
 }
 
@@ -48,8 +50,24 @@
 	return AZEPUIDMainTab;
 }
 
+- (IBAction)actionManualSchedule:(id)sender {
+	[[AZErgoManualSchedulerWindowController sharedController] beginSheet];
+}
+
 - (IBAction)actionRunDownloader:(id)sender {
 	@synchronized(self) {
+		NSError *error = nil;
+		NSString *path = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
+		NSString *test = [path stringByAppendingPathComponent:@".~test"];
+		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+		if (![[NSFileManager defaultManager] createDirectoryAtPath:test withIntermediateDirectories:NO attributes:@{} error:&error]) {
+			[NSApp presentError:error];
+			return;
+		}
+		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+
+		[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
+
 		[[AZProxifier sharedProxy] runDownloaders:(running = !running)];
 		((NSToolbarItem *) sender).label = running ? @"Stop" : @"Download";
 	}

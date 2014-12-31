@@ -37,23 +37,6 @@
                BlueprintName = "ErgoProxyTests"
                ReferencedContainer = "container:ErgoProxy.xcodeproj">
             </BuildableReference>
-            <SkippedTests>
-               <Test
-                  Identifier = "AZStorageSpec">
-               </Test>
-               <Test
-                  Identifier = "AZDownloadParamsSpec">
-               </Test>
-               <Test
-                  Identifier = "AZChapterSpec">
-               </Test>
-               <Test
-                  Identifier = "AZDownloaderSpec">
-               </Test>
-               <Test
-                  Identifier = "AZProxyServerSpec">
-               </Test>
-            </SkippedTests>
          </TestableReference>
       </Testables>
       <MacroExpansion>

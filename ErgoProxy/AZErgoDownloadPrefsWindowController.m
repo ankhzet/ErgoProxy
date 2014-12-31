@@ -11,11 +11,6 @@
 
 #import "AZProxifier.h"
 
-typedef NS_ENUM(NSInteger, AZErgoParamsDialogReturn) {
-	AZErgoParamsDialogReturnCancel = 0,
-	AZErgoParamsDialogReturnOk = 1,
-};
-
 @interface AZErgoDownloadPrefsWindowController () {
 	NSDictionary *controlsMapping;
 	NSDictionary *prefsMapping;
@@ -75,22 +70,11 @@ typedef NS_ENUM(NSInteger, AZErgoParamsDialogReturn) {
 	if (useDefaults)
 		return [AZDownloadParams defaultParams];
 
-	NSWindow *key = [[NSApplication sharedApplication] keyWindow];
-	[self window];
-
-	[[NSApplication sharedApplication] beginSheet:self.window
-																 modalForWindow:key
-																	modalDelegate:self
-																 didEndSelector:@selector(sheetDidEnd:returnCode:contextInfo:)
-																		contextInfo:nil];
-
-	AZErgoParamsDialogReturn returned = [NSApp runModalForWindow:self.window];
-
-	switch (returned) {
-		case AZErgoParamsDialogReturnCancel:
+	switch ([self beginSheet]) {
+		case AZDialogReturnCancel:
 			return nil;
 
-		case AZErgoParamsDialogReturnOk:
+		case AZDialogReturnOk:
 		default:
 			;
 	}
@@ -98,35 +82,18 @@ typedef NS_ENUM(NSInteger, AZErgoParamsDialogReturn) {
 	AZDownloadParams *params = [AZDownloadParams defaultParams];
 
 	if (self.cbCustomWidth.state==NSOnState)
-		[params setDownloadParameter:kDownloadParamMaxWidth value:@(self.sCustomWidth.integerValue)];
+		params = [params setDownloadParameter:kDownloadParamMaxWidth value:@(self.sCustomWidth.integerValue)];
 
 	if (self.cbCustomHeight.state==NSOnState)
-		[params setDownloadParameter:kDownloadParamMaxHeight value:@(self.sCustomHeight.integerValue)];
+		params = [params setDownloadParameter:kDownloadParamMaxHeight value:@(self.sCustomHeight.integerValue)];
 
 	if (self.cbCustomQuality.state==NSOnState)
-		[params setDownloadParameter:kDownloadParamQuality value:@(self.sCustomQuality.integerValue)];
+		params = [params setDownloadParameter:kDownloadParamQuality value:@(self.sCustomQuality.integerValue)];
 
 	if (self.cbCustomIsWebtoon.state==NSOnState)
-		[params setDownloadParameter:kDownloadParamIsWebtoon value:@(YES)];
+		params = [params setDownloadParameter:kDownloadParamIsWebtoon value:@(YES)];
 
 	return params;
-}
-
-- (void)sheetDidEnd:(NSWindow *)sheet returnCode:(NSInteger)returnCode contextInfo:(void *)contextInfo {
-	[sheet orderOut:self];
-}
-
-- (void) dismissWithReturnCode:(NSInteger)returnCode {
-	[NSApp endSheet:self.window returnCode:returnCode];
-	[NSApp stopModalWithCode:returnCode];
-}
-
-- (IBAction)actionOk:(id)sender {
-	[self dismissWithReturnCode:AZErgoParamsDialogReturnOk];
-}
-
-- (IBAction)actionCancel:(id)sender {
-	[self dismissWithReturnCode:AZErgoParamsDialogReturnCancel];
 }
 
 - (BOOL) savePref:(NSString *)pref withParam:(NSString *)param {
@@ -140,19 +107,17 @@ typedef NS_ENUM(NSInteger, AZErgoParamsDialogReturn) {
 	return didSave;
 }
 
-- (IBAction)actionSaveDefaults:(id)sender {
+- (BOOL) applyChanges {
 	for (NSString *pref in [prefsMapping allKeys])
 		[self savePref:prefsMapping[pref] withParam:pref];
 
 	[self setUseDefaults:YES];
+
+	return YES;
 }
 
 - (NSControl *) searchControl:(NSString *)identifier {
-	for (NSControl *control in [[self.bConstraintsBox contentView] subviews])
-		if ([control isKindOfClass:[NSControl class]] && [control.identifier isEqualToString:identifier])
-			return control;
-
-	return nil;
+	return [self searchControl:identifier inContainingView:[self.bConstraintsBox contentView]];
 }
 
 - (void) setCustom:(id)slider value:(NSInteger)value {

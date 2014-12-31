@@ -13,46 +13,65 @@
 - (void)drawRect:(NSRect)dirtyRect {
 	CGRect rect = self.bounds;
 
-	NSRect slice, remainder;
-	NSRect insetRect = NSInsetRect(rect,2.0,2.0);
+	NSString *text = self.text;
+	BOOL drawProgress = !self.maxValue || self.doubleValue < self.maxValue;
+
+	if (!text) {
+		if (!drawProgress) {
+			text = [NSString cvtFileSize:self.maxValue];
+		} else {
+			if (self.maxValue) {
+				text = self.doubleValue ? [[NSString cvtFileSize:self.doubleValue] stringByAppendingString:@" / "] : @"";
+				text = [text stringByAppendingString:[NSString cvtFileSize:self.maxValue]];
+			} else
+				text = @"";
+			}
+	}
 
 	NSFrameRect(rect);
 
+	NSDictionary *foreground = (!drawProgress) ? nil : @{
+																											 NSForegroundColorAttributeName: [NSColor whiteColor],
+																											 NSStrokeWidthAttributeName: @10,
+																											 };
 
-	double percent = (self.doubleValue - self.minValue) / (self.maxValue - self.minValue);
-	NSDivideRect(insetRect, &slice, &remainder, NSWidth(insetRect) * percent, NSMinXEdge);
-
-	[[NSColor orangeColor] drawSwatchInRect:slice];
-	[[NSColor blackColor] drawSwatchInRect:remainder];
-
-	NSDictionary *foreground = @{
-														NSForegroundColorAttributeName: [NSColor whiteColor],
-														NSStrokeWidthAttributeName: @10,
-														};
-	NSDictionary *background = @{
-														NSForegroundColorAttributeName: [NSColor darkGrayColor],
-														NSStrokeWidthAttributeName: @10,
-														};
-
-	CGSize size = [self.text sizeWithAttributes:foreground];
+	CGSize size = [text sizeWithAttributes:foreground];
 	CGPoint point = NSMakePoint(rect.origin.x + (rect.size.width - size.width) / 2., rect.origin.y + (rect.size.height - size.height) / 2.);
 
-	point.y ++;
-	point.x ++;
-	[self.text drawAtPoint:point withAttributes:background];
+	if (drawProgress) {
+		NSRect slice, remainder;
+		NSRect insetRect = NSInsetRect(rect,2.0,2.0);
 
-	point.y --;
-	point.x --;
-	[self.text drawAtPoint:point withAttributes:foreground];
-    // Drawing code here.
+		double size = (self.maxValue - self.minValue);
+		double percent = size ? (self.doubleValue - self.minValue) / size : 0;
+
+		NSDivideRect(insetRect, &slice, &remainder, NSWidth(insetRect) * percent, NSMinXEdge);
+
+		[[NSColor orangeColor] drawSwatchInRect:slice];
+		[[NSColor blackColor] drawSwatchInRect:remainder];
+
+		NSDictionary *background = @{
+																 NSForegroundColorAttributeName: [NSColor darkGrayColor],
+																 NSStrokeWidthAttributeName: @10,
+																 };
+
+
+		point.y ++;
+		point.x ++;
+		[text drawAtPoint:point withAttributes:background];
+
+		point.y --;
+		point.x --;
+	}
+
+	[text drawAtPoint:point withAttributes:foreground];
 }
 
 - (void) setText:(NSString *)text {
 	if (_text == text)
 		return;
-
+	
 	_text = text;
-
 	[self setNeedsDisplay:YES];
 }
 

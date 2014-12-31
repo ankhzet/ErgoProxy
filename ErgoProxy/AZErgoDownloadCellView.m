@@ -51,27 +51,32 @@
 }
 
 - (void) setState:(AZErgoDownloadState)state forDownload:(AZDownload *)download {
-	NSString *image = NSImageNameStatusNone;
+	BOOL locked = download.lastDownloadIteration > [NSDate timeIntervalSinceReferenceDate];
+	NSString *image = (!locked) ? NSImageNameStatusNone : NSImageNameLockLockedTemplate;
 
-	if (HAS_BIT(state, AZErgoDownloadStateDownloaded))
-		image = NSImageNameStatusAvailable;
-	else
-		if (HAS_BIT(state, AZErgoDownloadStateAquired) || HAS_BIT(state, AZErgoDownloadStateResolved))
-			image = NSImageNameStatusPartiallyAvailable;
+	if (!locked) {
+		if (HAS_BIT(state, AZErgoDownloadStateDownloaded))
+			image = NSImageNameStatusAvailable;
 		else
-			if (download.totalSize && (download.downloaded < download.totalSize) && [download isFileCorrupt])
-				image = NSImageNameStatusUnavailable;
+			if (HAS_BIT(state, AZErgoDownloadStateAquired) || HAS_BIT(state, AZErgoDownloadStateResolved))
+				image = NSImageNameStatusPartiallyAvailable;
 			else
-				if (HAS_BIT(state, AZErgoDownloadStateFailed))
+				if (download.totalSize && (download.downloaded < download.totalSize) && [download isFileCorrupt])
 					image = NSImageNameStatusUnavailable;
 				else
-					;
+					if (HAS_BIT(state, AZErgoDownloadStateFailed))
+						image = NSImageNameStatusUnavailable;
+					else
+						;
+	}
 	
 	[self.ivState setImage:[NSImage imageNamed:image]];
+//	[self setNeedsDisplay:YES];
 }
 
 - (void) setProgress:(AZDownload *)download {
-	double downloaded = 0.;
+	self.piProgress.maxValue = download.totalSize;
+	self.piProgress.doubleValue = download.downloaded;
 
 	if (HAS_BIT(download.state, AZErgoDownloadStateAquiring))
 		self.piProgress.text = @"<aquiring...>";
@@ -79,11 +84,8 @@
 		if (HAS_BIT(download.state, AZErgoDownloadStateResolving))
 			self.piProgress.text = @"<resolving...>";
 		else {
-			downloaded = 100 * download.percentProgress;
-			self.piProgress.text = [NSString stringWithFormat:@"%@/%@", [NSString cvtFileSize:download.downloaded], [NSString cvtFileSize:download.totalSize]];
+			self.piProgress.text = nil;
 		}
-
-	self.piProgress.doubleValue = downloaded;
 }
 
 @end

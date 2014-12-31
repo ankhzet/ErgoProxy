@@ -22,7 +22,7 @@
 
 	proxifyRequest.serverURL = download.proxifier.url;
 
-	[proxifyRequest setParameters:[download fetchParams]];
+	[proxifyRequest setParameters:[download fetchParams:NO]];
 
 	[[proxifyRequest success:^(AZHTTPRequest *request, id *data) {
 		block(YES, *data, download);
