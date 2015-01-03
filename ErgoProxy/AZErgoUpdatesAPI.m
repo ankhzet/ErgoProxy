@@ -37,6 +37,7 @@
 		return YES;
 	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
 		block(NO, nil);
+		action.showErrors = NO;
 		return NO;
 	} firstly:YES];
 

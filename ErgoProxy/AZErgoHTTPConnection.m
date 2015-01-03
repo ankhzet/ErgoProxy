@@ -135,9 +135,14 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 				next = @(f);
 	}
 
-//	int old = chapter;
+	int old = chapter;
 
-	if (delta > 0) chapter = next ? [next intValue] : chapter;
+	if (delta > 0) {
+		chapter = next ? [next intValue] : chapter;
+		if (chapter == old) {
+			chapter += _IDX(1);
+		}
+	}
 	if (delta < 0) chapter = prev ? [prev intValue] : chapter;
 
 	float chap = (chapter / 10.f);

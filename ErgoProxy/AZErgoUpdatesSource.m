@@ -134,9 +134,6 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 		NSUInteger updates = 0;
 
 		@try {
-			if (!isOk)
-				[AZUtils notifyErrorMsg:[NSString stringWithFormat:@"Failed to aquire manga \"%@\" chapters!", watch.manga]];
-
 			if ([chapters count]) {
 				[AZDataProxyContainer saveContext];
 
