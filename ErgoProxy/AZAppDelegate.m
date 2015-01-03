@@ -10,6 +10,8 @@
 
 #import "AZTabsCommons.h"
 
+#import "DDTTYLogger.h"
+
 static BOOL isRunningTests(void) __attribute__((const));
 
 @interface AZAppDelegate () <AZTabsGroupDelegate> {
@@ -26,6 +28,8 @@ static BOOL isRunningTests(void) __attribute__((const));
 - (void)applicationDidFinishLaunching:(NSNotification *)aNotification {
 	if (isRunningTests())
 		return;
+
+	[DDLog addLogger:[DDTTYLogger sharedInstance]];
 
 	_tabsGroup = [[AZTabsGroup alloc] initWithTabView:self.tvTabView];
 	_tabsGroup.delegate = self;
