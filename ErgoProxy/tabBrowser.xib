@@ -8,6 +8,7 @@
     <objects>
         <customObject id="-2" userLabel="File's Owner" customClass="AZErgoBrowserTab">
             <connections>
+                <outlet property="tfAddressField" destination="ivS-ea-zJW" id="9qo-m0-imU"/>
                 <outlet property="view" destination="1" id="xwd-HX-oTP"/>
                 <outlet property="wvWebView" destination="QIa-ZF-buZ" id="bV0-Xc-7kk"/>
             </connections>
@@ -19,18 +20,18 @@
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
                 <webView translatesAutoresizingMaskIntoConstraints="NO" id="QIa-ZF-buZ">
-                    <rect key="frame" x="0.0" y="0.0" width="480" height="210"/>
+                    <rect key="frame" x="0.0" y="0.0" width="480" height="246"/>
                     <autoresizingMask key="autoresizingMask"/>
                     <webPreferences key="preferences" defaultFontSize="12" defaultFixedFontSize="12" plugInsEnabled="NO" javaEnabled="NO" javaScriptCanOpenWindowsAutomatically="NO">
                         <nil key="identifier"/>
                     </webPreferences>
                 </webView>
                 <customView translatesAutoresizingMaskIntoConstraints="NO" id="oSU-0W-PUv">
-                    <rect key="frame" x="0.0" y="210" width="480" height="62"/>
+                    <rect key="frame" x="0.0" y="246" width="480" height="26"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <subviews>
                         <textField verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="ivS-ea-zJW">
-                            <rect key="frame" x="82" y="20" width="347" height="22"/>
+                            <rect key="frame" x="82" y="2" width="347" height="22"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="http://" drawsBackground="YES" id="b1v-fc-iEO">
                                 <font key="font" metaFont="system"/>
@@ -42,13 +43,13 @@
                             </connections>
                         </textField>
                         <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aEU-UF-UnU">
-                            <rect key="frame" x="14" y="11" width="36" height="35"/>
+                            <rect key="frame" x="14" y="-7" width="36" height="35"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <constraints>
                                 <constraint firstAttribute="width" constant="23" id="Eb2-mO-y9Z"/>
                                 <constraint firstAttribute="height" constant="23" id="MHT-iS-UBl"/>
                             </constraints>
-                            <buttonCell key="cell" type="round" bezelStyle="circular" image="NSFollowLinkFreestandingTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AHa-ud-80U">
+                            <buttonCell key="cell" type="round" bezelStyle="circular" image="NSInvalidDataFreestandingTemplate" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="AHa-ud-80U">
                                 <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                 <font key="font" metaFont="system"/>
                             </buttonCell>
@@ -57,7 +58,7 @@
                             </connections>
                         </button>
                         <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Om4-97-ZRz">
-                            <rect key="frame" x="45" y="11" width="36" height="35"/>
+                            <rect key="frame" x="45" y="-7" width="36" height="35"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="23" id="LEc-mo-ZdL"/>
@@ -72,7 +73,7 @@
                             </connections>
                         </button>
                         <button horizontalHuggingPriority="750" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="Uu8-LR-rdm">
-                            <rect key="frame" x="431" y="11" width="36" height="35"/>
+                            <rect key="frame" x="431" y="-7" width="36" height="35"/>
                             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                             <constraints>
                                 <constraint firstAttribute="height" constant="23" id="TAA-T1-4oV"/>
@@ -88,9 +89,9 @@
                         </button>
                     </subviews>
                     <constraints>
-                        <constraint firstAttribute="bottom" secondItem="ivS-ea-zJW" secondAttribute="bottom" constant="20" symbolic="YES" id="9vg-AC-PKx"/>
+                        <constraint firstAttribute="bottom" secondItem="ivS-ea-zJW" secondAttribute="bottom" constant="2" id="9vg-AC-PKx"/>
                         <constraint firstItem="ivS-ea-zJW" firstAttribute="leading" secondItem="Om4-97-ZRz" secondAttribute="trailing" constant="8" symbolic="YES" id="CJ2-ld-N9l"/>
-                        <constraint firstItem="ivS-ea-zJW" firstAttribute="top" secondItem="oSU-0W-PUv" secondAttribute="top" constant="20" symbolic="YES" id="DOI-Qv-Njz"/>
+                        <constraint firstItem="ivS-ea-zJW" firstAttribute="top" secondItem="oSU-0W-PUv" secondAttribute="top" constant="2" id="DOI-Qv-Njz"/>
                         <constraint firstItem="Uu8-LR-rdm" firstAttribute="centerY" secondItem="ivS-ea-zJW" secondAttribute="centerY" id="EKo-T2-OCk"/>
                         <constraint firstItem="aEU-UF-UnU" firstAttribute="centerY" secondItem="Om4-97-ZRz" secondAttribute="centerY" id="GOh-c3-WTm"/>
                         <constraint firstAttribute="trailing" secondItem="Uu8-LR-rdm" secondAttribute="trailing" constant="20" symbolic="YES" id="JhK-uf-PyP"/>
@@ -114,6 +115,7 @@
     </objects>
     <resources>
         <image name="NSFollowLinkFreestandingTemplate" width="10" height="10"/>
+        <image name="NSInvalidDataFreestandingTemplate" width="18" height="18"/>
         <image name="NSRefreshTemplate" width="10" height="12"/>
     </resources>
 </document>

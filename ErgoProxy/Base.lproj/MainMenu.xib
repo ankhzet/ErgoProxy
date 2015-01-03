@@ -396,6 +396,11 @@
                             <action selector="actionToolbarNavigate:" target="494" id="aGi-b2-rwZ"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="D669A868-26A3-496B-9B6C-12D09EE145D6" explicitItemIdentifier="watch" label="Watch" paletteLabel="Watch" tag="-1" image="NSRevealFreestandingTemplate" autovalidates="NO" selectable="YES" id="p3r-3G-QGr">
+                        <connections>
+                            <action selector="actionToolbarNavigate:" target="494" id="hIB-88-4Pb"/>
+                        </connections>
+                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="780D4AEC-3F58-4504-8DF6-BD0492FC6421" explicitItemIdentifier="manual schedule" label="Scheduling" paletteLabel="Scheduling" tag="-1" image="NSAddTemplate" autovalidates="NO" selectable="YES" id="4st-Uv-AaN">
                         <connections>
                             <action selector="actionManualSchedule:" target="494" id="Iww-gI-BgK"/>
@@ -418,11 +423,6 @@
                     </toolbarItem>
                     <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="sX3-We-T7X"/>
                     <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="dVQ-Wv-wIs"/>
-                    <toolbarItem implicitItemIdentifier="D669A868-26A3-496B-9B6C-12D09EE145D6" explicitItemIdentifier="watch" label="Watch" paletteLabel="Watch" tag="-1" image="NSRevealFreestandingTemplate" autovalidates="NO" selectable="YES" id="p3r-3G-QGr">
-                        <connections>
-                            <action selector="actionToolbarNavigate:" target="494" id="hIB-88-4Pb"/>
-                        </connections>
-                    </toolbarItem>
                     <toolbarItem implicitItemIdentifier="D76135C1-C86D-463D-9C4F-1D1E828DF5A5" explicitItemIdentifier="browser" label="Browser" paletteLabel="Browser" tag="-1" image="NSNetwork" autovalidates="NO" selectable="YES" id="SVg-av-H3b">
                         <connections>
                             <action selector="actionToolbarNavigate:" target="494" id="wkb-KW-2mJ"/>

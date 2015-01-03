@@ -11,11 +11,13 @@
 #import <WebKit/WebKit.h>
 
 #import "HTTPServer.h"
+#import "AZErgoHTTPConnection.h"
 
 @interface AZErgoBrowserTab () {
 	HTTPServer *httpServer;
 }
 @property (weak) IBOutlet WebView *wvWebView;
+@property (weak) IBOutlet NSTextField *tfAddressField;
 
 @end
 
@@ -26,44 +28,51 @@
 }
 
 - (void) show {
+	[self.wvWebView setFrameLoadDelegate:self];
+
 	if (!httpServer) {
 
-	httpServer = [[HTTPServer alloc] init];
+		httpServer = [[HTTPServer alloc] init];
+		[httpServer setConnectionClass:[AZErgoHTTPConnection class]];
+		[httpServer setType:@"_http._tcp."];
 
-	// Tell server to use our custom MyHTTPConnection class.
-	[httpServer setConnectionClass:[MyHTTPConnection class]];
+		NSString *webPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"web"];
 
-	// Tell the server to broadcast its presence via Bonjour.
-	// This allows browsers such as Safari to automatically discover our service.
-	[httpServer setType:@"_http._tcp."];
+		[httpServer setDocumentRoot:webPath];
 
-	// Normally there's no need to run our server on any specific port.
-	// Technologies like Bonjour allow clients to dynamically discover the server's port at runtime.
-	// However, for easy testing you may want force a certain port so you can just hit the refresh button.
-	//	[httpServer setPort:12345];
+		NSError *error;
+		if([httpServer start:&error]) {
+//			[WebView registerURLSchemeAsLocal:@"ergo"];
 
-	// Serve files from our embedded Web folder
-	NSString *webPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"Web"];
-	DDLogVerbose(@"Setting document root: %@", webPath);
+			NSString *host = [NSString stringWithFormat:@"localhost:%hu", httpServer.listeningPort];
+			NSURL *url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/manga"];
 
-	[httpServer setDocumentRoot:webPath];
+			self.tfAddressField.stringValue = [url absoluteString] ?: [NSString stringWithFormat:@"http://%@", host];
+		} else {
+			DDLogError(@"Error starting HTTP Server: %@", error);
+		}
 
-	// Start the server (and check for problems)
-
-	NSError *error;
-	BOOL success = [httpServer start:&error];
-
-	if(!success)
-	{
-		DDLogError(@"Error starting HTTP Server: %@", error);
 	}
+
+	if ([httpServer isRunning]) {
+		NSString *host = [NSString stringWithFormat:@"localhost:%hu", httpServer.listeningPort];
+
+		NSURL *url = [NSURL URLWithString:self.tfAddressField.stringValue];
+		if (!url) {
+			url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/manga"];
+		}
+
+		self.tfAddressField.stringValue = [url absoluteString] ?: [NSString stringWithFormat:@"http://%@", host];
+
+		[[self.wvWebView mainFrame] loadRequest:[NSURLRequest requestWithURL: url]];
 	}
 
 	[super show];
 }
 
-- (void) navigateTo:(id)data {
-	
+
+- (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
+	self.tfAddressField.stringValue = sender.mainFrameURL ?: @"oO";
 }
 
 @end
