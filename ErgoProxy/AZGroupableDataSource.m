@@ -31,7 +31,7 @@
 	return item;
 }
 
-- (NSNumber *) orderedUID:(id)item {
+- (id<NSCopying>) orderedUID:(id)item {
 	return nil;
 }
 

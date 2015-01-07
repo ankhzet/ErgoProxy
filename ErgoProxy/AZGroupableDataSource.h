@@ -48,6 +48,6 @@
 - (NSString *) itemIdentifierFromItem:(id)item;
 - (id) rootNodeOf:(id)item;
 - (id) groupNodeOf:(id)item;
-- (NSNumber *) orderedUID:(id)item;
+- (id<NSCopying>) orderedUID:(id)item;
 
 @end

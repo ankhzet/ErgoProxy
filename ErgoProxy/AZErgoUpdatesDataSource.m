@@ -65,7 +65,7 @@
 	return item.watch;
 }
 
-- (NSNumber *) orderedUID:(AZErgoUpdateChapter *)item {
+- (id<NSCopying>) orderedUID:(AZErgoUpdateChapter *)item {
 	return @(item.volume * 10000 + item.idx);
 }
 

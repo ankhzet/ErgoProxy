@@ -190,7 +190,7 @@
 	return [NSString stringWithFormat:@"%06.1f",item.chapter];
 }
 
-- (NSNumber *) orderedUID:(AZDownload *)item {
+- (id<NSCopying>) orderedUID:(AZDownload *)item {
 	return @(truncf(item.chapter * 10) + (item.page / 1000.f));
 }
 
