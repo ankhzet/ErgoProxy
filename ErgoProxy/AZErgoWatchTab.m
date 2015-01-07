@@ -17,9 +17,6 @@
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
 
 #import "AZErgoWatcherScheduler.h"
-#import "AZDelayableAction.h"
-
-#define FETCH_DELAY 0.2
 
 typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	AZErgoWatcherStateIddle = 0,
@@ -65,7 +62,7 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	[scheduler revalidate];
 
 	self.updates.filter = YES;
-	[self fetchUpdates:[AZErgoUpdatesSource inProcess]];
+	[self delayFetch:[AZErgoUpdatesSource inProcess]];
 }
 
 - (void) show {
@@ -304,14 +301,14 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 }
 
 - (void) delayFetch:(BOOL)fullFetch {
-	[[AZDelayableAction shared:@"updates-fetch"] delayed:FETCH_DELAY execute:^{
+	[self delayed:@"fetch" withBlock:^{
 		[self fetchUpdates:fullFetch];
 	}];
 }
 
 - (void) fetchUpdates:(BOOL)fullFetch {
 	NSArray *data = self.updates.data;
-	[self.updates setData:nil];
+	self.updates.data = nil;
 	self.updates.groupped = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED);
 
 	//	if (fullFetch) {

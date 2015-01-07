@@ -14,14 +14,11 @@
 #import "AZProxifier.h"
 
 #import "AZErgoUpdateWatch.h"
-#import "AZDelayableAction.h"
 
 #import "AZErgoDownloadDetailsPopover.h"
 
 #import "AZDataProxyContainer.h"
 #import "AZSynkEnabledStorage.h"
-
-#define FETCH_DELAY 0.2
 
 @interface AZErgoMainTab () <AZErgoDownloadStateListener, AZErgoDownloadsDataSourceDelegate> {
 	AZErgoDownloadsDataSource *downloads;
@@ -102,10 +99,10 @@
 #pragma mark - fetch
 
 - (void) delayFetch:(BOOL)fullFetch {
-	[[AZDelayableAction shared:@"downloads-update"] delayed:FETCH_DELAY execute:^{
+	[self delayed:@"downloads-fetch" withBlock:^{
 		[self fetchDownloads:fullFetch];
 
-		[[AZDelayableAction shared:@"database-flush"] delayed:30. execute:^{
+		[self delayed:@"database-flush" forTime:30. withBlock:^{
 			[AZDataProxyContainer saveContext];
 		}];
 	}];
