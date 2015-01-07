@@ -6,8 +6,6 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
-
 #import "AZGroupableDataSource.h"
 
 typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
@@ -34,7 +32,9 @@ typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 
 + (AZErgoUpdateWatch *) relatedManga:(id)node;
 + (AZErgoUpdateChapter *) relatedChapter:(id)node;
-+ (NSString *) formattedChapterIDX:(float) chapter;
-+ (NSString *) formattedChapterPageIDX:(NSUInteger) page;
++ (NSString *) formattedChapterIDX:(float)chapter prefix:(BOOL)prefix;
++ (NSString *) formattedChapterIDX:(float)chapter;
++ (NSString *) formattedChapterPageIDX:(NSUInteger)page prefix:(BOOL)prefix;
++ (NSString *) formattedChapterPageIDX:(NSUInteger)page;
 
 @end

@@ -312,72 +312,17 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	self.updates.groupped = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED);
 
 	//	if (fullFetch) {
-	data = [AZErgoUpdateChapter filter:[NSPredicate predicateWithFormat:@"watch != nil"] limit:0];
-
-
-	NSMutableSet *whs = [NSMutableSet setWithCapacity:[data count]];
-	NSMutableSet *ehs = [NSMutableSet setWithCapacity:[data count]];
-	for (AZErgoUpdateChapter *chapter in data) {
-		AZErgoUpdateWatch *watch = chapter.watch;
-		if (watch)
-			[whs addObject:watch];
-		else
-			[ehs addObject:chapter];
-	}
-
-	if ([ehs count])
-		NSLog(@"Updates without established ->watch relationship: %@", ehs);
+	data = [AZErgoUpdateChapter all];
 
 	BOOL hasUpdates = NO;
-	NSMutableArray *filteredData = [NSMutableArray arrayWithCapacity:[data count]];
-	for (AZErgoUpdateWatch *watch in whs) {
-		BOOL done = YES;
-		NSArray *sorted = [[[watch.updates allObjects] copy] sortedArrayUsingComparator:^NSComparisonResult(AZErgoUpdateChapter *c1, AZErgoUpdateChapter *c2) {
-			int d = c2.idx - c1.idx;
-			return d ? d / abs(d) : NSOrderedSame;
-		}];
-
-		NSMutableArray *c = [NSMutableArray arrayWithCapacity:[sorted count]];
-		AZErgoUpdateChapter *last = [sorted lastObject];
-
-		done = !(last && last.idx < 0);
-		if (!done) {
-			last.state = AZErgoUpdateChapterDownloadsFailed;
-			if (fullFetch)
-				[c addObject:last];
-		}
-
-    for (AZErgoUpdateChapter *chapter in sorted) {
-			BOOL skipRest = NO;
-			if (chapter.idx >= 0)
-				switch ([watch chapterState:chapter]) {
-					case AZErgoUpdateChapterDownloadsDownloaded:
-						skipRest = YES;
-						break;
-
-					case AZErgoUpdateChapterDownloadsNone:
-						hasUpdates = YES;
-
-					case AZErgoUpdateChapterDownloadsPartial:
-					default:
-						done = NO;
-						[c addObject:chapter];
-				}
-
-			if (skipRest)
-				break;
-		}
-
-		if (!done)
-			[filteredData addObjectsFromArray:c];
-	}
+	data = [self filter:fullFetch data:data withUpdates:&hasUpdates];
 
 	if (hasUpdates)
 		[self watcherState:AZErgoWatcherStateHasUpdates];
 
 	//	}
 
-	[self.updates setData:filteredData];
+	[self.updates setData:data];
 	[self.ovUpdates reloadData];
 
 	// suppressing "rowView requested from -heightOfRow" annoying error bug
@@ -387,6 +332,96 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	@catch (NSException *exception) {
 		NSLog(@"WARN: %@", exception);
 	}
+}
+
+- (NSArray *) filter:(BOOL)fullFetch data:(NSArray *)data withUpdates:(BOOL *)_hasUpdates {
+	__block BOOL hasUpdates = NO;
+
+	if (PREF_BOOL(PREFS_UI_WATCHER_HIDEFINISHED)) {
+		NSMutableSet *whs = [NSMutableSet setWithCapacity:[data count]];
+		NSUInteger ehs = 0;
+		for (AZErgoUpdateChapter *chapter in data) {
+			AZErgoUpdateWatch *watch = chapter.watch;
+			if (watch)
+				[whs addObject:watch];
+			else
+				ehs++;
+		}
+
+		if (ehs)
+			NSLog(@"Updates without established ->watch relationship: %lu", ehs);
+
+		NSMutableArray *filteredData = [NSMutableArray arrayWithCapacity:[data count]];
+		for (AZErgoUpdateWatch *watch in whs) {
+			BOOL done = YES;
+			NSArray *sorted = [[watch.updates allObjects] sortedArrayUsingComparator:^NSComparisonResult(AZErgoUpdateChapter *c1, AZErgoUpdateChapter *c2) {
+				int d = c2.idx - c1.idx;
+				return d ? d / abs(d) : NSOrderedSame;
+			}];
+
+			NSMutableArray *c = [NSMutableArray arrayWithCapacity:[sorted count]];
+			AZErgoUpdateChapter *last = [sorted lastObject];
+
+			done = !(last && last.idx < 0);
+			if (!done) {
+				last.state = AZErgoUpdateChapterDownloadsFailed;
+				if (fullFetch)
+					[c addObject:last];
+			}
+
+			for (AZErgoUpdateChapter *chapter in sorted)
+				if (chapter.idx >= 0)
+					switch ([watch chapterState:chapter]) {
+						case AZErgoUpdateChapterDownloadsDownloaded:
+							goto skip;
+
+						case AZErgoUpdateChapterDownloadsNone:
+							hasUpdates = YES;
+
+						case AZErgoUpdateChapterDownloadsPartial:
+						default:
+							done = NO;
+							[c addObject:chapter];
+					}
+
+		skip:
+
+			if (!done)
+				[filteredData addObjectsFromArray:c];
+		}
+
+		data = filteredData;
+	} else {
+		NSUInteger count = [data count];
+		NSUInteger iterations = 4;
+		NSUInteger splice = count / iterations;
+		if (false && splice) {
+			dispatch_apply(iterations, dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^(size_t index) {
+				for (NSUInteger i = index * splice; i < (index + 1) * splice; i++) {
+					AZErgoUpdateChapter *chapter = data[i];
+					if ([chapter.watch chapterState:chapter] == AZErgoUpdateChapterDownloadsNone)
+						hasUpdates = YES;
+				}
+
+			});
+
+			NSUInteger upper = splice * iterations;
+			for (NSUInteger i = upper; i < count; i++) {
+				AZErgoUpdateChapter *chapter = data[i];
+				if ([chapter.watch chapterState:chapter] == AZErgoUpdateChapterDownloadsNone)
+					hasUpdates = YES;
+			}
+		} else
+			for (AZErgoUpdateChapter *chapter in data)
+				if ([chapter.watch chapterState:chapter] == AZErgoUpdateChapterDownloadsNone)
+					hasUpdates = YES;
+	}
+
+
+	if (_hasUpdates != NULL)
+		*_hasUpdates = hasUpdates;
+
+	return data;
 }
 
 @end

@@ -7,6 +7,8 @@
 //
 
 #import "AZErgoConfigurableTableCellView.h"
+#import "CustomDictionary.h"
+#import "KeyedHolder.h"
 
 @implementation AZErgoConfigurableTableCellView
 @synthesize bindedEntity;
@@ -23,6 +25,14 @@
 	bindedEntity = entity;
 }
 
+- (NSString *) plainTitle {
+	if ([CustomDictionary isDictionary:self.bindedEntity]) {
+		KeyedHolder *holder = ((CustomDictionary *)self.bindedEntity)->owner;
+		id object = holder->holdedObject;
+		return [object isKindOfClass:[NSString class]] ? [object capitalizedString] : [object description];
+	}
 
+	return [self.bindedEntity description] ?: @"<!plain title unavailable>";
+}
 
 @end

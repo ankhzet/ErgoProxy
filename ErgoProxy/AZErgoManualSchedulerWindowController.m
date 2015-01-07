@@ -36,7 +36,7 @@
 		return NO;
 	
 	NSArray *scans = self.scansList;
-	if (![scans count]) return YES;
+	if (![scans count]) return NO;
 
 	NSString *manga = self.mangaDirectory;
 	float chapter = self.mangaChapter;

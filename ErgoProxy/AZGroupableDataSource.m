@@ -184,7 +184,6 @@
 @implementation AZGroupableDataSource (DelegateAndDatasource)
 
 - (IBAction) actionDelegatedClick:(id)sender {
-
 }
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {

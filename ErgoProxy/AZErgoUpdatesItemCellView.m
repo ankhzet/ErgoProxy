@@ -30,7 +30,7 @@
 		title = @"";
 
 	if (!dummy) {
-		NSString *chap = (!!((int)(chapter.idx * 10) % 10)) ? [NSString stringWithFormat:@"%.1f\t ", chapter.idx] : [NSString stringWithFormat:@"%d\t  ", (int)(chapter.idx)];
+		NSString *chap = (!!((int)(chapter.idx * 10) % 10)) ? [NSString stringWithFormat:@"%.1f\t", chapter.idx] : [NSString stringWithFormat:@"%d\t  ", (int)(chapter.idx)];
 
 		title = [NSString stringWithFormat:@"v %d\t  ch %@%@", (int)chapter.volume, chap, title];
 	}

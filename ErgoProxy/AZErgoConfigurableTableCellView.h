@@ -14,4 +14,6 @@
 
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view;
 
+- (NSString *) plainTitle;
+
 @end

@@ -28,14 +28,26 @@
 - (AZDialogProcessBlock) makeProcessor:(AZDialogProcessBlock)filter {
 	return ^(AZDialogReturnCode code, AZSheetWindowController *controller) {
 
+		switch (code) {
+			case AZDialogReturnApply:
+			case AZDialogReturnOk:
+				controller.hasChanges = ![controller applyChanges];
+				break;
+
+			default:
+				break;
+		}
+
 		switch (filter ? (code = filter(code, controller)) : code) {
 			case AZDialogNoReturn:
 				break;
 
 			case AZDialogReturnApply:
-				controller.hasChanges = ![controller applyChanges];
 				break;
 
+			case AZDialogReturnOk:
+				if (self.hasChanges)
+					break;
 			default:
 				[controller dismissWithReturnCode:code];
 		}
@@ -99,6 +111,7 @@
 
 - (AZDialogReturnCode) beginSheetForWindow:(NSWindow *)window {
 	[self prepareWindow];
+	self.hasChanges = YES;
 
 	[[NSApplication sharedApplication] beginSheet:self.window
 																 modalForWindow:window

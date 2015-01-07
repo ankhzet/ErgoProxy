@@ -93,16 +93,23 @@
 
 @implementation AZErgoDownloadsDataSource (DataFormatting)
 
-+ (NSString *) formattedChapterIDX:(float) chapter {
++ (NSString *) formattedChapterIDX:(float)chapter prefix:(BOOL)prefix {
 	NSString *chap = (!!((int)(chapter * 10) % 10))
-	? [NSString stringWithFormat:@"ch. %.1f", chapter]
-	: [NSString stringWithFormat:@"ch. %d", (int)(chapter)];
-
-	return chap;
+	? [NSString stringWithFormat:@"%.1f", chapter]
+	: [NSString stringWithFormat:@"%d", (int)(chapter)];
+	return prefix ? [@"ch. " stringByAppendingString:chap] : chap;
 }
 
-+ (NSString *) formattedChapterPageIDX:(NSUInteger) page {
-	return [NSString stringWithFormat:@"p. %lu", page];
++ (NSString *) formattedChapterIDX:(float)chapter {
+	return [self formattedChapterIDX:chapter prefix:YES];
+}
+
++ (NSString *) formattedChapterPageIDX:(NSUInteger)page prefix:(BOOL)prefix {
+	return prefix ? [@"p. " stringByAppendingString:[@(page) stringValue]] : [@(page) stringValue];
+}
+
++ (NSString *) formattedChapterPageIDX:(NSUInteger)page {
+	return [self formattedChapterPageIDX:page prefix:YES];
 }
 
 + (AZErgoUpdateWatch *) relatedManga:(id)node {
@@ -156,7 +163,6 @@
 		}
 
 	AZErgoUpdateChapter *related = nil;
-
 
 	if (!(!chapterIdx || !manga))
 		related = [AZErgoUpdateChapter filter:[NSPredicate predicateWithFormat:@"watch.manga ==[c] %@ and abs(idx - %lf) < 0.01", manga, [chapterIdx floatValue]] limit:1];

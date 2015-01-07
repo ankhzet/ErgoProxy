@@ -13,11 +13,6 @@
 
 @implementation AZErgoDownloadGroupCellView
 
-- (NSString *) plainTitle {
-	KeyedHolder *holder = ((CustomDictionary *)self.bindedEntity)->owner;
-	return [holder->holdedObject capitalizedString];
-}
-
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
 	self.bindedEntity = entity;
 

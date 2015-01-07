@@ -34,6 +34,8 @@
 
 @interface AZGroupableDataSource (AccessorsBehaviour)
 
+- (IBAction) actionDelegatedClick:(id)sender;
+
 - (NSArray *) sort:(CustomDictionary *)group keys:(NSArray *)keys;
 
 - (NSString *) outlineView:(NSOutlineView *)outlineView cellTypeForItem:(id)item;
