@@ -18,14 +18,14 @@
             <rect key="frame" x="0.0" y="0.0" width="390" height="321"/>
             <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
             <subviews>
-                <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9IG-AN-YLI">
+                <scrollView autohidesScrollers="YES" horizontalLineScroll="26" horizontalPageScroll="10" verticalLineScroll="26" verticalPageScroll="10" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="9IG-AN-YLI">
                     <rect key="frame" x="0.0" y="0.0" width="390" height="321"/>
                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                     <clipView key="contentView" id="45u-NQ-Vig">
                         <rect key="frame" x="1" y="1" width="388" height="319"/>
                         <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                         <subviews>
-                            <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="rcz-NL-c6V" id="Q8d-oL-JVY">
+                            <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="rcz-NL-c6V" id="Q8d-oL-JVY">
                                 <rect key="frame" x="0.0" y="0.0" width="388" height="319"/>
                                 <autoresizingMask key="autoresizingMask"/>
                                 <size key="intercellSpacing" width="3" height="2"/>
@@ -68,7 +68,7 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aSb-vC-OnK">
-                                                        <rect key="frame" x="0.0" y="-2" width="27" height="21"/>
+                                                        <rect key="frame" x="0.0" y="-1" width="27" height="21"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="27" id="6wo-LA-PDm"/>
@@ -85,7 +85,7 @@
                                                 </subviews>
                                                 <constraints>
                                                     <constraint firstItem="XJ3-oR-eEi" firstAttribute="baseline" secondItem="8dK-Ei-jAZ" secondAttribute="baseline" id="C5s-Q3-PUN"/>
-                                                    <constraint firstAttribute="centerY" secondItem="aSb-vC-OnK" secondAttribute="centerY" constant="-0.5" id="bxI-GC-NsP"/>
+                                                    <constraint firstAttribute="centerY" secondItem="aSb-vC-OnK" secondAttribute="centerY" id="bxI-GC-NsP"/>
                                                     <constraint firstItem="aSb-vC-OnK" firstAttribute="leading" secondItem="GFe-mM-vhF" secondAttribute="leading" id="jEI-XO-la9"/>
                                                     <constraint firstItem="XJ3-oR-eEi" firstAttribute="leading" secondItem="aSb-vC-OnK" secondAttribute="trailing" constant="8" symbolic="YES" id="n1G-rg-nj7"/>
                                                     <constraint firstAttribute="trailing" secondItem="8dK-Ei-jAZ" secondAttribute="trailing" constant="20" symbolic="YES" id="sx1-Qs-UAc"/>
@@ -103,21 +103,21 @@
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YOX-dg-nYc">
-                                                        <rect key="frame" x="-6" y="-5" width="40" height="32"/>
+                                                        <rect key="frame" x="0.0" y="3" width="27" height="19"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <constraints>
-                                                            <constraint firstAttribute="width" constant="28" id="vvl-wa-1aC"/>
+                                                            <constraint firstAttribute="width" constant="27" id="vvl-wa-1aC"/>
                                                         </constraints>
-                                                        <buttonCell key="cell" type="push" bezelStyle="rounded" image="NSInfo" imagePosition="only" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="DIR-D1-HuD">
-                                                            <behavior key="behavior" pushIn="YES" changeContents="YES" lightByContents="YES"/>
-                                                            <font key="font" metaFont="system"/>
+                                                        <buttonCell key="cell" type="recessed" bezelStyle="recessed" image="NSInfo" imagePosition="overlaps" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="DIR-D1-HuD">
+                                                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                                            <font key="font" size="12" name="LucidaGrande-Bold"/>
                                                         </buttonCell>
                                                         <connections>
                                                             <action selector="actionDelegatedClick:" target="mPl-Wr-uU7" id="W2Y-D1-rX0"/>
                                                         </connections>
                                                     </button>
                                                     <imageView horizontalHuggingPriority="251" verticalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="VHu-1f-Urp">
-                                                        <rect key="frame" x="36" y="4" width="17" height="17"/>
+                                                        <rect key="frame" x="35" y="4" width="17" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="17" id="LuJ-HP-ILg"/>
@@ -126,7 +126,7 @@
                                                         <imageCell key="cell" refusesFirstResponder="YES" alignment="left" imageScaling="proportionallyDown" image="NSStatusNone" id="JY2-wK-pAO"/>
                                                     </imageView>
                                                     <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="bee-9e-9x3">
-                                                        <rect key="frame" x="58" y="4" width="60" height="17"/>
+                                                        <rect key="frame" x="57" y="4" width="61" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                         <constraints>
                                                             <constraint firstAttribute="height" constant="17" id="fq0-qS-zfo"/>
@@ -170,13 +170,13 @@
                                                     </progressIndicator>
                                                 </subviews>
                                                 <constraints>
+                                                    <constraint firstAttribute="centerY" secondItem="YOX-dg-nYc" secondAttribute="centerY" constant="0.5" id="3x4-lF-Knr"/>
                                                     <constraint firstItem="l4B-qr-z9R" firstAttribute="leading" secondItem="U8W-vo-eZJ" secondAttribute="trailing" constant="8" symbolic="YES" id="4qr-yk-6eS"/>
+                                                    <constraint firstAttribute="centerY" secondItem="VHu-1f-Urp" secondAttribute="centerY" constant="0.5" id="6Lg-Cf-V8Q"/>
                                                     <constraint firstItem="U8W-vo-eZJ" firstAttribute="leading" secondItem="nYo-C6-Hwo" secondAttribute="trailing" constant="8" symbolic="YES" id="Bc5-86-HcL"/>
                                                     <constraint firstItem="YOX-dg-nYc" firstAttribute="leading" secondItem="gC2-lM-A8C" secondAttribute="leading" id="BxN-fs-jvQ"/>
-                                                    <constraint firstItem="VHu-1f-Urp" firstAttribute="centerY" secondItem="bee-9e-9x3" secondAttribute="centerY" id="CaI-CR-jdG"/>
-                                                    <constraint firstItem="VHu-1f-Urp" firstAttribute="centerY" secondItem="l4B-qr-z9R" secondAttribute="centerY" id="GAW-Oz-c7u"/>
                                                     <constraint firstItem="nYo-C6-Hwo" firstAttribute="leading" secondItem="bee-9e-9x3" secondAttribute="trailing" constant="8" symbolic="YES" id="GIF-it-1Nq"/>
-                                                    <constraint firstItem="YOX-dg-nYc" firstAttribute="centerY" secondItem="VHu-1f-Urp" secondAttribute="centerY" id="GUa-o4-PBr"/>
+                                                    <constraint firstAttribute="centerY" secondItem="l4B-qr-z9R" secondAttribute="centerY" id="Gtd-l1-7Ig"/>
                                                     <constraint firstItem="U8W-vo-eZJ" firstAttribute="baseline" secondItem="bee-9e-9x3" secondAttribute="baseline" id="HgR-1R-RwO"/>
                                                     <constraint firstItem="U8W-vo-eZJ" firstAttribute="baseline" secondItem="nYo-C6-Hwo" secondAttribute="baseline" id="MaS-vu-gEE"/>
                                                     <constraint firstItem="VHu-1f-Urp" firstAttribute="leading" secondItem="YOX-dg-nYc" secondAttribute="trailing" constant="8" symbolic="YES" id="Nmx-qZ-8lS"/>

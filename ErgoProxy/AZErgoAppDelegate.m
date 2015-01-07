@@ -17,9 +17,16 @@
 #import "AZDataProxyContainer.h"
 
 #import "AZErgoManualSchedulerWindowController.h"
+#import "AZErgoUpdateWatchSubmitterWindowController.h"
+
+@interface AZErgoAppDelegate ()
+@property (weak) IBOutlet NSMenu *mNavMenu;
+
+@end
 
 @implementation AZErgoAppDelegate {
 	BOOL running, paused;
+	NSDictionary *tabMapping;
 }
 
 - (void) registerTabs {
@@ -40,6 +47,12 @@
 	running = NO;
 	paused = NO;
 
+	tabMapping = @{
+								 @2: AZEPUIDWatchTab,
+								 @3: AZEPUIDMainTab,
+								 @4: AZEPUIDBrowserTab,
+								 };
+
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
 	[self registerTab:[AZErgoWatchTab class]];
@@ -50,8 +63,36 @@
 	return AZEPUIDMainTab;
 }
 
+- (IBAction)actionShowPreferences:(id)sender {
+	[self.tabsGroup navigateTo:AZEPUIDPreferencesTab withNavData:nil];
+}
+
+- (IBAction)actionAddWatcher:(id)sender {
+	[[AZErgoUpdateWatchSubmitterWindowController sharedController] showWatchSubmitter];
+}
+
 - (IBAction)actionManualSchedule:(id)sender {
 	[[AZErgoManualSchedulerWindowController sharedController] beginSheet];
+}
+
+- (IBAction)actionMenuNavigate:(id)sender {
+	NSMenuItem *item = sender;
+	NSString *tab = tabMapping[@(item.tag)];
+
+	if (!tab) {
+		NSLog(@"Unknown menu navigation item tag %lu", item.tag);
+		return;
+	}
+
+	[self.tabsGroup navigateTo:tab withNavData:nil];
+}
+
+- (void) tabGroup:(AZTabsGroup *)tabGroup navigatedTo:(AZTabProvider *)tab {
+	[super tabGroup:tabGroup navigatedTo:tab];
+
+	for (NSMenuItem *item in self.mNavMenu.itemArray)
+		if (!!item.tag)
+			[item setEnabled:![tabMapping[@(item.tag)] isEqualToString:tab.tabIdentifier]];
 }
 
 - (IBAction)actionRunDownloader:(id)sender {
@@ -69,14 +110,14 @@
 		[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
 
 		[[AZProxifier sharedProxy] runDownloaders:(running = !running)];
-		((NSToolbarItem *) sender).label = running ? @"Stop" : @"Download";
+		((NSMenuItem *) sender).title = running ? @"Stop downloaders" : @"Download";
 	}
 }
 
 - (IBAction)actionPauseDownloader:(id)sender {
 	@synchronized(self) {
 		[[AZProxifier sharedProxy] pauseDownloaders:(paused = !paused)];
-		((NSToolbarItem *) sender).label = paused ? @"Resume" : @"Pause";
+		((NSMenuItem *) sender).title = paused ? @"Resume workers" : @"Pause workers";
 	}
 }
 

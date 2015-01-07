@@ -14,7 +14,7 @@
 
 static BOOL isRunningTests(void) __attribute__((const));
 
-@interface AZAppDelegate () <AZTabsGroupDelegate> {
+@interface AZAppDelegate () {
 	AZTabsGroup *_tabsGroup;
 }
 

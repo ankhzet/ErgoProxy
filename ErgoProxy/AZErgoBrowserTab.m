@@ -30,7 +30,11 @@
 - (void) show {
 	[self.wvWebView setFrameLoadDelegate:self];
 
+	NSString *navPath = self.navData ? [NSString stringWithFormat:@"/reader/%@",self.navData] : @"/manga";
+	NSURL *url = self.navData ? nil : [NSURL URLWithString:self.tfAddressField.stringValue];
+
 	if (!httpServer) {
+		url = nil;
 
 		httpServer = [[HTTPServer alloc] init];
 		[httpServer setConnectionClass:[AZErgoHTTPConnection class]];
@@ -39,15 +43,10 @@
 		NSString *webPath = [[[NSBundle mainBundle] resourcePath] stringByAppendingPathComponent:@"web"];
 
 		[httpServer setDocumentRoot:webPath];
+		[httpServer setPort:2012];
 
 		NSError *error;
 		if([httpServer start:&error]) {
-//			[WebView registerURLSchemeAsLocal:@"ergo"];
-
-			NSString *host = [NSString stringWithFormat:@"localhost:%hu", httpServer.listeningPort];
-			NSURL *url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/manga"];
-
-			self.tfAddressField.stringValue = [url absoluteString] ?: [NSString stringWithFormat:@"http://%@", host];
 		} else {
 			DDLogError(@"Error starting HTTP Server: %@", error);
 		}
@@ -57,12 +56,12 @@
 	if ([httpServer isRunning]) {
 		NSString *host = [NSString stringWithFormat:@"localhost:%hu", httpServer.listeningPort];
 
-		NSURL *url = [NSURL URLWithString:self.tfAddressField.stringValue];
-		if (!url) {
-			url = [[NSURL alloc] initWithScheme:@"http" host:host path:@"/manga"];
-		}
+		if (!url)
+			url = [[NSURL alloc] initWithScheme:@"http" host:host path:navPath];
 
-		self.tfAddressField.stringValue = [url absoluteString] ?: [NSString stringWithFormat:@"http://%@", host];
+		navPath = [url absoluteString] ?: [NSString stringWithFormat:@"http://%@", host];
+
+		self.tfAddressField.stringValue = [navPath stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
 
 		[[self.wvWebView mainFrame] loadRequest:[NSURLRequest requestWithURL: url]];
 	}
@@ -72,7 +71,7 @@
 
 
 - (void)webView:(WebView *)sender didFinishLoadForFrame:(WebFrame *)frame {
-	self.tfAddressField.stringValue = sender.mainFrameURL ?: @"oO";
+	self.tfAddressField.stringValue = [sender.mainFrameURL stringByReplacingPercentEscapesUsingEncoding:NSUTF8StringEncoding] ?: @"oO";
 }
 
 @end

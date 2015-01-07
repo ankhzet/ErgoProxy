@@ -26,7 +26,11 @@
                             <menuItem isSeparatorItem="YES" id="236">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
-                            <menuItem title="Preferences…" keyEquivalent="," id="129"/>
+                            <menuItem title="Preferences…" keyEquivalent="," id="129">
+                                <connections>
+                                    <action selector="actionShowPreferences:" target="494" id="J81-7w-rdr"/>
+                                </connections>
+                            </menuItem>
                             <menuItem isSeparatorItem="YES" id="143">
                                 <modifierMask key="keyEquivalentModifierMask" command="YES"/>
                             </menuItem>
@@ -66,6 +70,32 @@
                 <menuItem title="File" id="83">
                     <menu key="submenu" title="File" id="81">
                         <items>
+                            <menuItem title="Toggle downloaders" id="Ouh-Pa-k8d">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="actionRunDownloader:" target="494" id="38h-oJ-b7Z"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Pause downloaders" id="moJ-2L-CY2">
+                                <modifierMask key="keyEquivalentModifierMask"/>
+                                <connections>
+                                    <action selector="actionPauseDownloader:" target="494" id="9L5-Ie-JF0"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="f0R-c0-UmX"/>
+                            <menuItem title="Add watcher..." keyEquivalent="w" id="SjD-FM-P99">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                                <connections>
+                                    <action selector="actionAddWatcher:" target="494" id="jq0-4n-iLS"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Schedule chapter..." keyEquivalent="s" id="XAC-Ok-2SX">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                                <connections>
+                                    <action selector="actionManualSchedule:" target="494" id="Ofd-SW-1XI"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="ZS8-eU-H21"/>
                             <menuItem title="Close" keyEquivalent="w" id="73">
                                 <connections>
                                     <action selector="performClose:" target="-1" id="193"/>
@@ -321,6 +351,30 @@
                         </items>
                     </menu>
                 </menuItem>
+                <menuItem title="Navigate" id="FnL-U2-HAs">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <menu key="submenu" title="Navigate" autoenablesItems="NO" id="f8y-8F-8Gy">
+                        <items>
+                            <menuItem title="Watchers" image="NSRevealFreestandingTemplate" tag="2" keyEquivalent="W" id="e8S-JT-Oeo">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="h1w-Kv-yKr"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Downloads" image="NSPathTemplate" tag="3" keyEquivalent="D" id="t5C-LR-Imi">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="AzN-L2-pqx"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="Dmm-Aj-yJV"/>
+                            <menuItem title="Browser" tag="4" keyEquivalent="B" id="WC2-Bd-6MN">
+                                <attributedString key="attributedTitle"/>
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="td8-9j-8Kk"/>
+                                </connections>
+                            </menuItem>
+                        </items>
+                    </menu>
+                </menuItem>
                 <menuItem title="Window" id="19">
                     <menu key="submenu" title="Window" systemMenu="window" id="24">
                         <items>
@@ -360,22 +414,22 @@
             </items>
         </menu>
         <window title="ErgoProxy" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
-            <rect key="contentRect" x="335" y="390" width="480" height="360"/>
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" unifiedTitleAndToolbar="YES"/>
+            <rect key="contentRect" x="335" y="390" width="523" height="356"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <value key="minSize" type="size" width="480" height="360"/>
             <view key="contentView" id="372">
-                <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
+                <rect key="frame" x="0.0" y="0.0" width="523" height="356"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <tabView type="noTabsNoBorder" translatesAutoresizingMaskIntoConstraints="NO" id="RFE-6F-4fQ">
-                        <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
+                        <rect key="frame" x="0.0" y="0.0" width="523" height="356"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <font key="font" metaFont="system"/>
                         <tabViewItems>
                             <tabViewItem label="Dummy" identifier="1" id="qc5-ci-uIV">
                                 <view key="view" id="hPG-Cv-MHB">
-                                    <rect key="frame" x="0.0" y="0.0" width="480" height="360"/>
+                                    <rect key="frame" x="0.0" y="0.0" width="523" height="356"/>
                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                 </view>
                             </tabViewItem>
@@ -389,34 +443,19 @@
                     <constraint firstAttribute="trailing" secondItem="RFE-6F-4fQ" secondAttribute="trailing" id="RpV-pK-xDw"/>
                 </constraints>
             </view>
-            <toolbar key="toolbar" implicitIdentifier="3C0228CB-4D9E-4485-B716-DA30CC8F819D" autosavesConfiguration="NO" displayMode="iconAndLabel" sizeMode="small" id="7fk-CB-Hum">
+            <toolbar key="toolbar" implicitIdentifier="3C0228CB-4D9E-4485-B716-DA30CC8F819D" displayMode="iconAndLabel" sizeMode="small" id="7fk-CB-Hum">
                 <allowedToolbarItems>
                     <toolbarItem implicitItemIdentifier="E146F384-00EE-4695-BC2B-E884EC3E7F39" explicitItemIdentifier="main" label="Downloads" paletteLabel="Downloads" tag="-1" image="NSPathTemplate" autovalidates="NO" selectable="YES" id="gDb-dg-yqS">
                         <connections>
                             <action selector="actionToolbarNavigate:" target="494" id="aGi-b2-rwZ"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="D669A868-26A3-496B-9B6C-12D09EE145D6" explicitItemIdentifier="watch" label="Watch" paletteLabel="Watch" tag="-1" image="NSRevealFreestandingTemplate" autovalidates="NO" selectable="YES" id="p3r-3G-QGr">
+                    <toolbarItem implicitItemIdentifier="311F8330-65EA-4AF5-AC7E-C88ED74D8E88" explicitItemIdentifier="watch" label="Watch" paletteLabel="Watch" tag="-1" image="NSRevealFreestandingTemplate" autovalidates="NO" selectable="YES" id="p3r-3G-QGr">
                         <connections>
                             <action selector="actionToolbarNavigate:" target="494" id="hIB-88-4Pb"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="780D4AEC-3F58-4504-8DF6-BD0492FC6421" explicitItemIdentifier="manual schedule" label="Scheduling" paletteLabel="Scheduling" tag="-1" image="NSAddTemplate" autovalidates="NO" selectable="YES" id="4st-Uv-AaN">
-                        <connections>
-                            <action selector="actionManualSchedule:" target="494" id="Iww-gI-BgK"/>
-                        </connections>
-                    </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="66FCEE23-7137-4262-9888-D9E2F7CC66C0" label="Download" paletteLabel="Download" tag="-1" image="NSSlideshowTemplate" id="6Jm-AT-2IB">
-                        <connections>
-                            <action selector="actionRunDownloader:" target="494" id="goA-X9-IQ6"/>
-                        </connections>
-                    </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="C5370AEC-3DF7-453D-A705-3CAA6C3107A9" label="Pause" paletteLabel="Pause" tag="-1" image="NSIconViewTemplate" id="tnS-kY-EEl">
-                        <connections>
-                            <action selector="actionPauseDownloader:" target="494" id="bpu-OL-keB"/>
-                        </connections>
-                    </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="097CB206-D6E8-41A8-9A31-F4FD968FC18A" explicitItemIdentifier="preferences" label="Preferences" paletteLabel="Preferences" tag="-1" image="NSActionTemplate" autovalidates="NO" selectable="YES" id="CsQ-mq-E6z">
+                    <toolbarItem implicitItemIdentifier="097CB206-D6E8-41A8-9A31-F4FD968FC18A" explicitItemIdentifier="preferences" label="Preferences" paletteLabel="Preferences" tag="-1" image="NSPreferencesGeneral" autovalidates="NO" selectable="YES" id="CsQ-mq-E6z">
                         <connections>
                             <action selector="actionToolbarNavigate:" target="494" id="gM5-RR-Fzr"/>
                         </connections>
@@ -430,12 +469,10 @@
                     </toolbarItem>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
-                    <toolbarItem reference="gDb-dg-yqS"/>
+                    <toolbarItem reference="jbr-LD-CjI"/>
                     <toolbarItem reference="p3r-3G-QGr"/>
-                    <toolbarItem reference="4st-Uv-AaN"/>
+                    <toolbarItem reference="gDb-dg-yqS"/>
                     <toolbarItem reference="dVQ-Wv-wIs"/>
-                    <toolbarItem reference="6Jm-AT-2IB"/>
-                    <toolbarItem reference="tnS-kY-EEl"/>
                     <toolbarItem reference="sX3-We-T7X"/>
                     <toolbarItem reference="SVg-av-H3b"/>
                     <toolbarItem reference="dVQ-Wv-wIs"/>
@@ -445,6 +482,7 @@
         </window>
         <customObject id="494" customClass="AZErgoAppDelegate">
             <connections>
+                <outlet property="mNavMenu" destination="f8y-8F-8Gy" id="i6g-uX-Y3B"/>
                 <outlet property="tbToolBar" destination="7fk-CB-Hum" id="EaD-zZ-OaK"/>
                 <outlet property="tvTabView" destination="RFE-6F-4fQ" id="daH-SF-H22"/>
                 <outlet property="window" destination="371" id="532"/>
@@ -453,12 +491,10 @@
         <customObject id="420" customClass="NSFontManager"/>
     </objects>
     <resources>
-        <image name="NSActionTemplate" width="15" height="15"/>
-        <image name="NSAddTemplate" width="8" height="8"/>
-        <image name="NSIconViewTemplate" width="11" height="10"/>
+        <image name="NSListViewTemplate" width="11" height="10"/>
         <image name="NSNetwork" width="32" height="32"/>
         <image name="NSPathTemplate" width="13" height="10"/>
+        <image name="NSPreferencesGeneral" width="32" height="32"/>
         <image name="NSRevealFreestandingTemplate" width="14" height="14"/>
-        <image name="NSSlideshowTemplate" width="17" height="14"/>
     </resources>
 </document>

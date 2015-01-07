@@ -61,7 +61,6 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 - (void) updateContents {
 	[scheduler revalidate];
 
-	self.updates.filter = YES;
 	[self delayFetch:[AZErgoUpdatesSource inProcess]];
 }
 
@@ -235,43 +234,12 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 			[self runChecker];
 }
 
-- (void) addWatcher {
-	AZErgoUpdateWatchSubmitterWindowController *uwsc = [AZErgoUpdateWatchSubmitterWindowController sharedController];
-	[uwsc showWithSetup:nil andFiltering:^AZDialogReturnCode(AZDialogReturnCode code, AZErgoUpdateWatchSubmitterWindowController *uwswc) {
-		if (code == AZDialogReturnCancel)
-			return code;
-
-		AZErgoUpdatesSource *source = [AZErgoMangachanSource sharedSource]; //TODO: source selection
-
-		NSString *mangaTitle = uwswc.directory;
-
-		if ([mangaTitle length]) {
-			AZErgoUpdateWatch *watch = [AZErgoUpdateWatch unique:[NSPredicate predicateWithFormat:@"manga like %@", mangaTitle] initWith:^(AZErgoUpdateWatch *w) {
-				w.manga = mangaTitle;
-				w.genData = uwswc.identifier;
-			}];
-			watch.source = source.descriptor;
-
-			[source checkWatch:watch];
-		} else
-			[self runChecker];
-
-		uwswc.directory = nil;
-		uwswc.identifier = nil;
-
-		return (code == AZDialogReturnOk) ? AZDialogReturnOk : AZDialogNoReturn;
-	}];
-}
-
 - (void) delegatedAction:(AZErgoUpdateActionIntent *)action {
 	if ([action is:@"refresh"])
 		[self refreshChaptersList:action.initiatorRelatedEntity];
 	else
 		if ([action is:@"scans"])
 			[self scheduleDownloads:action.initiatorRelatedEntity recursive:YES];
-		else
-			if ([action is:@"add-watcher"])
-				[self addWatcher];
 }
 
 - (AZErgoUpdateChapter *) dummyUpdateNode {

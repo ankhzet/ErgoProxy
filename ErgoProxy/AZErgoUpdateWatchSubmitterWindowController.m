@@ -9,6 +9,7 @@
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
 
 #import "AZErgoUpdatesCommons.h"
+#import "AZErgoMangachanSource.h"
 
 @interface AZErgoUpdateWatchSubmitterWindowController ()
 
@@ -48,13 +49,28 @@
 }
 
 - (void) showWatchSubmitter {
-	switch ([self beginSheet]) {
-		case AZDialogReturnOk:
-			break;
+	[self showWithSetup:nil andFiltering:^AZDialogReturnCode(AZDialogReturnCode code, AZErgoUpdateWatchSubmitterWindowController *controller) {
+		if (code == AZDialogReturnCancel)
+			return code;
 
-		default:
-			break;
-	}
+		AZErgoUpdatesSource *source = [AZErgoMangachanSource sharedSource]; //TODO: source selection
+
+		NSString *mangaTitle = controller.directory;
+
+		if ([mangaTitle length]) {
+			AZErgoUpdateWatch *watch = [AZErgoUpdateWatch unique:[NSPredicate predicateWithFormat:@"manga ==[c] %@", mangaTitle] initWith:^(AZErgoUpdateWatch *w) {
+				w.manga = mangaTitle;
+				w.genData = controller.identifier;
+			}];
+			watch.source = source.descriptor;
+
+			[source checkWatch:watch];
+
+			controller.identifier = nil;
+		}
+
+		return (code == AZDialogReturnOk) ? AZDialogReturnOk : AZDialogNoReturn;
+	}];
 }
 
 - (IBAction)actionRefreshList:(id)sender {

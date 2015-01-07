@@ -7,9 +7,9 @@
 //
 
 #import <Cocoa/Cocoa.h>
+#import "AZTabsCommons.h"
 
-@class AZTabsGroup, AZTabProvider;
-@interface AZAppDelegate : NSObject <NSApplicationDelegate>
+@interface AZAppDelegate : NSObject <NSApplicationDelegate, AZTabsGroupDelegate>
 
 @property (assign) IBOutlet NSWindow *window;
 @property (nonatomic) AZTabsGroup *tabsGroup;
