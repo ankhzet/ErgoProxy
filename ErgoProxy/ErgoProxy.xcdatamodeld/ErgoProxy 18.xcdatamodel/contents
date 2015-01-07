@@ -42,17 +42,23 @@
         <relationship name="source" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="ErgoUpdatesSourceDescription" inverseName="watches" inverseEntity="ErgoUpdatesSourceDescription" syncable="YES"/>
         <relationship name="updates" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="ErgoUpdateChapter" inverseName="watch" inverseEntity="ErgoUpdateChapter" syncable="YES"/>
     </entity>
-    <entity name="Manga" syncable="YES">
+    <entity name="Manga" representedClassName="AZErgoManga" syncable="YES">
         <attribute name="annotation" optional="YES" attributeType="String" syncable="YES"/>
         <attribute name="name" optional="YES" attributeType="String" syncable="YES"/>
-        <relationship name="tags" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="MangaTag" inverseName="manga" inverseEntity="MangaTag" syncable="YES"/>
+        <relationship name="progress" optional="YES" maxCount="1" deletionRule="Cascade" destinationEntity="MangaProgress" inverseName="manga" inverseEntity="MangaProgress" syncable="YES"/>
+        <relationship name="tags" optional="YES" toMany="YES" deletionRule="Nullify" destinationEntity="MangaTag" inverseName="manga" inverseEntity="MangaTag" syncable="YES"/>
         <relationship name="titles" optional="YES" toMany="YES" deletionRule="Cascade" destinationEntity="MangaTitle" inverseName="manga" inverseEntity="MangaTitle" syncable="YES"/>
     </entity>
-    <entity name="MangaTag" syncable="YES">
+    <entity name="MangaProgress" representedClassName="AZErgoMangaProgress" syncable="YES">
+        <attribute name="chapter" optional="YES" attributeType="Float" defaultValueString="0.0" syncable="YES"/>
+        <attribute name="page" optional="YES" attributeType="Integer 64" defaultValueString="0" syncable="YES"/>
+        <relationship name="manga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Manga" inverseName="progress" inverseEntity="Manga" syncable="YES"/>
+    </entity>
+    <entity name="MangaTag" representedClassName="AZErgoMangaTag" syncable="YES">
         <attribute name="tag" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="manga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Manga" inverseName="tags" inverseEntity="Manga" syncable="YES"/>
     </entity>
-    <entity name="MangaTitle" syncable="YES">
+    <entity name="MangaTitle" representedClassName="AZErgoMangaTitle" syncable="YES">
         <attribute name="title" optional="YES" attributeType="String" syncable="YES"/>
         <relationship name="manga" optional="YES" maxCount="1" deletionRule="Nullify" destinationEntity="Manga" inverseName="titles" inverseEntity="Manga" syncable="YES"/>
     </entity>
@@ -74,11 +80,12 @@
         <element name="ErgoUpdateChapter" positionX="0" positionY="0" width="0" height="0"/>
         <element name="ErgoUpdatesSourceDescription" positionX="0" positionY="0" width="0" height="0"/>
         <element name="ErgoUpdateWatch" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="Manga" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MangaTag" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MangaTitle" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Proxifier" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Server" positionX="0" positionY="0" width="0" height="0"/>
         <element name="Storage" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="Manga" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="MangaTitle" positionX="0" positionY="0" width="0" height="0"/>
-        <element name="MangaTag" positionX="0" positionY="0" width="0" height="0"/>
+        <element name="MangaProgress" positionX="0" positionY="0" width="0" height="0"/>
     </elements>
 </model>

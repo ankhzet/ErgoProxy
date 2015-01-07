@@ -18,6 +18,7 @@
 
 #import "AZErgoManualSchedulerWindowController.h"
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
+#import "AZErgoMangaAddWindowController.h"
 
 @interface AZErgoAppDelegate ()
 @property (weak) IBOutlet NSMenu *mNavMenu;
@@ -48,23 +49,47 @@
 	paused = NO;
 
 	tabMapping = @{
+								 @1: AZEPUIDMangaTab,
 								 @2: AZEPUIDWatchTab,
 								 @3: AZEPUIDMainTab,
 								 @4: AZEPUIDBrowserTab,
+								 @5: AZEPUIDTagBrowserTab,
 								 };
 
 	[self registerTab:[AZErgoMainTab class]];
 	[self registerTab:[AZErgoPreferencesTab class]];
 	[self registerTab:[AZErgoWatchTab class]];
 	[self registerTab:[AZErgoBrowserTab class]];
+
+	[self registerTab:[AZErgoMangaTab class]];
+	[self registerTab:[AZErgoTagBrowser class]];
+	[self registerTab:[AZErgoMangaInfoTab class]];
 }
 
 - (NSString *) initialTab {
-	return AZEPUIDMainTab;
+	return AZEPUIDMangaTab;
 }
 
 - (IBAction)actionShowPreferences:(id)sender {
 	[self.tabsGroup navigateTo:AZEPUIDPreferencesTab withNavData:nil];
+}
+
+- (IBAction)actionAddManga:(id)sender {
+	[[AZErgoMangaAddWindowController sharedController] showWithSetup:nil andFiltering:^AZDialogReturnCode(AZDialogReturnCode code, id controller) {
+
+		switch (code) {
+			case AZDialogReturnOk:
+			case AZDialogReturnApply:
+				if ([self.tabsGroup.currentTab.tabIdentifier isEqualToString:AZEPUIDMangaTab])
+					[self.tabsGroup.currentTab updateContents];
+				break;
+
+			default:
+				break;
+		}
+
+		return code;
+	}];
 }
 
 - (IBAction)actionAddWatcher:(id)sender {

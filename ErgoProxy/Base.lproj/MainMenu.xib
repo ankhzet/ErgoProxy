@@ -83,6 +83,12 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="f0R-c0-UmX"/>
+                            <menuItem title="Add manga" keyEquivalent="m" id="UUf-hf-HoJ">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES"/>
+                                <connections>
+                                    <action selector="actionAddManga:" target="494" id="PJr-UF-SZ9"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Add watcher..." keyEquivalent="w" id="SjD-FM-P99">
                                 <modifierMask key="keyEquivalentModifierMask" control="YES"/>
                                 <connections>
@@ -152,6 +158,9 @@
                                 </connections>
                             </menuItem>
                             <menuItem title="Delete" id="IkW-0G-mF5">
+                                <string key="keyEquivalent" base64-UTF8="YES">
+CA
+</string>
                                 <modifierMask key="keyEquivalentModifierMask"/>
                                 <connections>
                                     <action selector="delete:" target="-1" id="M1U-xY-787"/>
@@ -355,6 +364,11 @@
                     <modifierMask key="keyEquivalentModifierMask"/>
                     <menu key="submenu" title="Navigate" autoenablesItems="NO" id="f8y-8F-8Gy">
                         <items>
+                            <menuItem title="Manga list" image="NSListViewTemplate" tag="1" keyEquivalent="M" id="Hwn-Hg-iVe">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="uR5-dO-7bv"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Watchers" image="NSRevealFreestandingTemplate" tag="2" keyEquivalent="W" id="e8S-JT-Oeo">
                                 <connections>
                                     <action selector="actionMenuNavigate:" target="494" id="h1w-Kv-yKr"/>
@@ -363,6 +377,12 @@
                             <menuItem title="Downloads" image="NSPathTemplate" tag="3" keyEquivalent="D" id="t5C-LR-Imi">
                                 <connections>
                                     <action selector="actionMenuNavigate:" target="494" id="AzN-L2-pqx"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem isSeparatorItem="YES" id="JIr-fP-gbr"/>
+                            <menuItem title="Tag browser" tag="5" keyEquivalent="T" id="IUd-2P-dBd">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="tU9-dc-Zvk"/>
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="Dmm-Aj-yJV"/>
@@ -465,6 +485,11 @@
                     <toolbarItem implicitItemIdentifier="D76135C1-C86D-463D-9C4F-1D1E828DF5A5" explicitItemIdentifier="browser" label="Browser" paletteLabel="Browser" tag="-1" image="NSNetwork" autovalidates="NO" selectable="YES" id="SVg-av-H3b">
                         <connections>
                             <action selector="actionToolbarNavigate:" target="494" id="wkb-KW-2mJ"/>
+                        </connections>
+                    </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="18238B15-C73E-4B22-ACA1-F47C64FABB40" explicitItemIdentifier="manga" label="Manga list" paletteLabel="Manga list" tag="-1" image="NSListViewTemplate" autovalidates="NO" selectable="YES" id="jbr-LD-CjI">
+                        <connections>
+                            <action selector="actionToolbarNavigate:" target="494" id="vpu-Ba-t3a"/>
                         </connections>
                     </toolbarItem>
                 </allowedToolbarItems>

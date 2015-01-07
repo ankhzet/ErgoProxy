@@ -13,7 +13,7 @@
 
 @class RootDictionary;
 
-@interface AZGroupableDataSource : NSObject<NSOutlineViewDataSource, NSOutlineViewDelegate> {
+@interface AZGroupableDataSource : NSObject<NSCollectionViewDelegate, NSOutlineViewDataSource, NSOutlineViewDelegate> {
 @protected
 	NSMutableDictionary *_fetch;
 	NSMutableDictionary *keysMapping;
