@@ -126,7 +126,7 @@
 
 	AZErgoUpdateWatch *related = nil;
 	if (!!mangaName)
-		related = [AZErgoUpdateWatch filter:[NSPredicate predicateWithFormat:@"manga like[c] %@", mangaName] limit:1];
+		related = [AZErgoUpdateWatch filter:[NSPredicate predicateWithFormat:@"manga ==[c] %@", mangaName] limit:1];
 
 	return related;
 }
@@ -159,7 +159,7 @@
 
 
 	if (!(!chapterIdx || !manga))
-		related = [AZErgoUpdateChapter filter:[NSPredicate predicateWithFormat:@"watch.manga like[c] %@ and abs(idx - %lf) < 0.01", manga, [chapterIdx floatValue]] limit:1];
+		related = [AZErgoUpdateChapter filter:[NSPredicate predicateWithFormat:@"watch.manga ==[c] %@ and abs(idx - %lf) < 0.01", manga, [chapterIdx floatValue]] limit:1];
 
 	return related;
 }

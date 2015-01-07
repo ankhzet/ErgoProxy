@@ -94,7 +94,7 @@
 
 				created = YES;
 			};
-			AZErgoUpdateChapter *chapter = [AZErgoUpdateChapter unique:[NSPredicate predicateWithFormat:@"genData like %@", genData]
+			AZErgoUpdateChapter *chapter = [AZErgoUpdateChapter unique:[NSPredicate predicateWithFormat:@"genData == %@", genData]
 																												initWith:initBlock];
 
 			if (!created) {

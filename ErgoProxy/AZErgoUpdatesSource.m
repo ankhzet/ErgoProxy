@@ -85,7 +85,7 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 
 	NSString *url = [[self class] serverURL];
 
-	_descriptor = [AZErgoUpdatesSourceDescription unique:[NSPredicate predicateWithFormat:@"serverURL like[c] %@", url] initWith:^(AZErgoUpdatesSourceDescription *instantiated) {
+	_descriptor = [AZErgoUpdatesSourceDescription unique:[NSPredicate predicateWithFormat:@"serverURL ==[c] %@", url] initWith:^(AZErgoUpdatesSourceDescription *instantiated) {
 		instantiated.serverURL = url;
 	}];
 

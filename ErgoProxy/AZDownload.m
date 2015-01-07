@@ -101,7 +101,7 @@
 }
 
 + (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter {
-	NSArray *fetch = [self filter:[NSPredicate predicateWithFormat:@"(manga like[c] %@) and (abs(chapter - %lf) < 0.01)", manga, chapter]
+	NSArray *fetch = [self filter:[NSPredicate predicateWithFormat:@"(manga == %@) and (abs(chapter - %lf) < 0.01)", manga, chapter]
 													limit:0];
 
 	for (AZDownload *download in fetch) {
