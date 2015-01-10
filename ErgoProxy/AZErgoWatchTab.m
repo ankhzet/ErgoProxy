@@ -12,6 +12,7 @@
 #import "AZErgoMangachanSource.h"
 
 #import "AZProxifier.h"
+#import "AZDownload.h"
 
 #import "AZErgoDownloadPrefsWindowController.h"
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
@@ -42,7 +43,7 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	__weak id wSelf = self;
 	scheduler = [AZErgoWatcherScheduler schedulerWithBlock:^void(AZErgoWatcherScheduler *scheduler, BOOL *stop) {
 		AZErgoWatchTab *sSelf = wSelf;
-		if ((*stop = !(sSelf = wSelf)))
+		if ((*stop = !sSelf))
 			return;
 
 		[sSelf runChecker];
@@ -178,6 +179,9 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 
 						[source checkUpdate:chapter withBlock:^(AZErgoUpdateChapter *chapter, NSArray *scans) {
 							if (![scans count]) {
+								chapter.watch.checking = NO;
+								chapter.state = AZErgoUpdateChapterDownloadsFailed;
+								[self delayFetch:NO];
 								[AZUtils notifyErrorMsg:[NSString stringWithFormat:@"Scans aquire failed for %@!", chapter.genData]];
 								return;
 							}
@@ -189,7 +193,7 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 								return;
 							}
 
-							AZProxifier *proxifier = [AZProxifier sharedProxy];
+							AZProxifier *proxifier = [AZProxifier sharedProxifier];
 
 							NSUInteger pageIDX = 1;
 							for (NSString *scan in scans) {

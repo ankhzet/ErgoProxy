@@ -12,8 +12,9 @@
 #import "AZJSONUtils.h"
 #import "AZStorage.h"
 
-#import "AZDataProxyContainer.h"
-#import "AZSynkEnabledStorage.h"
+#import "AZDataProxy.h"
+
+#import "AZMultipleTargetDelegate.h"
 
 #define API_AQUIRE_PARAM_URL @"url"
 #define API_AQUIRE_PARAM_WIDTH @"width"
@@ -26,20 +27,20 @@
 #define API_PUT_PARAM(_p1, _k1, _p2, _k2)\
   ({AZDownloadParameter *param = [_p2 downloadParameter:_k2]; if (param) (_p1)[_k1] = param.value;})
 
-@implementation AZDownload
-@dynamic proxifier, downloadParameters, storage, totalSize, downloaded;
-@synthesize lastDownloadIteration, fileURL, supportsPartialDownload;
-@dynamic page, chapter, manga, sourceURL, proxifierHash, scanID;
-@synthesize stateListener, state, error, httpError;
+MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 
+@implementation AZDownload
+@dynamic proxifier, downloadParameters, storage, totalSize, downloaded, fileURL;
+@dynamic page, chapter, manga, sourceURL, proxifierHash, scanID;
+@synthesize lastDownloadIteration, supportsPartialDownload;
+@synthesize state, error, httpError;
 
 - (void) setState:(AZErgoDownloadState)_state {
 	if (state == _state)
 		return;
 
 	state = _state;
-	if (stateListener)
-		[stateListener download:self stateChanged:state];
+	[self notifyStateChanged];
 }
 
 - (void) setDownloadedAmount:(NSUInteger)_downloaded {
@@ -68,8 +69,6 @@
 }
 
 + (NSArray *) fetchDownloads {
-	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
-
 	NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
 
 	[fetchRequest setEntity:[self entityDescription]];
@@ -78,51 +77,41 @@
 	NSArray *sortDescriptors = [[NSArray alloc] initWithObjects:sortDescriptor, nil];
 	[fetchRequest setSortDescriptors:sortDescriptors];
 
-	NSError *_error = nil;
-	NSArray *fetchedObjects = [context executeFetchRequest:fetchRequest error:&_error];
-	if (fetchedObjects == nil) {
-		// Handle the error
-	} else {
-		for (AZDownload *download in fetchedObjects) {
-			if (download.state == AZErgoDownloadStateNone) {
-				if (download.proxifierHash && download.storage) {
-					download.state |= AZErgoDownloadStateResolved;
-					if (download.totalSize) {
-						download.state |= AZErgoDownloadStateAquired;
-						if (download.downloaded >= download.totalSize)
-							download.state |= AZErgoDownloadStateDownloaded;
-					}
-				}
-			}
-		}
-	}
+	NSError *error = nil;
+	NSArray *fetchedObjects = [[AZDataProxy sharedProxy] executeFetchRequest:fetchRequest error:&error];
+
+	if (fetchedObjects != nil)
+		for (AZDownload *download in fetchedObjects)
+			[download fixState];
 
 	return fetchedObjects;
 }
 
 + (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter {
-	NSArray *fetch = [self filter:[NSPredicate predicateWithFormat:@"(manga == %@) and (abs(chapter - %lf) < 0.01)", manga, chapter]
-													limit:0];
+	NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"(manga == %@) and (abs(chapter - %lf) < 0.01)", manga, chapter];
+	NSArray *fetch = [self filter:filterPredicate limit:0];
 
-	for (AZDownload *download in fetch) {
-		if (download.state == AZErgoDownloadStateNone) {
-			AZErgoDownloadState state = AZErgoDownloadStateNone;
-
-			if (download.proxifierHash && download.storage) {
-				state |= AZErgoDownloadStateResolved;
-			}
-
-			if (download.totalSize) {
-				state |= AZErgoDownloadStateAquired;
-				if (download.downloaded >= download.totalSize)
-					state |= AZErgoDownloadStateDownloaded;
-			}
-
-			download.state = state;
-		}
-	}
+	for (AZDownload *download in fetch)
+		[download fixState];
 
 	return fetch;
+}
+
+- (void) fixState {
+	if (state == AZErgoDownloadStateNone) {
+
+		if (self.proxifierHash && self.storage) {
+			state |= AZErgoDownloadStateResolved;
+		}
+
+		if (!!self.totalSize) {
+			state |= AZErgoDownloadStateAquired;
+			if (self.downloaded >= self.totalSize)
+				state |= AZErgoDownloadStateDownloaded;
+		}
+
+		[self notifyStateChanged];
+	}
 }
 
 @end
@@ -131,11 +120,6 @@
 
 - (NSString *) fileFullURL {
 	return [[[self.storage fullURL] absoluteString] stringByAppendingString:[self.fileURL substringFromIndex:1]];
-}
-
-- (void) notifyProgressChanged {
-	if (stateListener)
-		[stateListener download:self progressChanged:[self percentProgress]];
 }
 
 - (double) percentProgress {
@@ -252,3 +236,14 @@
 
 @end
 
+@implementation AZDownload (Delegation)
+
+- (void) notifyStateChanged {
+	[self.md_delegate download:self stateChanged:state];
+}
+
+- (void) notifyProgressChanged {
+	[self.md_delegate download:self progressChanged:[self percentProgress]];
+}
+
+@end

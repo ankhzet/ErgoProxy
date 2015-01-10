@@ -39,6 +39,7 @@ extern NSString *const kDPParameterSyncDirectory;
  kDPParameterSyncDirectory - local/remote directory name to sync
  */
 + (instancetype) storageWithParameters:(NSDictionary *)appParameters;
+
 /*!
  @brief Inits data proxy with specified parameters.
  Known parameters:
@@ -47,8 +48,17 @@ extern NSString *const kDPParameterSyncDirectory;
  */
 - (id)initWithParameters:(NSDictionary *)appParameters;
 
++ (instancetype) initSharedProxy:(NSDictionary *)appParameters;
++ (instancetype) sharedProxy;
+
 // flush CoreData to storage...
 -(BOOL) saveContext;
+
+- (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error;
+- (NSEntityDescription *) entityForName:(NSString *)name;
+- (id) insertNewObjectForEntityForName:(NSString *)name;
+- (void) deleteObject:(NSManagedObject *)object;
+- (void) performOnFetchThread:(dispatch_block_t)block;
 
 // absolute url for local data storage (e.g. database file)
 -(NSURL *) localDataDirURL;

@@ -7,7 +7,6 @@
 //
 
 #import "AZErgoUpdateChapter.h"
-#import "AZDataProxyContainer.h"
 
 @implementation AZErgoUpdateChapter
 @dynamic watch, title, genData, idx, volume, date;

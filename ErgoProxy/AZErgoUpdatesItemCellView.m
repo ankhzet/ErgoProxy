@@ -67,7 +67,9 @@
 	[self.ivStatus setHidden:NO];
 	switch (state) {
 		case AZErgoUpdateChapterDownloadsFailed:
-			[self.ivStatus setHidden:YES];
+//			[self.ivStatus setHidden:YES];
+			image = NSImageNameStatusUnavailable;
+			break;
 
 		case AZErgoUpdateChapterDownloadsDownloaded:
 			image = NSImageNameStatusAvailable;

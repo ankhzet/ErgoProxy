@@ -6,7 +6,6 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
 #import "AZCoreDataEntity.h"
 
 typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
@@ -25,6 +24,7 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 @protocol AZErgoDownloadStateListener <NSObject>
 
 - (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state;
+
 - (void) download:(AZDownload *)download progressChanged:(double)progress;
 
 @end
@@ -57,8 +57,6 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 @property (nonatomic) id error;
 
-@property (nonatomic, weak) id<AZErgoDownloadStateListener> stateListener;
-
 - (BOOL) isBonusChapter;
 - (NSUInteger) indexHash;
 
@@ -88,8 +86,6 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 - (NSUInteger) localFileSize;
 - (NSOutputStream *) fileStream:(BOOL)seekToEnd;
 
-- (void) notifyProgressChanged;
-
 @end
 
 
@@ -107,5 +103,12 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 @interface AZDownload (Validity)
 
 - (BOOL) isFileCorrupt;
+
+@end
+
+@interface AZDownload (Delegation)
+
+- (void) notifyStateChanged;
+- (void) notifyProgressChanged;
 
 @end

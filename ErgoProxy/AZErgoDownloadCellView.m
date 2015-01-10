@@ -22,11 +22,7 @@
 @end
 
 @implementation AZErgoDownloadCellView
-
 - (void) configureForEntity:(AZDownload *)entity inOutlineView:(NSOutlineView *)view {
-	if (self.bindedEntity)
-		((AZDownload *)self.bindedEntity).stateListener = nil;
-
 	self.bindedEntity = entity;
 
 	self.tfURL.stringValue = [entity.sourceURL path];
@@ -35,8 +31,6 @@
 
 	[self setState:entity.state forDownload:entity];
 	[self setProgress:entity];
-
-	entity.stateListener = self;
 }
 
 - (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state {

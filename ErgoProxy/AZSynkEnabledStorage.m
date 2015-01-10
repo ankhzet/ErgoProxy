@@ -183,18 +183,14 @@
 	if (_managedObjectContext != nil) {
 		return _managedObjectContext;
 	}
-	
-	NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
-	
-	if (coordinator != nil) {
-		NSManagedObjectContext *moc = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
-		
-		[moc performBlockAndWait:^{
-			[moc setPersistentStoreCoordinator: coordinator];
+
+	_managedObjectContext = [super managedObjectContext];
+
+	if (_managedObjectContext != nil) {
+		[_managedObjectContext performBlockAndWait:^{
 //			//TODO: modify to accept NSPersistentStoreDidImportContentChangesNotification-like notifications
 //			[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(remoteChangesImport:) name:NSPersistentStoreDidImportUbiquitousContentChangesNotification object:coordinator];
 		}];
-		_managedObjectContext = moc;
 	}
 
 	[[NSNotificationCenter defaultCenter] addObserver:self selector:@selector(localChangesSave:) name:NSManagedObjectContextDidSaveNotification object:_managedObjectContext];

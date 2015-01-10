@@ -10,6 +10,7 @@
 #import "AZErgoDownloadPrefsWindowController.h"
 
 #import "AZProxifier.h"
+#import "AZDownload.h"
 
 @interface AZErgoManualSchedulerWindowController ()
 
@@ -42,7 +43,7 @@
 	float chapter = self.mangaChapter;
 	NSUInteger pageIDX = 1;
 
-	AZProxifier *proxifier = [AZProxifier sharedProxy];
+	AZProxifier *proxifier = [AZProxifier sharedProxifier];
 
 	for (NSString *scan in scans) {
 		NSURL *url = [NSURL URLWithString:scan];

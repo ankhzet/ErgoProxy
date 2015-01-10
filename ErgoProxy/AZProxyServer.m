@@ -7,7 +7,7 @@
 //
 
 #import "AZProxyServer.h"
-#import "AZDownloader.h"
+#import "AZErgoDownloader.h"
 
 
 @implementation AZProxyServer

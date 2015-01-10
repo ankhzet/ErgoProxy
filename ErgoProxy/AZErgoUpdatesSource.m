@@ -10,8 +10,7 @@
 
 #import "AZErgoUpdatesAPI.h"
 #import "AZHTMLRequest.h"
-
-#import "AZDataProxyContainer.h"
+#import "AZDataProxy.h"
 
 #define _synchronized(_block) ({\
 NSMutableDictionary *sources;\
@@ -135,21 +134,19 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 
 		@try {
 			if ([chapters count]) {
-				[AZDataProxyContainer saveContext];
 
-				NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
 				for (AZErgoUpdateChapter *update in chapters) {
 
-					AZErgoUpdateChapter *chapter = (id)[context objectWithID:[update objectID]];
-
-					if ((![chapter isDeleted]) && ![watch.updates containsObject:chapter]) {
-						chapter.watch = watch;
-						if (chapter.mangaName)
-							watch.title = watch.title ?: chapter.mangaName;
+					if ((![update isDeleted]) && ![watch.updates containsObject:update]) {
+						update.watch = watch;
+						if (update.mangaName)
+							watch.title = watch.title ?: update.mangaName;
 
 						updates++;
 					}
 				}
+
+				[[AZDataProxy sharedProxy] saveContext];
 			}
 
 		}

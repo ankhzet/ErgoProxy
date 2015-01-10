@@ -7,33 +7,39 @@
 //
 
 #import "AZProxyServer.h"
+#import "AZErgoCustomDownloader.h"
+
 #import "AZDownload.h"
-#import "AZErgoDownloader.h"
 
-@class AZStorage, AZDownloader;
+#import "AZMultipleTargetDelegate.h"
 
-@interface AZProxifier : AZProxyServer <AZErgoDownloaderDelegate>
+@class AZStorage, AZErgoDownloader, AZDownload, AZDownloadParams;
+
+@interface AZProxifier : AZProxyServer
 
 @property (nonatomic, retain) NSSet *storages;
 @property (nonatomic, retain) NSSet *downloads;
 
-@property (nonatomic) id<AZErgoDownloadStateListener> delegate;
-
-+ (instancetype) sharedProxy;
++ (instancetype) sharedProxifier;
 
 - (void) registerStorage:(AZStorage *)storage;
 
-- (void) notifyListeners:(AZDownload *)download;
-
 - (AZStorage *) storageWithURL:(NSURL *)url;
 - (AZDownload *) downloadForURL:(NSURL *)url withParams:(AZDownloadParams *)params;
-- (AZDownloader *) downloaderForURL:(NSURL *)url;
-- (AZDownloader *) newDownloaderForStorage:(AZStorage *)storage andParams:(AZDownloadParams *)params;
+- (AZErgoDownloader *) downloaderForURL:(NSURL *)url;
+- (AZErgoDownloader *) newDownloaderForStorage:(AZStorage *)storage andParams:(AZDownloadParams *)params;
 - (void) reRegisterDownload:(AZDownload *)download;
 
 - (NSEnumerator *) downloaders;
 
 - (void) runDownloaders:(BOOL)run;
 - (void) pauseDownloaders:(BOOL)pause;
+
+@end
+
+// may send AZErgoDownloadStateListener delegated methods
+@interface AZProxifier (Delegation) <AZErgoDownloaderDelegate, AZMultipleTargetDelegateProtocol>
+
+- (void) notifyListeners:(AZDownload *)download;
 
 @end

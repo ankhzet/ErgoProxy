@@ -10,8 +10,22 @@
 #import "CustomDictionary.h"
 #import "KeyedHolder.h"
 
+#import "AZMultipleTargetDelegate.h"
+
+MULTIDELEGATED_INJECT_LISTENER(AZErgoConfigurableTableCellView)
+
 @implementation AZErgoConfigurableTableCellView
-@synthesize bindedEntity;
+@synthesize bindedEntity = _bindedEntity;
+
+- (void) setBindedEntity:(id)bindedEntity {
+	if (bindedEntity == _bindedEntity)
+		return;
+
+	_bindedEntity = bindedEntity;
+
+	if ([_bindedEntity supportsMultiDelegating])
+		[self bindAsDelegateTo:_bindedEntity solo:YES];
+}
 
 - (void)setBackgroundStyle:(NSBackgroundStyle)backgroundStyle {
 	BOOL isDark = backgroundStyle == NSBackgroundStyleDark;
@@ -22,7 +36,7 @@
 }
 
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
-	bindedEntity = entity;
+	self.bindedEntity = entity;
 }
 
 - (NSString *) plainTitle {

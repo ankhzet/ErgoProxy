@@ -2,29 +2,32 @@
 //  AZErgoDownloader.h
 //  ErgoProxy
 //
-//  Created by Ankh on 15.10.14.
+//  Created by Ankh on 14.10.14.
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
 #import <Foundation/Foundation.h>
 
-typedef NS_ENUM(NSUInteger, AZErgoDownloaderState) {
-	AZErgoDownloaderStateIddle = 0,
-};
+#import "AZErgoCustomDownloader.h"
 
-@class AZDownload, AZErgoDownloader;
+@class AZDownload, AZDownloadParams, AZStorage, AZProxifier;
+@interface AZErgoDownloader : AZErgoCustomDownloader
 
-@protocol AZErgoDownloaderDelegate <NSObject>
+@property (nonatomic, readonly) BOOL paused;
+@property (nonatomic, readonly) BOOL running;
+@property (nonatomic, readonly) NSUInteger inProcess;
+@property (nonatomic) NSUInteger concurentTasks;
+@property (nonatomic) NSTimeInterval consecutiveIterationsInterval;
 
-- (void) downloader:(AZErgoDownloader *)downloader stateSchanged:(AZErgoDownloaderState)state;
-- (void) downloader:(AZErgoDownloader *)downloader readyForNextStage:(AZDownload *)download;
++ (instancetype) downloaderForStorage:(AZStorage *)storage;
 
 @end
 
-@interface AZErgoDownloader : NSObject
+@interface AZErgoDownloader (Downloading)
 
-@property (nonatomic, weak) id<AZErgoDownloaderDelegate> delegate;
-
-- (void) detouchTask:(AZDownload *)download;
+- (void) pause;
+- (void) resume;
+- (void) stop;
+- (void) processDownloads;
 
 @end

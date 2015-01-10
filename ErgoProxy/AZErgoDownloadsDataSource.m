@@ -40,7 +40,7 @@
 //			amount.total = 1;
 
 		if (reclaim && ((amount.downloaded < amount.total) || !amount.total))
-			[[AZProxifier sharedProxy] reRegisterDownload:node];
+			[[AZProxifier sharedProxifier] reRegisterDownload:node];
 	}
 
 	return amount;

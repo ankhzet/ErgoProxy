@@ -7,7 +7,6 @@
 //
 
 #import "AZDownloadParams.h"
-#import "AZDataProxyContainer.h"
 #import "AZDownloadParameter.h"
 
 NSString *kDownloadParamMaxWidth = @"kDownloadParamMaxWidth";
@@ -75,9 +74,14 @@ NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 }
 
 + (NSString *) hashedParams:(NSDictionary *)parameters {
+	NSArray *keys = [[parameters allKeys] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)];
+	NSMutableArray *values = [NSMutableArray new];
+	for (NSString *key in keys)
+		[values addObject:parameters[key]];
+
 	return [NSString stringWithFormat:@"{%@:%@}",
-					[[parameters allKeys] componentsJoinedByString:@";"],
-					[[parameters allValues] componentsJoinedByString:@";"]];
+					[keys componentsJoinedByString:@";"],
+					[values componentsJoinedByString:@";"]];
 }
 
 - (NSDictionary *) paramsDictionary {

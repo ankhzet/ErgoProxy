@@ -23,7 +23,9 @@
 @property (weak) IBOutlet NSTextField *tfMangaStorage;
 @property (weak) IBOutlet NSButton *cbGroupDownloads;
 @property (weak) IBOutlet NSButton *cbHideFinishedDownloads;
+
 @property (weak) IBOutlet NSTextField *tfSimultaneousDownloadsPerStorage;
+@property (weak) IBOutlet NSButton *cbDownloadsFullResolve;
 
 @property (weak) IBOutlet NSTextField *tfWatcherAutocheckInterval;
 @property (weak) IBOutlet NSButton *cbHideDownloadedChapters;
@@ -60,7 +62,10 @@
 	self.tfMangaStorage.stringValue = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
 	self.cbGroupDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED) ? NSOnState : NSOffState;
 	self.cbHideFinishedDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED) ? NSOnState : NSOffState;
+
+	// downloads prefs
 	self.tfSimultaneousDownloadsPerStorage.integerValue = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
+	self.cbDownloadsFullResolve.state = PREF_BOOL(PREFS_DOWNLOAD_FULL_RESOLVE) ? NSOnState : NSOffState;
 
 	// watcher
 	self.tfWatcherAutocheckInterval.stringValue = PREF_STR(PREFS_WATCHER_AUTOCHECK_INTERVAL);
@@ -117,6 +122,9 @@
 }
 - (IBAction)actionSimultaneousDownloadsChanged:(id)sender {
 	PREF_SAVE_UI_INT(self.tfSimultaneousDownloadsPerStorage, PREFS_DOWNLOAD_PER_STORAGE);
+}
+- (IBAction)actionDownloadsFullResolveChanged:(id)sender {
+	PREF_SAVE_UI_BOOL(self.cbDownloadsFullResolve, PREFS_DOWNLOAD_FULL_RESOLVE);
 }
 
 - (IBAction)actionPickFolderForStorage:(id)sender {

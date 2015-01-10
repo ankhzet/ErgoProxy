@@ -7,7 +7,6 @@
 	objects = {
 
 /* Begin PBXBuildFile section */
-		0A2DCE3A1A0C6BBC00E0E3B1 /* AZDataProxyContainer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2DCE351A0C6BBC00E0E3B1 /* AZDataProxyContainer.m */; };
 		0A2DCE3B1A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2DCE371A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m */; };
 		0A2DCE3C1A0C6BBC00E0E3B1 /* AZDataProxy.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2DCE391A0C6BBC00E0E3B1 /* AZDataProxy.m */; };
 		0A2F9D4B1A4B824A007B9B3E /* AZErgoUpdatesItemCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0A2F9D4A1A4B824A007B9B3E /* AZErgoUpdatesItemCellView.m */; };
@@ -78,7 +77,7 @@
 		0AB3988919EC73FC00BBE2F4 /* AZProxyServer.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988819EC73FC00BBE2F4 /* AZProxyServer.m */; };
 		0AB3988D19EC742500BBE2F4 /* AZProxifier.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988C19EC742500BBE2F4 /* AZProxifier.m */; };
 		0AB3989019EC742F00BBE2F4 /* AZStorage.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3988F19EC742F00BBE2F4 /* AZStorage.m */; };
-		0AB3989519EC74D200BBE2F4 /* AZDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989419EC74D200BBE2F4 /* AZDownloader.m */; };
+		0AB3989519EC74D200BBE2F4 /* AZErgoDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3989419EC74D200BBE2F4 /* AZErgoDownloader.m */; };
 		0AB3992619ECBB0700BBE2F4 /* AZAPIProvider.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991619ECBB0700BBE2F4 /* AZAPIProvider.m */; };
 		0AB3992719ECBB0700BBE2F4 /* AZClientAPI.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991819ECBB0700BBE2F4 /* AZClientAPI.m */; };
 		0AB3992819ECBB0700BBE2F4 /* AZHTMLRequest.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3991C19ECBB0700BBE2F4 /* AZHTMLRequest.m */; };
@@ -104,7 +103,7 @@
 		0AB3997019EDF31300BBE2F4 /* AZErgoDownloadGroupCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3996F19EDF31300BBE2F4 /* AZErgoDownloadGroupCellView.m */; };
 		0AB3997319EDF6F300BBE2F4 /* AZErgoDownloadCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997219EDF6F300BBE2F4 /* AZErgoDownloadCellView.m */; };
 		0AB3997619EE1AF200BBE2F4 /* KeyedHolder.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997519EE1AF200BBE2F4 /* KeyedHolder.m */; };
-		0AB3997C19EE2A0A00BBE2F4 /* AZErgoDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997B19EE2A0A00BBE2F4 /* AZErgoDownloader.m */; };
+		0AB3997C19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AB3997B19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.m */; };
 		0AC408101A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AC4080F1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m */; };
 		0ACDE4031A539D50000CE86E /* Security.framework in Frameworks */ = {isa = PBXBuildFile; fileRef = 0ACDE4021A539D50000CE86E /* Security.framework */; };
 		0ACDE4061A53A079000CE86E /* AZErgoHTTPConnection.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ACDE4051A53A079000CE86E /* AZErgoHTTPConnection.m */; };
@@ -137,6 +136,8 @@
 		0ACDE46A1A53BA8F000CE86E /* web in Resources */ = {isa = PBXBuildFile; fileRef = 0ACDE4691A53BA8F000CE86E /* web */; };
 		0ACDE46D1A53D676000CE86E /* AZErgoTemplateProcessor.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ACDE46C1A53D676000CE86E /* AZErgoTemplateProcessor.m */; };
 		0ACDE4701A53DED7000CE86E /* AZErgoSubstitutioner.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ACDE46F1A53DED7000CE86E /* AZErgoSubstitutioner.m */; };
+		0AEB18DF1A5D6C410013AD69 /* NSView+AnkhUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AEB18DE1A5D6C410013AD69 /* NSView+AnkhUtils.m */; };
+		0AF40F891A60DEDD00C34C4C /* AZMultipleTargetDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AF40F881A60DEDD00C34C4C /* AZMultipleTargetDelegate.m */; };
 		0AFE56201A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE561F1A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m */; };
 		0AFE562E1A4CCE230001EF3A /* AZFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE562B1A4CCE230001EF3A /* AZFlippedView.m */; };
 		0AFE562F1A4CCE230001EF3A /* AZSyncedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE562D1A4CCE230001EF3A /* AZSyncedScrollView.m */; };
@@ -160,8 +161,6 @@
 /* End PBXContainerItemProxy section */
 
 /* Begin PBXFileReference section */
-		0A2DCE341A0C6BBC00E0E3B1 /* AZDataProxyContainer.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataProxyContainer.h; sourceTree = "<group>"; };
-		0A2DCE351A0C6BBC00E0E3B1 /* AZDataProxyContainer.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDataProxyContainer.m; sourceTree = "<group>"; };
 		0A2DCE361A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZSynkEnabledStorage.h; sourceTree = "<group>"; };
 		0A2DCE371A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZSynkEnabledStorage.m; sourceTree = "<group>"; };
 		0A2DCE381A0C6BBC00E0E3B1 /* AZDataProxy.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDataProxy.h; sourceTree = "<group>"; };
@@ -226,8 +225,8 @@
 		0A418A371A4B5F560025108A /* AZGroupableDataSource.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZGroupableDataSource.m; sourceTree = "<group>"; };
 		0A460DB91A54013500D7B3D2 /* AZErgoMangaDataSupplier.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoMangaDataSupplier.h; sourceTree = "<group>"; };
 		0A460DBA1A54013500D7B3D2 /* AZErgoMangaDataSupplier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoMangaDataSupplier.m; sourceTree = "<group>"; };
-		0A4D498C1A5D13C5002F5867 /* ErgoProxy 25.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ErgoProxy 25.xcdatamodel"; sourceTree = "<group>"; };
-		0A4D498D1A5D38A3002F5867 /* ErgoProxy 26.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = file; path = "ErgoProxy 26.xcdatamodel"; sourceTree = "<group>"; };
+		0A4D498C1A5D13C5002F5867 /* ErgoProxy 25.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ErgoProxy 25.xcdatamodel"; sourceTree = "<group>"; };
+		0A4D498D1A5D38A3002F5867 /* ErgoProxy 26.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ErgoProxy 26.xcdatamodel"; sourceTree = "<group>"; };
 		0A50F7201A01EE2800A2B350 /* AZErgoAppDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoAppDelegate.h; sourceTree = "<group>"; };
 		0A50F7211A01EE2800A2B350 /* AZErgoAppDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoAppDelegate.m; sourceTree = "<group>"; };
 		0A5B61951A57DB0500668D29 /* AZErgoMangaTitle.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoMangaTitle.h; sourceTree = "<group>"; };
@@ -306,8 +305,8 @@
 		0AB3988C19EC742500BBE2F4 /* AZProxifier.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZProxifier.m; sourceTree = "<group>"; };
 		0AB3988E19EC742F00BBE2F4 /* AZStorage.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZStorage.h; sourceTree = "<group>"; };
 		0AB3988F19EC742F00BBE2F4 /* AZStorage.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZStorage.m; sourceTree = "<group>"; };
-		0AB3989319EC74D200BBE2F4 /* AZDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZDownloader.h; sourceTree = "<group>"; };
-		0AB3989419EC74D200BBE2F4 /* AZDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZDownloader.m; sourceTree = "<group>"; };
+		0AB3989319EC74D200BBE2F4 /* AZErgoDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloader.h; sourceTree = "<group>"; };
+		0AB3989419EC74D200BBE2F4 /* AZErgoDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloader.m; sourceTree = "<group>"; };
 		0AB3991519ECBB0700BBE2F4 /* AZAPIProvider.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZAPIProvider.h; sourceTree = "<group>"; };
 		0AB3991619ECBB0700BBE2F4 /* AZAPIProvider.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZAPIProvider.m; sourceTree = "<group>"; };
 		0AB3991719ECBB0700BBE2F4 /* AZClientAPI.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZClientAPI.h; sourceTree = "<group>"; };
@@ -360,8 +359,8 @@
 		0AB3997219EDF6F300BBE2F4 /* AZErgoDownloadCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadCellView.m; sourceTree = "<group>"; };
 		0AB3997419EE1AF200BBE2F4 /* KeyedHolder.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = KeyedHolder.h; sourceTree = "<group>"; };
 		0AB3997519EE1AF200BBE2F4 /* KeyedHolder.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = KeyedHolder.m; sourceTree = "<group>"; };
-		0AB3997A19EE2A0A00BBE2F4 /* AZErgoDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloader.h; sourceTree = "<group>"; };
-		0AB3997B19EE2A0A00BBE2F4 /* AZErgoDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloader.m; sourceTree = "<group>"; };
+		0AB3997A19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoCustomDownloader.h; sourceTree = "<group>"; };
+		0AB3997B19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoCustomDownloader.m; sourceTree = "<group>"; };
 		0AC4080E1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoDownloadDetailsPopover.h; sourceTree = "<group>"; };
 		0AC4080F1A086A4E00F18F38 /* AZErgoDownloadDetailsPopover.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoDownloadDetailsPopover.m; sourceTree = "<group>"; };
 		0ACDE4021A539D50000CE86E /* Security.framework */ = {isa = PBXFileReference; lastKnownFileType = wrapper.framework; name = Security.framework; path = System/Library/Frameworks/Security.framework; sourceTree = SDKROOT; };
@@ -426,6 +425,10 @@
 		0ACDE46C1A53D676000CE86E /* AZErgoTemplateProcessor.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoTemplateProcessor.m; sourceTree = "<group>"; };
 		0ACDE46E1A53DED7000CE86E /* AZErgoSubstitutioner.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoSubstitutioner.h; sourceTree = "<group>"; };
 		0ACDE46F1A53DED7000CE86E /* AZErgoSubstitutioner.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoSubstitutioner.m; sourceTree = "<group>"; };
+		0AEB18DD1A5D6C410013AD69 /* NSView+AnkhUtils.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = "NSView+AnkhUtils.h"; sourceTree = "<group>"; };
+		0AEB18DE1A5D6C410013AD69 /* NSView+AnkhUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSView+AnkhUtils.m"; sourceTree = "<group>"; };
+		0AF40F871A60DEDD00C34C4C /* AZMultipleTargetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZMultipleTargetDelegate.h; sourceTree = "<group>"; };
+		0AF40F881A60DEDD00C34C4C /* AZMultipleTargetDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZMultipleTargetDelegate.m; sourceTree = "<group>"; };
 		0AFD82711A57D9AC00408DD3 /* ErgoProxy 18.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ErgoProxy 18.xcdatamodel"; sourceTree = "<group>"; };
 		0AFE561E1A4CB0AC0001EF3A /* AZErgoUpdatesCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoUpdatesCellView.h; sourceTree = "<group>"; };
 		0AFE561F1A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoUpdatesCellView.m; sourceTree = "<group>"; };
@@ -486,8 +489,6 @@
 			children = (
 				0A418A001A495BBE0025108A /* AZCoreDataEntity.h */,
 				0A418A011A495BBE0025108A /* AZCoreDataEntity.m */,
-				0A2DCE341A0C6BBC00E0E3B1 /* AZDataProxyContainer.h */,
-				0A2DCE351A0C6BBC00E0E3B1 /* AZDataProxyContainer.m */,
 				0A2DCE361A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.h */,
 				0A2DCE371A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m */,
 				0A2DCE381A0C6BBC00E0E3B1 /* AZDataProxy.h */,
@@ -928,10 +929,10 @@
 				0A4189FE1A495B720025108A /* AZDownloadParameter.m */,
 				0AB3988019EC73A900BBE2F4 /* AZDownload.h */,
 				0AB3988119EC73A900BBE2F4 /* AZDownload.m */,
-				0AB3989319EC74D200BBE2F4 /* AZDownloader.h */,
-				0AB3989419EC74D200BBE2F4 /* AZDownloader.m */,
-				0AB3997A19EE2A0A00BBE2F4 /* AZErgoDownloader.h */,
-				0AB3997B19EE2A0A00BBE2F4 /* AZErgoDownloader.m */,
+				0AB3997A19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.h */,
+				0AB3997B19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.m */,
+				0AB3989319EC74D200BBE2F4 /* AZErgoDownloader.h */,
+				0AB3989419EC74D200BBE2F4 /* AZErgoDownloader.m */,
 				0AB3988A19EC740100BBE2F4 /* Proxies */,
 			);
 			name = "Downloads Core";
@@ -1005,6 +1006,10 @@
 				0AB3993519ECBB3E00BBE2F4 /* NSString+AnkhUtils.m */,
 				0AB3993619ECBB3E00BBE2F4 /* NSURL+AnkhUtils.h */,
 				0AB3993719ECBB3E00BBE2F4 /* NSURL+AnkhUtils.m */,
+				0AEB18DD1A5D6C410013AD69 /* NSView+AnkhUtils.h */,
+				0AEB18DE1A5D6C410013AD69 /* NSView+AnkhUtils.m */,
+				0AF40F871A60DEDD00C34C4C /* AZMultipleTargetDelegate.h */,
+				0AF40F881A60DEDD00C34C4C /* AZMultipleTargetDelegate.m */,
 			);
 			name = Utils;
 			path = ../../CommonAPIs/Utils;
@@ -1373,18 +1378,18 @@
 				0AB3994E19ED955B00BBE2F4 /* AZTabProvider.m in Sources */,
 				0AFE56441A4E05DA0001EF3A /* AZErgoDownloadDetailsPresenter.m in Sources */,
 				0ACDE4571A53A0BE000CE86E /* GCDAsyncSocket.m in Sources */,
+				0AF40F891A60DEDD00C34C4C /* AZMultipleTargetDelegate.m in Sources */,
 				0ACDE44D1A53A0BE000CE86E /* MultipartMessageHeader.m in Sources */,
 				0ACDE4521A53A0BE000CE86E /* HTTPErrorResponse.m in Sources */,
 				0ACDE4661A53A8AE000CE86E /* AZErgoHTMLResponse.m in Sources */,
 				0AFE562E1A4CCE230001EF3A /* AZFlippedView.m in Sources */,
 				0A418A0F1A4B2CE60025108A /* AZErgoUpdateWatch.m in Sources */,
 				0A418A301A4B4BEC0025108A /* AZErgoUpdatesSourceDescription.m in Sources */,
-				0A2DCE3A1A0C6BBC00E0E3B1 /* AZDataProxyContainer.m in Sources */,
 				0AB3992B19ECBB0700BBE2F4 /* AZJSONRequest.m in Sources */,
 				0ACDE4451A53A0BE000CE86E /* DDData.m in Sources */,
 				0A418A2A1A4B42C70025108A /* TFHppleElement.m in Sources */,
 				0A37AD5E1A510476007558A2 /* AZDelayableAction.m in Sources */,
-				0AB3997C19EE2A0A00BBE2F4 /* AZErgoDownloader.m in Sources */,
+				0AB3997C19EE2A0A00BBE2F4 /* AZErgoCustomDownloader.m in Sources */,
 				0ACDE46D1A53D676000CE86E /* AZErgoTemplateProcessor.m in Sources */,
 				0A96E3271A57F86400083DC3 /* AZErgoMangaAddWindowController.m in Sources */,
 				0AB3992819ECBB0700BBE2F4 /* AZHTMLRequest.m in Sources */,
@@ -1430,7 +1435,7 @@
 				0A34F1201A4B6B50000E1311 /* AZErgoUpdatesGroupCellView.m in Sources */,
 				0AB3992919ECBB0700BBE2F4 /* AZHTTPRequest.m in Sources */,
 				0ACDE45A1A53A0BE000CE86E /* DDASLLogger.m in Sources */,
-				0AB3989519EC74D200BBE2F4 /* AZDownloader.m in Sources */,
+				0AB3989519EC74D200BBE2F4 /* AZErgoDownloader.m in Sources */,
 				0A5B61A01A57DB0500668D29 /* AZErgoMangaTag.m in Sources */,
 				0AFE56471A4E19110001EF3A /* AZCollapsingView.m in Sources */,
 				0A816B8C18E38E1D008B683B /* AZAppDelegate.m in Sources */,
@@ -1456,6 +1461,7 @@
 				0A418A201A4B38740025108A /* AZErgoMangachanSource.m in Sources */,
 				0A8B94D81A5248E600A29CF4 /* AZErgoBrowserTab.m in Sources */,
 				0A418A021A495BBE0025108A /* AZCoreDataEntity.m in Sources */,
+				0AEB18DF1A5D6C410013AD69 /* NSView+AnkhUtils.m in Sources */,
 				0A96E3301A58023D00083DC3 /* AZErgoMangaCollectionView.m in Sources */,
 				0AB3997319EDF6F300BBE2F4 /* AZErgoDownloadCellView.m in Sources */,
 				0ACDE4591A53A0BE000CE86E /* DDAbstractDatabaseLogger.m in Sources */,

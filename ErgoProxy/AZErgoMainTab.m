@@ -12,22 +12,24 @@
 #import "AZErgoDownloadsDataSource.h"
 
 #import "AZProxifier.h"
+#import "AZDownload.h"
 
 #import "AZErgoUpdateWatch.h"
 
 #import "AZErgoDownloadDetailsPopover.h"
 
-#import "AZDataProxyContainer.h"
-#import "AZSynkEnabledStorage.h"
+#import "AZDataProxy.h"
 
 @interface AZErgoMainTab () <AZErgoDownloadStateListener, AZErgoDownloadsDataSourceDelegate> {
 	AZErgoDownloadsDataSource *downloads;
-	id observer;
 }
 @property (weak) IBOutlet NSOutlineView *ovDownloads;
 @property (strong) IBOutlet AZErgoDownloadDetailsPopover *pDownloadPopover;
 
 @end
+
+MULTIDELEGATED_INJECT_LISTENER (AZErgoMainTab)
+
 @implementation AZErgoMainTab
 
 - (id)init {
@@ -36,8 +38,8 @@
 
 	self.updateOnPrefsChange = YES;
 
-	[(id)[[AZDataProxyContainer getInstance] dataProxy] subscribeForUpdateNotifications:self
-																																						 selector:@selector(synkNotification:)];
+	[[AZDataProxy sharedProxy] subscribeForUpdateNotifications:self
+																										selector:@selector(synkNotification:)];
 	return self;
 }
 
@@ -53,8 +55,13 @@
 	if (!downloads)
 		downloads = (id)self.ovDownloads.delegate;
 
-	[AZProxifier sharedProxy].delegate = self;
+	[self bindAsDelegateTo:[AZProxifier sharedProxifier] solo:YES];
+
 	[super show];
+}
+
+- (void) dealloc {
+	[self unbindDelegate];
 }
 
 - (void) updateContents {
@@ -80,7 +87,8 @@
 
 	[downloads setData:data];
 
-	[self view:self.ovDownloads updateWithSavedScroll:^{
+
+	[self.ovDownloads performWithSavedScroll:^{
 		[self.ovDownloads reloadData];
 		//		if (fullFetch)
 		[downloads expandUnfinishedInOutlineView:self.ovDownloads];
@@ -103,26 +111,10 @@
 		[self fetchDownloads:fullFetch];
 
 		[self delayed:@"database-flush" forTime:30. withBlock:^{
-			[AZDataProxyContainer saveContext];
+			[[AZDataProxy sharedProxy] saveContext];
 		}];
 	}];
 }
-
-- (NSScrollView *) scrollViewOf:(NSView *)view {
-	Class scrollViewClass = [NSScrollView class];
-	while (view && ![view isKindOfClass:scrollViewClass])
-		view = [view superview];
-
-	return (id)view;
- }
-
-- (void) view:(NSOutlineView *)view updateWithSavedScroll:(void(^)())block  {
-	NSScrollView *scrollView = [self scrollViewOf:view];
-	NSPoint currentScrollPosition = [[scrollView contentView] bounds].origin;
-
-	@try { block(); }
-	@finally { [[scrollView documentView] scrollPoint:currentScrollPosition]; }
- }
 
 - (NSArray *) filterDownloaded:(NSArray *)data reclaim:(BOOL)reclaim {
 	Class downloadClass = [AZDownload class];
@@ -132,11 +124,12 @@
 
 		if ((!show) && [obj isKindOfClass:downloadClass]) {
 			show = HAS_BIT(obj.state, AZErgoDownloadStateProcessing) || (obj.downloaded < obj.totalSize);
-		 }
+		}
 
 		return show;
 	}]];
- }
+}
 
+#pragma mark - Delegated & protocol methods
 
 @end

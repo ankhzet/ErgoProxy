@@ -7,7 +7,7 @@
 //
 
 #import "AZCoreDataEntity.h"
-#import "AZDataProxyContainer.h"
+#import "AZDataProxy.h"
 
 @implementation AZCoreDataEntity
 
@@ -16,20 +16,16 @@
 }
 
 + (NSEntityDescription *) entityDescription {
-	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
 	NSString *entityName = [self CDEntityName];
-	return [NSEntityDescription entityForName:entityName
-										 inManagedObjectContext:context];
+	return [[AZDataProxy sharedProxy] entityForName:entityName];
 }
 
 + (instancetype) insertNew {
-	return [NSEntityDescription insertNewObjectForEntityForName:[self CDEntityName]
-																			 inManagedObjectContext:[[AZDataProxyContainer getInstance] managedObjectContext]];
+	return [[AZDataProxy sharedProxy] insertNewObjectForEntityForName:[self CDEntityName]];
 }
 
 - (void) delete {
-	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
-	[context deleteObject:self];
+	[[AZDataProxy sharedProxy] deleteObject:self];
 }
 
 + (NSArray *) all {
@@ -37,10 +33,6 @@
 }
 
 + (id) filter:(NSPredicate *)predicate limit:(NSUInteger)limit {
-	NSManagedObjectContext *context = [[AZDataProxyContainer getInstance] managedObjectContext];
-//	if ([context hasChanges])
-//		[context save:nil];
-
 	NSFetchRequest *fetchRequest = [[NSFetchRequest alloc] init];
 	[fetchRequest setEntity:[self entityDescription]];
 
@@ -54,22 +46,17 @@
 			[fetchRequest setFetchLimit:limit];
 	}
 
-	__block NSArray *fetchedObjects = nil;
-	dispatch_queue_t current = dispatch_get_current_queue();
-	dispatch_queue_t operate = dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_HIGH, 0);
-	if (operate == current) {
-		NSError *_error = nil;
-		fetchedObjects = [context executeFetchRequest:fetchRequest error:&_error];
-	} else
-		dispatch_sync(operate, ^{
-			NSError *_error = nil;
-			fetchedObjects = [context executeFetchRequest:fetchRequest error:&_error];
-		});
+	NSError *error = nil;
+	NSArray *fetchedObjects = [[AZDataProxy sharedProxy] executeFetchRequest:fetchRequest error:&error];
 
 	if (blockPredicate) {
-		fetchedObjects = [fetchedObjects filteredArrayUsingPredicate:predicate];
-		if (limit && ([fetchedObjects count] > limit))
-			fetchedObjects = [fetchedObjects subarrayWithRange:NSMakeRange(0, limit)];
+		__block NSArray *filtered = nil;
+		[[AZDataProxy sharedProxy] performOnFetchThread:^{
+			filtered = [fetchedObjects filteredArrayUsingPredicate:predicate];
+		}];
+
+		if (limit && ([filtered count] > limit))
+			fetchedObjects = [filtered subarrayWithRange:NSMakeRange(0, limit)];
 	}
 
 	return (limit == 1) ? [fetchedObjects lastObject] : fetchedObjects;

@@ -8,7 +8,6 @@
 
 #import "AZErgoTagBrowser.h"
 #import "AZErgoTagsDataSource.h"
-#import "AZDataProxyContainer.h"
 
 @interface AZErgoTagBrowser () <AZErgoTagsDataSourceDelegate> {
 	AZErgoTagsDataSource *tags;
@@ -57,8 +56,10 @@
 	NSArray *fetch = [AZErgoMangaTag all];
 	tags.data = fetch;
 
-	[self.ovTags reloadData];
-	[self.ovTags expandItem:nil expandChildren:YES];
+	[self.ovTags performWithSavedScroll:^{
+		[self.ovTags reloadData];
+		[self.ovTags expandItem:nil expandChildren:YES];
+	}];
 }
 
 - (IBAction)actionTagAdd:(id)sender {

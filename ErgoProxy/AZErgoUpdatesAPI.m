@@ -38,7 +38,7 @@
 	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
 		block(NO, nil);
 		action.showErrors = NO;
-		return NO;
+		return YES;
 	} firstly:YES];
 
 	return [self queue:request withType:AZAPIRequestTypeDefault];

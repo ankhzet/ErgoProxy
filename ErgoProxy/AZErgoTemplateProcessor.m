@@ -104,7 +104,8 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 
 	BOOL found1 = NO;
 	BOOL found2 = NO;
-	BOOL hasSubstitutions = YES, allSubstitutions = NO;
+	BOOL hasSubstitutions = YES;
+//	BOOL allSubstitutions = NO;
 
 	NSUInteger s1 = 0;
 	NSUInteger s2 = 0;
@@ -128,7 +129,7 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 
 				const char *closedAt = openedAt ? search(openedAt, close, stopOffset - offset) : NULL;
 				if (!closedAt) {
-					offset += openedAt - seek;
+//					offset += openedAt - seek;
 					break;
 				}
 
@@ -160,7 +161,7 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 					id value = [substitutions getSubstitution:key];
 					if (value) {
 						hasSubstitutions = YES;
-						allSubstitutions = YES;
+//						allSubstitutions = YES;
 
 						NSData *valueData = [[NSString stringWithFormat:@"%@",value] dataUsingEncoding:NSUTF8StringEncoding];
 						NSUInteger valueLen = [valueData length];
@@ -189,7 +190,7 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 							memcpy(*buffer + fullRange.location, [valueData bytes], valueLen);
 
 							*length    += diff;
-							offset     += diff;
+//							offset     += diff;
 							stopOffset += diff;
 							s2         += diff;
 						} // if (fullRange.length !== valueLength)

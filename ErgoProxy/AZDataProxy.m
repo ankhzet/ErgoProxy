@@ -16,8 +16,10 @@ NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 // notification, that will be send on iCloud data update
 NSString *const changeNotificationName = @"CoreDataChangeNotification";
 
-
-@implementation AZDataProxy
+@implementation AZDataProxy {
+	dispatch_queue_t cdOwnerQueue, cdFetchQueue;
+	NSThread *cdOwnerThread;
+}
 
 @synthesize managedObjectContext = _managedObjectContext;
 @synthesize managedObjectModel = _managedObjectModel;
@@ -31,12 +33,11 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	self.coredataModel = @"AnkhZet";
 	self.localDataDirectory = @"Documents";
 	self.dataStorageFileName = @"Database.sqlite";
-	
-	return self;
-}
 
-+ (instancetype) storageWithParameters:(NSDictionary *)appParameters {
-	return [[self alloc] initWithParameters:appParameters];
+	cdOwnerQueue = dispatch_queue_create("org.ankhzet.coredata-owner", DISPATCH_QUEUE_SERIAL);
+	cdFetchQueue = dispatch_queue_create("org.ankhzet.coredata-fetcher", DISPATCH_QUEUE_SERIAL);
+
+	return self;
 }
 
 - (id)initWithParameters:(NSDictionary *)appParameters {
@@ -55,6 +56,30 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	return self;
 }
 
++ (instancetype) storageWithParameters:(NSDictionary *)appParameters {
+	return [[self alloc] initWithParameters:appParameters];
+}
+
++ (instancetype) initSharedProxy:(NSDictionary *)appParameters {
+	static AZDataProxy *sharedInstance;
+
+	if (!sharedInstance) {
+		@synchronized(self) {
+			if (!sharedInstance) {
+				NSAssert(!!appParameters, @"Tried to access CoreData proxy shared instance but not initialized it yet.");
+
+				sharedInstance = [self storageWithParameters:appParameters];
+			}
+		}
+	}
+
+	return sharedInstance;
+}
+
++ (instancetype) sharedProxy {
+	return [self initSharedProxy:nil];
+}
+
 // path for local data storage (e.g. photos)
 -(NSURL *) localDataDirURL {
 	return [[AZUtils applicationDocumentsDirectory] URLByAppendingPathComponent:self.localDataDirectory];
@@ -69,24 +94,80 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 
 // save CoreData-managed data
 -(BOOL)saveContext {
-	NSError *error = nil;
-	NSManagedObjectContext *managedObjectContext = [self managedObjectContext];
+
+	__block BOOL result = YES;
+	NSManagedObjectContext *managedObjectContext = self.managedObjectContext;
+
 	if (managedObjectContext != nil) {
-		@try {
-			if ([managedObjectContext hasChanges] && ![managedObjectContext save:&error]) {
-				NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-				return NO;
+
+		dispatch_sync(cdFetchQueue, ^{
+			@synchronized(self) {
+				if (![managedObjectContext commitEditing])
+					NSLog(@"%@:%@ unable to commit editing before saving", [self class], NSStringFromSelector(_cmd));
+
+				@try {
+					NSError *error = nil;
+					if ([managedObjectContext hasChanges] && !(result = [managedObjectContext save:&error])) {
+						NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
+						return;
+					}
+				}
+				@catch (NSException *exception) {
+					NSLog(@"CoreData error: %@", exception);
+				}
+				@finally {
+				}
 			}
-		}
-		@catch (NSException *exception) {
-			NSLog(@"CoreData error: %@", exception);
-		}
-		@finally {
-		}
+		});
+
 	}
 	
-	return YES;
+	return result;
 }
+
+- (void) performSelectorOnContextsThread:(dispatch_block_t)param {
+	param();
+}
+
+- (void) performOnFetchThread:(dispatch_block_t)block {
+	dispatch_sync(cdFetchQueue, ^{
+		dispatch_sync(cdOwnerQueue, ^{
+			[self performSelector:@selector(performSelectorOnContextsThread:)
+									 onThread:cdOwnerThread
+								 withObject:block
+							waitUntilDone:YES];
+		});
+	});
+}
+
+
+- (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error {
+
+	__block NSArray *result = nil;
+
+	[self performOnFetchThread:^{
+		@synchronized(self) {
+			result = [self.managedObjectContext executeFetchRequest:request error:error];
+		}
+	}];
+
+	return result;
+}
+
+- (NSEntityDescription *) entityForName:(NSString *)name {
+	return [NSEntityDescription entityForName:name
+										 inManagedObjectContext:self.managedObjectContext];
+}
+
+- (id) insertNewObjectForEntityForName:(NSString *)name {
+	return [NSEntityDescription insertNewObjectForEntityForName:name
+																			 inManagedObjectContext:self.managedObjectContext];
+}
+
+- (void) deleteObject:(NSManagedObject *)object {
+	[self.managedObjectContext deleteObject:object];
+}
+
 
 #pragma mark - Notifications
 
@@ -114,8 +195,12 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	
 	NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
 	if (coordinator != nil) {
-		_managedObjectContext = [[NSManagedObjectContext alloc] init];
-		[_managedObjectContext setPersistentStoreCoordinator:coordinator];
+		dispatch_sync(cdOwnerQueue, ^{
+			cdOwnerThread = [NSThread currentThread];
+
+			_managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+			[_managedObjectContext setPersistentStoreCoordinator:coordinator];
+		});
 	}
 	return _managedObjectContext;
 }

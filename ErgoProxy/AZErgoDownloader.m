@@ -2,242 +2,149 @@
 //  AZErgoDownloader.m
 //  ErgoProxy
 //
-//  Created by Ankh on 15.10.14.
+//  Created by Ankh on 14.10.14.
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
 #import "AZErgoDownloader.h"
-
 #import "AZDownload.h"
-#import "AZStorage.h"
-#import "AZErgoAPIRequest.h"
-
-#import "AZProxifier.h"
-#import "AZErgoAPIRequest.h"
-#import "AZDownloader.h"
-
-
-@interface AZErgoDownloader ()
-@end
-
-@implementation AZErgoDownloader (Downloads)
-
-- (void) notifyStageChange:(AZDownload *)download {
-	if (self.delegate)
-		[self.delegate downloader:self readyForNextStage:download];
-}
-
-- (void) resolveData:(AZDownload *)download {
-	AZProxifier *proxifier = download.proxifier;
-
-	AZDownloader *_downloader = [proxifier downloaderForURL:download.sourceURL];
-
-	AZErgoAPIRequest *proxifyRequest = [AZErgoAPIRequest actionWithName:@"aquire"];
-	proxifyRequest.serverURL = proxifier.url;
-	[proxifyRequest setParameters:[download fetchParams:!!download.httpError]];
-	proxifyRequest.showErrors = NO;
-
-	[[[proxifyRequest success:^(AZHTTPRequest *request, id *data) {
-		AZDownloader *downloader = _downloader;
-		AZStorage *storage = [proxifier storageWithURL:[AZDownload storageToken:*data]];
-
-		if (downloader.storage != storage) {
-			[downloader removeDownload:download];
-
-			downloader = [proxifier newDownloaderForStorage:storage andParams:download.downloadParameters];
-			[downloader processDownloads];
-		}
-
-		[downloader addDownload:download];
-
-		download.proxifierHash = [AZDownload hashToken:*data];
-		download.scanID = [AZDownload scanToken:*data];
-		download.state |= AZErgoDownloadStateResolved;
-		download.httpError = 0;
-		[download downloadError:nil];
-		return YES;
-	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
-		download.httpError++;
-		[download downloadError:[NSString stringWithFormat:@"Download data resolve failed: %@", response]];
-		return YES;
-	}] executeSynked];
-}
-
-- (void) aquireFailReason:(AZDownload *)download {
-	AZErgoAPIRequest *request = [AZErgoAPIRequest actionWithName:@"proxy"];
-	request.serverURL = [download.storage fullURL];
-	request.simulateHeadRequest = YES;
-	[request setParameters:@{@"data": download.proxifierHash}];
-	[request error:^BOOL(AZHTTPRequest *action, NSString *response) {
-//		NSLog(@"%@", response);
-		[download downloadError:[NSString stringWithFormat:@"Download data aquire failed: %@", response]];
-		return NO;
-	}];
-}
-
-- (void) aquireData:(AZDownload *)download {
-//	NSLog(@"Aquiring [%@]...", download.sourceURL);
-
-	if (!download.proxifierHash) {
-		UNSET_BIT(download.state, AZErgoDownloadStateResolved);
-		return;
-	}
-
-	download.fileURL = nil;
-
-	AZErgoAPIRequest *request = [AZErgoAPIRequest actionWithName:@"proxy"];
-	request.serverURL = [download.storage fullURL];
-	request.httpMethod = @"HEAD";
-	request.acceptEmptyResponseAsSuccess = YES;
-	request.showErrors = NO;
-	[request setParameters:@{@"data": download.proxifierHash}];
-	[[[[request success:^BOOL(AZHTTPRequest *_request, id *data) {
-		NSDictionary *headers = [_request.response allHeaderFields];
-		if (!download.fileURL) {
-			[self aquireFailReason:download];
-			return YES;
-		}
-//				NSLog(@"%@", headers);
-		download.totalSize = [headers[@"Content-Length"] integerValue];
-		download.supportsPartialDownload = [headers[@"Accept-ranges"] isEqualToString:@"bytes"];
-		download.state |= AZErgoDownloadStateAquired;
-		[download downloadError:nil];
-		return YES;
-	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
-//		NSLog(@"Resolve failed");
-		[download downloadError:[NSString stringWithFormat:@"Download data aquire failed: %@", response]];
-		return NO;
-	}] processRedirects:^NSURLRequest *(NSURLConnection *_connection, NSURLRequest *_request, NSURLResponse *_response) {
-		NSHTTPURLResponse *httpResponse = (id)_response;
-		NSUInteger code = [httpResponse statusCode];
-		if ((code >= 300) && (code < 400)) {
-			NSString *url = httpResponse.allHeaderFields[@"Location"];
-			NSRange r = [url rangeOfString:@"?"];
-			if (r.length)
-				url = [url substringToIndex:r.location];
-
-			if ([url rangeOfString:@"/"].location == 0)
-				download.fileURL = url;
-		}
-
-		if (![_request.HTTPMethod isEqualToString:request.httpMethod]) {
-			NSMutableURLRequest *copy = [_request mutableCopy];
-			[copy setHTTPMethod:request.httpMethod];
-			_request = copy;
-		}
-
-		return _request;
-	}] executeSynked];
-}
-
-- (void) downloadFile:(AZDownload *)download {
-//	NSLog(@"Downloading [%@]...", download.fileURL);
-
-	NSUInteger downloadedSize = [download localFileSize];
-	if (downloadedSize >= download.totalSize) {
-		[download setDownloadedAmount:downloadedSize];
-		download.state |= AZErgoDownloadStateDownloaded;
-		[download downloadError:nil];
-		return;
-	}
-
-	BOOL partial = download.supportsPartialDownload;
-	if (partial)
-		[download setDownloadedAmount:downloadedSize];
-	else
-		[download setDownloadedAmount:downloadedSize = 0];
-
-	NSString *filePath = [download localFilePath];
-	NSError *error = nil;
-	if (![[NSFileManager defaultManager] createDirectoryAtPath:[filePath stringByDeletingLastPathComponent]
-																 withIntermediateDirectories:YES
-																									attributes:Nil
-																											 error:&error]) {
-		NSString *errorStr = [NSString stringWithFormat:@"Failed to create folder [%@]:\n%@", [filePath stringByDeletingLastPathComponent], [error localizedDescription]];
-		NSLog(@"%@", errorStr);
-		[download downloadError:errorStr];
-	}
-
-	NSOutputStream *stream = [download fileStream:partial];
-
-	@try {
-		[stream open];
-
-		AZHTTPRequest *downloadRequest = [AZHTTPRequest actionWithName:@""];
-		downloadRequest.url = [download fileFullURL];
-		if (partial)
-			[downloadRequest setContentRange:downloadedSize to:0];
-
-		downloadRequest.showErrors = NO;
-		[[downloadRequest progress:^BOOL(AZHTTPRequest *action, NSData *receivedData) {
-			NSUInteger length = [receivedData length];
-			if (length) {
-				[stream write:[receivedData bytes] maxLength:length];
-				[download setDownloadedAmount:download.downloaded + length];
-			}
-
-			return NO; // forbidd azhttprequest to collect downloaded data to it's storage
-		}] executeSynked];
-
-		if (download.downloaded >= download.totalSize) {
-			download.state |= AZErgoDownloadStateDownloaded;
-			[download downloadError:nil];
-		}
-	}
-	@finally {
-		[stream close];
-	}
-}
-
-#define __SMART_TASK(__download, __state, __selector)\
-({[self download:(__download) block:^(AZDownload *download) {\
-[self __selector:download];\
-} stateWrap:(__state)];})
-
-- (void) download:(AZDownload *)download block:(void(^)(AZDownload *download))block stateWrap:(AZErgoDownloadState)state {
-	download.state |= state;
-	@try {
-    block(download);
-	}
-	@finally {
-		UNSET_BIT(download.state, state);
-		[self notifyStageChange:download];
-	}
-}
-
-- (void) processTask:(AZDownload *)download {
-	download.lastDownloadIteration = [NSDate timeIntervalSinceReferenceDate];
-
-	if (!HAS_BIT(download.state, AZErgoDownloadStateResolved))
-		__SMART_TASK(download, AZErgoDownloadStateResolving, resolveData);
-	else {
-		if (!HAS_BIT(download.state, AZErgoDownloadStateAquired))
-			__SMART_TASK(download, AZErgoDownloadStateAquiring, aquireData);
-		else
-			__SMART_TASK(download, AZErgoDownloadStateDownloading, downloadFile);
-	}
-}
-
-@end
 
 @implementation AZErgoDownloader
 
-- (void) detouchTask:(AZDownload *)download {
-	download.state |= AZErgoDownloadStateProcessing;
-	__weak id weakSelf = self;
-	dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_BACKGROUND, 0), ^{
-		id strongSelf = weakSelf;
-		if (strongSelf) {
-			@try {
-				[strongSelf processTask:download];
-			}
-			@finally {
-				UNSET_BIT(download.state, AZErgoDownloadStateProcessing);
-			}
-		}
-	});
+- (id)init {
+	if (!(self = [super init]))
+		return self;
+
+	_concurentTasks = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
+	_consecutiveIterationsInterval = 10.;//30.;
+	_paused = NO;
+	_running = NO;
+
+	[NSUserDefaults notify:self onDefaultsChange:@selector(defaultsChanged:)];
+
+	return self;
+}
+
+- (void) dealloc {
+	[[NSNotificationCenter defaultCenter] removeObserver:self];
+}
+
+- (void) defaultsChanged:(NSNotification *)notification {
+	_concurentTasks = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
+}
+
++ (instancetype) downloaderForStorage:(AZStorage *)storage {
+	AZErgoDownloader *downloader = [AZErgoDownloader new];
+	downloader.storage = storage;
+	return downloader;
 }
 
 @end
 
+@implementation AZErgoDownloader (Downloading)
 
+- (void) pause {
+	_paused = YES;
+}
+
+- (void) resume {
+	_paused = NO;
+}
+
+- (void) stop {
+	_running = NO;
+	_paused = NO;
+}
+
+- (void) processDownloads {
+	@synchronized(self) {
+		if (_running)
+			return;
+
+		_running = YES;
+		_paused = YES;
+		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_LOW, 0), ^{
+			_paused = NO;
+			@try {
+				while (_running) {
+					usleep(10000);
+
+					if (_paused)
+						continue;
+
+					@autoreleasepool {
+						[self pickDownload];
+					}
+				}
+			}
+			@finally {
+				_running = NO;
+			}
+		});
+	}
+}
+
+- (void) pickDownload {
+	NSUInteger inProcess = 0;
+
+	NSMutableArray *candidates = [NSMutableArray array];
+
+	@synchronized(self.downloads) {
+		for (AZDownload *download in [self.downloads allValues]) {
+			BOOL processing = HAS_BIT(download.state, AZErgoDownloadStateProcessing);
+
+			if (processing)
+				inProcess++;
+			else
+				if (!HAS_BIT(download.state, AZErgoDownloadStateDownloaded))
+					[candidates addObject:download];
+		}
+	}
+
+	_inProcess = inProcess;
+
+	NSUInteger available = MIN([candidates count], MAX(0, (int)self.concurentTasks - (int)inProcess));
+
+	if (!available)
+		return;
+
+	if ([candidates count]) {
+		NSMutableArray *candidates2 = [NSMutableArray array];
+
+		NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+		for (AZDownload *download in candidates) {
+			NSTimeInterval delay = self.consecutiveIterationsInterval * MIN(6, download.httpError);
+			if (download.lastDownloadIteration < now - delay)
+				[candidates2 addObject:download];
+		}
+
+		if ([candidates2 count]) {
+			candidates = (id) ([candidates2 count] <= available
+												 ? candidates2
+												 : [candidates2 sortedArrayUsingComparator:^NSComparisonResult(AZDownload *d1, AZDownload *d2) {
+
+				NSComparisonResult r = [d1.manga compare:d2.manga];
+				if (r == NSOrderedSame)
+					return [@([d1 indexHash]) compare:@([d2 indexHash])];
+				else
+					return r;
+			}]);
+
+			if (PREF_BOOL(PREFS_DOWNLOAD_FULL_RESOLVE))
+				candidates = (id) ([candidates count] <= available
+													 ? candidates
+													 : [candidates sortedArrayUsingComparator:^NSComparisonResult(AZDownload *d1, AZDownload *d2) {
+
+					return [@(d1.state) compare:@(d2.state)];
+				}]);
+
+			for (AZDownload *download in candidates)
+				if (inProcess++ >= self.concurentTasks)
+					break;
+				else
+					[self detouchTask:download];
+		}
+	}
+}
+
+@end

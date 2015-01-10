@@ -11,10 +11,9 @@
 #import "AZErgoTabsComons.h"
 
 #import "AZProxifier.h"
-#import "AZDownloader.h"
+#import "AZErgoDownloader.h"
 
 #import "AZSynkEnabledStorage.h"
-#import "AZDataProxyContainer.h"
 
 #import "AZErgoManualSchedulerWindowController.h"
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
@@ -31,19 +30,18 @@
 }
 
 - (void) registerTabs {
-	AZSynkEnabledStorage *storage = [AZSynkEnabledStorage storageWithParameters:@{
-																																								kDPParameterModelName:@"ErgoProxy",
-																																								kDPParameterStorageFile:@"ErgoProxy.sqlite",
-																																								}];
+	AZSynkEnabledStorage *storage = [AZSynkEnabledStorage initSharedProxy:@{
+																																					kDPParameterModelName:@"ErgoProxy",
+																																					kDPParameterStorageFile:@"ErgoProxy.sqlite",
+																																					}];
 
-	[AZDataProxyContainer initInstance:storage];
 	[storage synkToggled];
 
 	PREF_SAVE_BOOL(NO, @"NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints");
 	if (![PREF_STR(PREFS_PROXY_URL) length])
 		PREF_SAVE_STR(@"http://ankh.ua/", PREFS_PROXY_URL);
 
-	[AZProxifier sharedProxy].url = [NSURL URLWithString:PREF_STR(PREFS_PROXY_URL)];
+	[AZProxifier sharedProxifier].url = [NSURL URLWithString:PREF_STR(PREFS_PROXY_URL)];
 
 	running = NO;
 	paused = NO;
@@ -134,25 +132,24 @@
 
 		[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
 
-		[[AZProxifier sharedProxy] runDownloaders:(running = !running)];
+		[[AZProxifier sharedProxifier] runDownloaders:(running = !running)];
 		((NSMenuItem *) sender).title = running ? @"Stop downloaders" : @"Download";
+		if (running) {
+			[[AZProxifier sharedProxifier] pauseDownloaders:(paused = NO)];
+		}
 	}
 }
 
 - (IBAction)actionPauseDownloader:(id)sender {
 	@synchronized(self) {
-		[[AZProxifier sharedProxy] pauseDownloaders:(paused = !paused)];
+		[[AZProxifier sharedProxifier] pauseDownloaders:(paused = !paused)];
 		((NSMenuItem *) sender).title = paused ? @"Resume workers" : @"Pause workers";
 	}
 }
 
 // Performs the save action for the application, which is to send the save: message to the application's managed object context. Any encountered errors are presented to the user.
 - (IBAction)saveAction:(id)sender {
-	if (![[[AZDataProxyContainer getInstance] managedObjectContext] commitEditing]) {
-		NSLog(@"%@:%@ unable to commit editing before saving", [self class], NSStringFromSelector(_cmd));
-	}
-
-	[AZDataProxyContainer saveContext];
+	[[AZDataProxy sharedProxy] saveContext];
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {

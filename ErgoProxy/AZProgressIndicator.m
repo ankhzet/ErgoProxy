@@ -35,12 +35,17 @@
 																											 NSStrokeWidthAttributeName: @10,
 																											 };
 
+	NSDictionary *background = @{
+															 NSForegroundColorAttributeName: [NSColor whiteColor],
+															 };
+
 	CGSize size = [text sizeWithAttributes:foreground];
 	CGPoint point = NSMakePoint(rect.origin.x + (rect.size.width - size.width) / 2., rect.origin.y + (rect.size.height - size.height) / 2.);
 
+	NSRect insetRect = NSInsetRect(rect,2.0,2.0);
+
 	if (drawProgress) {
 		NSRect slice, remainder;
-		NSRect insetRect = NSInsetRect(rect,2.0,2.0);
 
 		double size = (self.maxValue - self.minValue);
 		double percent = size ? (self.doubleValue - self.minValue) / size : 0;
@@ -50,10 +55,10 @@
 		[[NSColor orangeColor] drawSwatchInRect:slice];
 		[[NSColor blackColor] drawSwatchInRect:remainder];
 
-		NSDictionary *background = @{
-																 NSForegroundColorAttributeName: [NSColor darkGrayColor],
-																 NSStrokeWidthAttributeName: @10,
-																 };
+		background = @{
+									 NSForegroundColorAttributeName: [NSColor darkGrayColor],
+									 NSStrokeWidthAttributeName: @10,
+									 };
 
 
 		point.y ++;
@@ -62,6 +67,8 @@
 
 		point.y --;
 		point.x --;
+	} else {
+		[[NSColor whiteColor] drawSwatchInRect:insetRect];
 	}
 
 	[text drawAtPoint:point withAttributes:foreground];

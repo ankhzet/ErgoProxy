@@ -12,9 +12,8 @@
 #import "AZUtils.h"
 
 #import "AZDownload.h"
-#import "AZDownloader.h"
+#import "AZErgoDownloader.h"
 #import "AZDownloadParams.h"
-
 
 @interface AZProxifier () {
 	NSMutableDictionary *downloaders;
@@ -22,11 +21,12 @@
 
 @end
 
+MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
+
 @implementation AZProxifier
-@synthesize delegate;
 @dynamic storages, downloads;
 
-+ (instancetype) sharedProxy {
++ (instancetype) sharedProxifier {
 	static AZProxifier *instance;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
@@ -56,23 +56,23 @@
 	return [[downloaders allValues] objectEnumerator];
 }
 
-- (AZDownloader *) downloaderForURL:(NSURL *)url {
-	for (AZDownloader *downloader in [downloaders allValues])
+- (AZErgoDownloader *) downloaderForURL:(NSURL *)url {
+	for (AZErgoDownloader *downloader in [downloaders allValues])
 		if ([downloader hasDownloadForURL:url])
 			return downloader;
 
 	return nil;
 }
 
-- (AZDownloader *) newDownloaderForStorage:(AZStorage *)storage andParams:(AZDownloadParams *)params {
+- (AZErgoDownloader *) newDownloaderForStorage:(AZStorage *)storage andParams:(AZDownloadParams *)params {
 	NSString *hash = [NSString stringWithFormat:@"%@@%@", storage ? [storage fullURL] : @"", [params hashed]];
-	AZDownloader *downloader = downloaders[hash];
+	AZErgoDownloader *downloader = downloaders[hash];
 
 	if (!downloader) {
 		if (!downloaders)
 			downloaders = [NSMutableDictionary dictionary];
 
-		downloader = downloaders[hash] = [AZDownloader downloaderForStorage:storage];
+		downloader = downloaders[hash] = [AZErgoDownloader downloaderForStorage:storage];
 		downloader.delegate = self;
 	}
 
@@ -80,7 +80,7 @@
 }
 
 - (AZDownload *) downloadForURL:(NSURL *)url withParams:(AZDownloadParams *)params {
-	AZDownloader *downloader = [self downloaderForURL:url];
+	AZErgoDownloader *downloader = [self downloaderForURL:url];
 	if (downloader)
 		return [downloader hasDownloadForURL:url];
 
@@ -96,43 +96,34 @@
 }
 
 - (void) reRegisterDownload:(AZDownload *)download {
-	AZDownloader *downloader = [self downloaderForURL:download.sourceURL];
-	if (downloader)
+	if (HAS_BIT(download.state, AZErgoDownloadStateDownloaded))
 		return;
 
-//	if (!download.proxifierHash)
-//		UNSET_BIT(download.state,AZErgoDownloadStateAquired);
+	download.proxifier = self;
 
-	if (!download.storage)
+	if (!download.fileURL)
+		UNSET_BIT(download.state,AZErgoDownloadStateAquired);
+	else
+		download.supportsPartialDownload = YES;
+
+	if (!(download.storage && download.proxifierHash))
 		UNSET_BIT(download.state,  AZErgoDownloadStateResolved);
 
-	UNSET_BIT(download.state, AZErgoDownloadStateAquired);
+//	UNSET_BIT(download.state, AZErgoDownloadStateAquired);
 
 	if (!download.downloadParameters)
 		download.downloadParameters = [AZDownloadParams defaultParams];
 
-	downloader = [self newDownloaderForStorage:download.storage andParams:download.downloadParameters];
-	[downloader addDownload:download];
-
-	download.proxifier = self;
-	[self notifyListeners:download];
-}
-
-- (void) notifyListeners:(AZDownload *)download {
-	if (self.delegate)
-		[self.delegate download:download stateChanged:download.state];
-}
-
-- (void) downloader:(AZErgoDownloader *)downloader readyForNextStage:(AZDownload *)download {
-	[self notifyListeners:download];
-}
-
-- (void) downloader:(AZErgoDownloader *)downloader stateSchanged:(AZErgoDownloaderState)state {
-	//TODO: reaction to downloader:stateChanged:
+	AZErgoDownloader *downloader = [self downloaderForURL:download.sourceURL];
+	if (!downloader) {
+		downloader = [self newDownloaderForStorage:download.storage andParams:download.downloadParameters];
+		[downloader addDownload:download];
+		[self notifyListeners:download];
+	}
 }
 
 - (void) runDownloaders:(BOOL)run {
-	for (AZDownloader *downloader in [downloaders allValues])
+	for (AZErgoDownloader *downloader in [downloaders allValues])
 		if (run && !downloader.running)
 			[downloader processDownloads];
 		else
@@ -141,11 +132,28 @@
 }
 
 - (void) pauseDownloaders:(BOOL)pause {
-	for (AZDownloader *downloader in [downloaders allValues])
+	for (AZErgoDownloader *downloader in [downloaders allValues])
 		if (pause)
 			[downloader pause];
 		else
 			[downloader resume];
 }
+
+@end
+
+@implementation AZProxifier (Delegation)
+
+- (void) notifyListeners:(AZDownload *)download {
+	[self.md_delegate download:download stateChanged:download.state];
+}
+
+- (void) downloader:(AZErgoCustomDownloader *)downloader readyForNextStage:(AZDownload *)download {
+	[self notifyListeners:download];
+}
+
+- (void) downloader:(AZErgoCustomDownloader *)downloader stateSchanged:(AZErgoDownloaderState)state {
+	//TODO: reaction to downloader:stateChanged:
+}
+
 
 @end

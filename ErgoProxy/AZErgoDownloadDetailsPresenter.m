@@ -12,10 +12,11 @@
 
 #import "AZProxifier.h"
 #import "AZStorage.h"
+#import "AZDownload.h"
 #import "AZDownloadParameter.h"
 #import "AZDownloadParams.h"
 
-#import "AZDataProxyContainer.h"
+#import "AZDataProxy.h"
 
 #import "AZErgoDownloadsDataSource.h"
 
@@ -193,7 +194,7 @@
 - (void) dropHash {
 	[download downloadError:nil];
 	download.proxifierHash = nil;
-	[[AZProxifier sharedProxy] reRegisterDownload:download];
+	[[AZProxifier sharedProxifier] reRegisterDownload:download];
 	UNSET_BIT(download.state, AZErgoDownloadStateResolved);
 	UNSET_BIT(download.state, AZErgoDownloadStateAquired);
 	UNSET_BIT(download.state, AZErgoDownloadStateDownloaded);
@@ -204,7 +205,7 @@
 
 - (void) deleteEntity {
 	[download delete];
-	[(id)[[AZDataProxyContainer getInstance] dataProxy] notifyChangedWithUserInfo:nil];
+	[[AZDataProxy sharedProxy] notifyChangedWithUserInfo:nil];
 }
 
 - (void) previewEntity {
@@ -238,10 +239,12 @@
 		AZDownload *_download = sender;
 		if (lock) // paused already
 			_download.lastDownloadIteration = distantFuture;
-		else
+		else {
 			_download.lastDownloadIteration = 0;
+			[[AZProxifier sharedProxifier] reRegisterDownload:_download];
+		}
 
-		[_download.stateListener download:_download stateChanged:_download.state];
+		[_download notifyStateChanged];
 	} else
 		if ([sender isKindOfClass:[CustomDictionary class]])
 			for (id sub in [(CustomDictionary *)sender allValues])
