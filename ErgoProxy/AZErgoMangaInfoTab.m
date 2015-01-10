@@ -8,6 +8,7 @@
 
 #import "AZErgoMangaInfoTab.h"
 #import "AZErgoMangaCommons.h"
+#import "AZAlertSheet.h"
 
 @interface AZErgoMangaInfoTab () <NSTextViewDelegate> {
 	AZErgoManga *manga;
@@ -163,18 +164,16 @@
 }
 
 - (IBAction)actionDelete:(id)sender {
-	NSArray *buttons = @[NSLocalizedString(@"Ok", @"Ok button title"), NSLocalizedString(@"Cancel", @"Cancel button title")];
-	[AZUtils notifyErrorMsg:[NSString stringWithFormat:@"You really want to delete \"%@\"?", [manga mainTitle]] withButtons:buttons andBlock:^(NSUInteger button) {
-		switch (button) {
-			case NSAlertFirstButtonReturn:
-				[manga delete];
-				[self.tabs navigateTo:AZEPUIDMangaTab withNavData:nil];
-				break;
+	NSString *title = NSLocalizedString(@"You really want to delete \"%@\"?", @"Manga deletion warning");
+	switch ([AZAlert showOkCancel:AZWarningTitle message:[NSString stringWithFormat:title, [manga mainTitle]]]) {
+		case AZDialogReturnOk:
+			[manga delete];
+			[self.tabs navigateTo:AZEPUIDMangaTab withNavData:nil];
+			break;
 
-			default:
-				break;
-		}
-	}];
+		default:
+			break;
+	}
 }
 
 - (IBAction)actionShowTagsEditor:(id)sender {

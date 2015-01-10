@@ -49,7 +49,7 @@
 				if (self.hasChanges)
 					break;
 			default:
-				[controller dismissWithReturnCode:code];
+				[controller dismissWithReturnCode:ABS(code)];
 		}
 
 		return code;
@@ -62,6 +62,11 @@
 	AZDialogProcessBlock old = processBlock;
 	@try {
 		processBlock = [self makeProcessor:filtering];
+
+		if (setup) {
+			[self prepareWindow];
+		}
+
 		code = ABS(setup ? setup(self) : [self beginSheet]);
 	}
 	@finally {

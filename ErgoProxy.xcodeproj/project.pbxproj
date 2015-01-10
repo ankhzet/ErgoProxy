@@ -138,6 +138,8 @@
 		0ACDE4701A53DED7000CE86E /* AZErgoSubstitutioner.m in Sources */ = {isa = PBXBuildFile; fileRef = 0ACDE46F1A53DED7000CE86E /* AZErgoSubstitutioner.m */; };
 		0AEB18DF1A5D6C410013AD69 /* NSView+AnkhUtils.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AEB18DE1A5D6C410013AD69 /* NSView+AnkhUtils.m */; };
 		0AF40F891A60DEDD00C34C4C /* AZMultipleTargetDelegate.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AF40F881A60DEDD00C34C4C /* AZMultipleTargetDelegate.m */; };
+		0AF40F8D1A61412000C34C4C /* AZAlertSheet.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AF40F8B1A61412000C34C4C /* AZAlertSheet.m */; };
+		0AF40F8E1A61412000C34C4C /* AZAlertSheet.xib in Resources */ = {isa = PBXBuildFile; fileRef = 0AF40F8C1A61412000C34C4C /* AZAlertSheet.xib */; };
 		0AFE56201A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE561F1A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m */; };
 		0AFE562E1A4CCE230001EF3A /* AZFlippedView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE562B1A4CCE230001EF3A /* AZFlippedView.m */; };
 		0AFE562F1A4CCE230001EF3A /* AZSyncedScrollView.m in Sources */ = {isa = PBXBuildFile; fileRef = 0AFE562D1A4CCE230001EF3A /* AZSyncedScrollView.m */; };
@@ -429,6 +431,9 @@
 		0AEB18DE1A5D6C410013AD69 /* NSView+AnkhUtils.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = "NSView+AnkhUtils.m"; sourceTree = "<group>"; };
 		0AF40F871A60DEDD00C34C4C /* AZMultipleTargetDelegate.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZMultipleTargetDelegate.h; sourceTree = "<group>"; };
 		0AF40F881A60DEDD00C34C4C /* AZMultipleTargetDelegate.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZMultipleTargetDelegate.m; sourceTree = "<group>"; };
+		0AF40F8A1A61412000C34C4C /* AZAlertSheet.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZAlertSheet.h; sourceTree = "<group>"; };
+		0AF40F8B1A61412000C34C4C /* AZAlertSheet.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZAlertSheet.m; sourceTree = "<group>"; };
+		0AF40F8C1A61412000C34C4C /* AZAlertSheet.xib */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = file.xib; path = AZAlertSheet.xib; sourceTree = "<group>"; };
 		0AFD82711A57D9AC00408DD3 /* ErgoProxy 18.xcdatamodel */ = {isa = PBXFileReference; lastKnownFileType = wrapper.xcdatamodel; path = "ErgoProxy 18.xcdatamodel"; sourceTree = "<group>"; };
 		0AFE561E1A4CB0AC0001EF3A /* AZErgoUpdatesCellView.h */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.h; path = AZErgoUpdatesCellView.h; sourceTree = "<group>"; };
 		0AFE561F1A4CB0AC0001EF3A /* AZErgoUpdatesCellView.m */ = {isa = PBXFileReference; fileEncoding = 4; lastKnownFileType = sourcecode.c.objc; path = AZErgoUpdatesCellView.m; sourceTree = "<group>"; };
@@ -793,6 +798,7 @@
 		0A8B94CA1A51FFBF00A29CF4 /* Custom Controlls & UI Helpers */ = {
 			isa = PBXGroup;
 			children = (
+				0AF40F8F1A61412500C34C4C /* Alert Sheet Window Controller */,
 				0AFE56451A4E19110001EF3A /* AZCollapsingView.h */,
 				0AFE56461A4E19110001EF3A /* AZCollapsingView.m */,
 				0AFE562A1A4CCE230001EF3A /* AZFlippedView.h */,
@@ -1223,6 +1229,17 @@
 			name = Resources;
 			sourceTree = "<group>";
 		};
+		0AF40F8F1A61412500C34C4C /* Alert Sheet Window Controller */ = {
+			isa = PBXGroup;
+			children = (
+				0AF40F8A1A61412000C34C4C /* AZAlertSheet.h */,
+				0AF40F8B1A61412000C34C4C /* AZAlertSheet.m */,
+				0AF40F8C1A61412000C34C4C /* AZAlertSheet.xib */,
+			);
+			name = "Alert Sheet Window Controller";
+			path = ../../ErgoProxy/ErgoProxy;
+			sourceTree = "<group>";
+		};
 /* End PBXGroup section */
 
 /* Begin PBXNativeTarget section */
@@ -1317,6 +1334,7 @@
 				0AB3996419EDE36D00BBE2F4 /* tabMain.xib in Resources */,
 				0A96E3381A58252700083DC3 /* tabMangaInfo.xib in Resources */,
 				0ACDE46A1A53BA8F000CE86E /* web in Resources */,
+				0AF40F8E1A61412000C34C4C /* AZAlertSheet.xib in Resources */,
 				0A816B8F18E38E1E008B683B /* MainMenu.xib in Resources */,
 				0A8B94C91A51FFA900A29CF4 /* AZErgoManualSchedulerWindowController.xib in Resources */,
 			);
@@ -1399,6 +1417,7 @@
 				0ACDE44F1A53A0BE000CE86E /* HTTPAsyncFileResponse.m in Sources */,
 				0A2DCE3B1A0C6BBC00E0E3B1 /* AZSynkEnabledStorage.m in Sources */,
 				0A5B619A1A57DB0500668D29 /* AZErgoManga.m in Sources */,
+				0AF40F8D1A61412000C34C4C /* AZAlertSheet.m in Sources */,
 				0ACDE45E1A53A0BE000CE86E /* ContextFilterLogFormatter.m in Sources */,
 				0A37AD5B1A50E719007558A2 /* AZCaseUnsencitiveComboBoxCell.m in Sources */,
 				0A5B61971A57DB0500668D29 /* AZErgoMangaTitle.m in Sources */,
