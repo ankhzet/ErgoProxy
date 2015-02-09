@@ -19,10 +19,13 @@
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
 #import "AZErgoMangaAddWindowController.h"
 
-@interface AZErgoAppDelegate ()
+#import "AZDownloadSpeedWatcher.h"
+@interface AZErgoAppDelegate () <AZDownloadSpeedWatcherDelegate, AZErgoDownloaderDelegate>
 @property (weak) IBOutlet NSMenu *mNavMenu;
 
 @end
+
+MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 
 @implementation AZErgoAppDelegate {
 	BOOL running, paused;
@@ -40,6 +43,8 @@
 	PREF_SAVE_BOOL(NO, @"NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints");
 	if (![PREF_STR(PREFS_PROXY_URL) length])
 		PREF_SAVE_STR(@"http://ankh.ua/", PREFS_PROXY_URL);
+
+	[self bindAsDelegateTo:[AZDownloadSpeedWatcher sharedSpeedWatcher] solo:NO];
 
 	[AZProxifier sharedProxifier].url = [NSURL URLWithString:PREF_STR(PREFS_PROXY_URL)];
 
@@ -65,10 +70,49 @@
 	[self registerTab:[AZErgoMangaInfoTab class]];
 	[self registerTab:[AZErgoUtilsTab class]];
 
+	[[NSRunLoop mainRunLoop] addTimer:[NSTimer timerWithTimeInterval:0.5
+																														target:self
+																													selector:@selector(fireTimer:)
+																													userInfo:nil
+																													 repeats:YES]
+														forMode:NSDefaultRunLoopMode];
 }
 
 - (NSString *) initialTab {
 	return AZEPUIDUtilsTab;
+}
+
+- (void) fireTimer:(NSTimer *)timer {
+	[self watcherUpdated:[AZDownloadSpeedWatcher sharedSpeedWatcher]];
+}
+
+- (void) watcherUpdated:(AZDownloadSpeedWatcher *)watcher {
+	if ([self.tabsGroup.currentTab isKindOfClass:[AZErgoBrowserTab class]])
+		return;
+
+	NSUInteger downloaded = [watcher totalDownloaded];
+
+	NSString *averageStr = nil;
+	if (downloaded > 0) {
+		NSString *pattern = NSLocalizedString(@" - [%@, %@ (%@) / sec]", @"Main window title pattern");
+		NSUInteger precission = 1;
+		if (downloaded > 1024 * 1024)
+			precission = 2;
+
+		NSTimeInterval longTerm = [AZDownloadSpeedWatcher timeWithTimeIntervalSinceNow:-(60*5)];
+		NSTimeInterval shortTerm = [AZDownloadSpeedWatcher timeWithTimeIntervalSinceNow:-5];
+
+		float shortAverage = [watcher averageSpeedSince:shortTerm];
+		float longAverage = [watcher averageSpeedSince:longTerm];
+
+		NSString *sDownloaded = [NSString cvtFileSize:downloaded withPrec:precission];
+		NSString *sShort = ((shortAverage - 0.01)>0) ? [NSString cvtFileSize:shortAverage] : @"---";
+		NSString *sLong = ((longAverage - 0.01)>0) ? [NSString cvtFileSize:longAverage] : @"---";
+		averageStr = [NSString stringWithFormat:pattern, sDownloaded, sShort, sLong];
+	} else
+		averageStr = @"";
+
+	self.window.title = [NSString stringWithFormat:@"%@%@", APP_TITLE, averageStr];
 }
 
 - (IBAction)actionShowPreferences:(id)sender {
@@ -160,6 +204,7 @@
 }
 
 - (void) applicationWillTerminate:(NSNotification *)notification {
+	PREF_SAVE_INT(PREF_INT(PREFS_COMMON_MANGA_DOWNLOADED) + [[AZDownloadSpeedWatcher sharedSpeedWatcher] totalDownloaded], PREFS_COMMON_MANGA_DOWNLOADED);
 	[self saveAction:nil];
 }
 

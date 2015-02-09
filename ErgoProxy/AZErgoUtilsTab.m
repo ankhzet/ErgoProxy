@@ -24,6 +24,8 @@
 }
 
 - (void) updateContents {
+	NSUInteger amount = PREF_INT(PREFS_COMMON_MANGA_DOWNLOADED) + [[AZDownloadSpeedWatcher sharedSpeedWatcher] totalDownloaded];
+	self.tfDownloadedAmount.stringValue = [NSString cvtFileSize:amount withPrec:2];
 }
 
 - (IBAction)actionCheckUnlinkedFolders:(id)sender {
@@ -70,6 +72,9 @@
 	NSUInteger downloaded = 0;
 	for (AZDownload *download in downloads)
 		downloaded += download.downloaded;
+
+	downloaded -= [[AZDownloadSpeedWatcher sharedSpeedWatcher] totalDownloaded];
+	PREF_SAVE_INT(downloaded, PREFS_COMMON_MANGA_DOWNLOADED);
 
 	[self updateContents];
 }

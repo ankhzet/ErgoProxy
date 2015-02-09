@@ -10,6 +10,8 @@
 #import "AZErgoAPIRequest.h"
 #import "AZDownload.h"
 #import "AZProxifier.h"
+#import "AZDownloadSpeedWatcher.h"
+
 
 @implementation AZErgoProxifierAPI
 
