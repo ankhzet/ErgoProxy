@@ -52,6 +52,7 @@
 								 @3: AZEPUIDMainTab,
 								 @4: AZEPUIDBrowserTab,
 								 @5: AZEPUIDTagBrowserTab,
+								 @6: AZEPUIDUtilsTab,
 								 };
 
 	[self registerTab:[AZErgoMainTab class]];
@@ -62,10 +63,12 @@
 	[self registerTab:[AZErgoMangaTab class]];
 	[self registerTab:[AZErgoTagBrowser class]];
 	[self registerTab:[AZErgoMangaInfoTab class]];
+	[self registerTab:[AZErgoUtilsTab class]];
+
 }
 
 - (NSString *) initialTab {
-	return AZEPUIDMangaTab;
+	return AZEPUIDUtilsTab;
 }
 
 - (IBAction)actionShowPreferences:(id)sender {

@@ -18,6 +18,7 @@ static NSString *AZEPUIDBrowserTab = @"browser";
 static NSString *AZEPUIDTagBrowserTab = @"tag-browser";
 static NSString *AZEPUIDMangaTab = @"manga";
 static NSString *AZEPUIDMangaInfoTab = @"manga-info";
+static NSString *AZEPUIDUtilsTab = @"app-utils";
 
 #import "AZErgoMainTab.h"
 #import "AZErgoPreferencesTab.h"
@@ -26,5 +27,6 @@ static NSString *AZEPUIDMangaInfoTab = @"manga-info";
 #import "AZErgoTagBrowser.h"
 #import "AZErgoMangaTab.h"
 #import "AZErgoMangaInfoTab.h"
+#import "AZErgoUtilsTab.h"
 
 #endif

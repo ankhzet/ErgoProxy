@@ -9,6 +9,8 @@
 #ifndef ErgoProxy_AZEPAppCommons_h
 #define ErgoProxy_AZEPAppCommons_h
 
+#import "AZUtils.h"
+
 #define API_ACTION_BASE_URL @"%@/a-p-i/ergo/"
 
 #define PREF_SAVE_STR(_string, _pref_key) \
@@ -57,6 +59,7 @@ PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)
 
 
 #define PREFS_COMMON_MANGA_STORAGE @"common.storage"
+#define PREFS_COMMON_MANGA_DOWNLOADED @"common.downloaded"
 
 #define PREFS_UI_DOWNLOADS_GROUPPED @"ui.downloads.groupped"
 #define PREFS_UI_DOWNLOADS_HIDEFINISHED @"ui.downloads.hidefinished"
@@ -65,5 +68,9 @@ PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)
 #define PREFS_WATCHER_AUTOCHECK_INTERVAL @"watcher.autocheck.interval"
 #define PREFS_UI_WATCHER_HIDEFINISHED @"ui.watcher.hidefinished"
 
+#define MANGA_STORAGE_FOLDERS [AZUtils fetchDirs:PREF_STR(PREFS_COMMON_MANGA_STORAGE)]
+
+#define AZ_MutableI(_class, _variable, _initializer) NSMutable##_class _variable = [NSMutable##_class _initializer]
+#define AZ_Mutable(_class, _variable) AZ_MutableI(_class, _variable, new)
 
 #endif
