@@ -1,0 +1,36 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment defaultVersion="1080" identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="AZErgoStatusItem"/>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <menu title="Ergo" autoenablesItems="NO" id="Mlv-UO-ves">
+            <items>
+                <menuItem title="Bring to front" image="NSApplicationIcon" id="aUB-Sq-gUM">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="actionArrangeInFront:" target="-2" id="jOi-2D-7CN"/>
+                    </connections>
+                </menuItem>
+                <menuItem isSeparatorItem="YES" id="w57-aV-48f"/>
+                <menuItem title="Reader" image="NSBookmarksTemplate" tag="1" id="B4D-Zc-1o3">
+                    <modifierMask key="keyEquivalentModifierMask"/>
+                    <connections>
+                        <action selector="actionShowReader:" target="-2" id="2BK-7n-Fso"/>
+                    </connections>
+                </menuItem>
+            </items>
+            <connections>
+                <outlet property="delegate" destination="-2" id="5VM-cV-sC1"/>
+            </connections>
+        </menu>
+    </objects>
+    <resources>
+        <image name="NSApplicationIcon" width="128" height="128"/>
+        <image name="NSBookmarksTemplate" width="17" height="12"/>
+    </resources>
+</document>

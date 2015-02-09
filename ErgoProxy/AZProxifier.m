@@ -21,6 +21,7 @@
 
 @end
 
+MULTIDELEGATED_INJECT_LISTENER(AZProxifier)
 MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 
 @implementation AZProxifier
@@ -120,6 +121,8 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 		[downloader addDownload:download];
 		[self notifyListeners:download];
 	}
+
+	[self bindAsDelegateTo:download solo:NO];
 }
 
 - (void) runDownloaders:(BOOL)run {
@@ -155,5 +158,12 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 	//TODO: reaction to downloader:stateChanged:
 }
 
+- (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state {
+	[self.md_delegate download:download stateChanged:state];
+}
+
+- (void) download:(AZDownload *)download progressChanged:(double)progress {
+	[self.md_delegate download:download progressChanged:progress];
+}
 
 @end

@@ -20,6 +20,11 @@
 #import "AZErgoMangaAddWindowController.h"
 
 #import "AZDownloadSpeedWatcher.h"
+
+#import "AZErgoStatusItem.h"
+
+#define APP_TITLE @"ErgoProxy"
+
 @interface AZErgoAppDelegate () <AZDownloadSpeedWatcherDelegate, AZErgoDownloaderDelegate>
 @property (weak) IBOutlet NSMenu *mNavMenu;
 
@@ -30,6 +35,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 @implementation AZErgoAppDelegate {
 	BOOL running, paused;
 	NSDictionary *tabMapping;
+	AZErgoStatusItem *statusItem;
 }
 
 - (void) registerTabs {
@@ -76,6 +82,8 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 																													userInfo:nil
 																													 repeats:YES]
 														forMode:NSDefaultRunLoopMode];
+
+	statusItem = [AZErgoStatusItem new];
 }
 
 - (NSString *) initialTab {
