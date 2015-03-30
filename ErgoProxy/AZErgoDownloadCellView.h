@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import "AZErgoConfigurableTableCellView.h"
+#import "AZConfigurableTableCellView.h"
 
 @class AZProgressIndicator, AZDownload;
-@interface AZErgoDownloadCellView : AZErgoConfigurableTableCellView
+@interface AZErgoDownloadCellView : AZConfigurableTableCellView
 
 @end

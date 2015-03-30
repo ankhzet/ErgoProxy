@@ -8,6 +8,8 @@
 
 #import "AZErgoSubstitutioner.h"
 
+#import "AZErgoMangaCommons.h"
+
 @interface AZErgoSubstitutioner () {
 	id<AZErgoSubtitutionerDataSupplier> dataSupplier;
 }
@@ -29,37 +31,35 @@
 		NSString *substitution = nil;
 
 		for (NSString *component in components)
-			if (!substitution)
-				substitution = dataSupplier ? ([dataSupplier getDataByKey:component] ?: @"") : component;
-			else {
+			if (!substitution) {
+				substitution = dataSupplier ? ([self getData:component] ?: @"") : component;
+			} else {
 				SEL selector = NSSelectorFromString([NSString stringWithFormat:@"data%@:", [component capitalizedString]]);
-				if ([self respondsToSelector:selector])
+				if ([self respondsToSelector:selector]) {
 #pragma clang diagnostic push
 #pragma clang diagnostic ignored "-Warc-performSelector-leaks"
 					substitution = [self performSelector:selector withObject:substitution];
 #pragma clang diagnostic pop
+				}
 			}
 
 		return substitution;
 	}
 
-	return dataSupplier ? [dataSupplier getDataByKey:key] : nil;
+	return dataSupplier ? [self getData:key] : nil;
 }
 
-+ (NSString *) formatChapterID:(float)chapter {
-	int isBonus = ((int)(chapter * 10)) % 10;
+- (id) getData:(NSString *)keypath {
+	NSArray *path = [keypath componentsSeparatedByString:@"."];
+	keypath = [path firstObject];
 
-	NSString *string = isBonus ? [NSString stringWithFormat:@"%.1f", chapter] : [NSString stringWithFormat:@"%d", (int)chapter];
+	id data = [dataSupplier getDataByKey:keypath];
+	if ([path count] > 1)
+		for (NSString *key in path)
+			if (key != keypath)
+				data = [data objectForKey:key];
 
-	return [self pad:string toLen:isBonus ? 6 : 4];
-}
-
-+ (NSString *)pad:(NSString *)str toLen:(NSInteger)len {
-	len = len - [str length];
-	if (len > 0)
-		str = [[@"" stringByPaddingToLength:len withString:@"0" startingAtIndex:0] stringByAppendingString:str];
-
-	return str;
+	return data;
 }
 
 @end
@@ -96,11 +96,25 @@
 }
 
 - (NSString *) dataChapter:(id)data {
-	return [AZErgoSubstitutioner formatChapterID:[[data description] floatValue]];
+	return [AZErgoMangaChapter formatChapterID:[[data description] floatValue]];
 }
 
 - (NSString *) dataEmpty:(NSString *)data {
 	return data ? data : @"";
+}
+
+- (NSString *) dataBool:(id)data {
+	BOOL value = NO;
+
+	if (!!data) {
+		if ([data respondsToSelector:@selector(boolValue)])
+			value = [data boolValue];
+
+		else
+			value = [[data description] boolValue];
+}
+
+	return value ? @"true" : @"false";
 }
 
 @end

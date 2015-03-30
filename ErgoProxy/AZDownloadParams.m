@@ -67,8 +67,11 @@ NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 	AZDownloadParameter *param = [self downloadParameter:parameter];
 	BOOL recreate = !(param && [param.value isEqual:value]);
 
-	if (recreate)
-		return [[self class] params:[self paramsDictionary]];
+	if (recreate) {
+		NSMutableDictionary *d = [[self paramsDictionary] mutableCopy];
+		d[parameter] = value;
+		return [[self class] params:d];
+	}
 
 	return self;
 }

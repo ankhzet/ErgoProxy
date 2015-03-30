@@ -15,4 +15,6 @@
 @property (nonatomic, retain) NSString * title;
 @property (nonatomic, retain) AZErgoManga *manga;
 
++ (instancetype) mangaTitile:(NSString *)title;
+
 @end

@@ -14,26 +14,7 @@
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
 	self.bindedEntity = entity;
 
-	NSString *title = [self plainTitle];
-	switch ([title integerValue]) {
-		case AZErgoTagGroupComplete:
-			title = @"Tagged as complete";
-			break;
-
-		case AZErgoTagGroupReaded:
-			title = @"Tagged as readed";
-			break;
-
-		case AZErgoTagGroupAdult:
-			title = @"Tagged as adult (18+)";
-			break;
-
-		default:
-			title = @"Common tags";
-			break;
-	}
-
-	self.textField.stringValue = title;
+	self.textField.stringValue = LOC_FORMAT([self plainTitle] ?: @"Unknown tag group");
 }
 
 @end

@@ -7,12 +7,9 @@
 //
 
 #import <Foundation/Foundation.h>
+#import "AZErgoChapterProtocol.h"
 
-#define _IDX(_idx) ({(int)((_idx) * 10);})
-#define _IDI(_idx) ({((_idx) / 10.f);})
-#define _FRC(_idx) ({(_IDX(_idx) % 10);})
-
-@interface Chapter : NSObject
+@interface Chapter : NSObject <AZErgoChapterProtocol>
 
 @property (nonatomic) NSInteger volume;
 @property (nonatomic) float baseIdx;

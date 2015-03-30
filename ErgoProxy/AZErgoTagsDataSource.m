@@ -12,17 +12,15 @@
 
 @implementation AZErgoTagsDataSource
 
-- (BOOL)outlineView:(NSOutlineView *)outlineView shouldSelectItem:(id)idItem {
-	if (!!self.delegate)
-		[self.delegate tagSelected:idItem];
+- (NSIndexSet *)outlineView:(NSOutlineView *)outlineView selectionIndexesForProposedSelection:(NSIndexSet *)proposedSelectionIndexes {
+	[(id)self.md_delegate tagSelected:nil];
 
-	return YES;
-}
+		[proposedSelectionIndexes enumerateIndexesUsingBlock:^(NSUInteger idx, BOOL *stop) {
+			id item = [outlineView itemAtRow:idx];
+			[(id)self.md_delegate tagSelected:item];
+		}];
 
-- (void) actionDelegatedClick:(id)sender {
-	AZErgoTagCellView *cellView = [self cellViewFromSender:sender];
-	if (cellView && !!self.delegate)
-		[self.delegate tagDeleted:cellView.bindedEntity];
+	return proposedSelectionIndexes;
 }
 
 @end
@@ -38,7 +36,7 @@
 }
 
 - (id) rootNodeOf:(AZErgoMangaTag *)tag {
-	return tag.guid ?: @0;
+	return [AZErgoMangaTag tagGroupName:[tag.guid integerValue]];
 }
 
 - (id) groupNodeOf:(AZErgoMangaTag *)tag {

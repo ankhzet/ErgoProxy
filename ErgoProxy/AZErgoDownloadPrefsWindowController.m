@@ -10,11 +10,16 @@
 #import "AZDownloadParams.h"
 
 #import "AZProxifier.h"
+#import "AZErgoManga.h"
+
+#define PRESET_COMIC   @"Comic"
+#define PRESET_WEBTOON @"Webtoon"
 
 @interface AZErgoDownloadPrefsWindowController () {
 	NSDictionary *controlsMapping;
 	NSDictionary *prefsMapping;
 	NSMutableDictionary *manualPrefs;
+	BOOL forWebtoon;
 }
 
 @property (weak) IBOutlet NSButton *cbUseDefaults;
@@ -27,8 +32,14 @@
 @property (weak) IBOutlet NSSlider *sCustomWidth;
 @property (weak) IBOutlet NSSlider *sCustomQuality;
 @property (weak) IBOutlet NSSlider *sCustomHeight;
+@property (weak) IBOutlet NSButton *sCustomIsWebtoon;
+
+@property (weak) IBOutlet NSComboBox *cbPresets;
 
 @property (weak) IBOutlet NSBox *bConstraintsBox;
+
+@property (nonatomic) NSString *preset;
+
 @end
 
 @implementation AZErgoDownloadPrefsWindowController
@@ -53,22 +64,80 @@
 		@"IsWebtoon": PREFS_DOWNLOAD_WEBTOON,
 		};
 
-	manualPrefs = [NSMutableDictionary dictionary];
-	for (NSString *pref in [prefsMapping allKeys])
-		manualPrefs[pref] = @(PREF_INT(prefsMapping[pref]));
-
 	return self;
+}
+
+- (NSString *) prefKey:(NSString *)pref ofPreset:(NSString *)preset {
+	if ((![preset length]) || [preset isCaseInsensitiveLike:@"default"])
+		return pref;
+
+	preset = [preset lowercaseString];
+
+	NSCharacterSet *set = [[NSCharacterSet alphanumericCharacterSet] invertedSet];
+	do {
+		NSRange r = [preset rangeOfCharacterFromSet:set];
+		if (!r.length)
+			break;
+
+		preset = [preset stringByReplacingCharactersInRange:r withString:@"_"];
+	} while (1);
+
+	NSString *temp;
+	do {
+		temp = preset;
+		preset = [temp stringByReplacingOccurrencesOfString:@"__" withString:@"_"];
+	} while ([temp length] != [preset length]);
+
+	return [pref stringByAppendingString:[@"." stringByAppendingString:preset]];
+}
+
+- (void) setPref:(NSString *)key value:(NSInteger)value {
+	PREF_SAVE_INT(value, [self prefKey:key ofPreset:self.preset]);
+}
+
+- (NSInteger) pref:(NSString *)key {
+	return [self pref:key forPreset:self.preset];
+}
+
+- (NSInteger) pref:(NSString *)key forPreset:(NSString *)preset {
+	NSString *presetKey = [self prefKey:key ofPreset:preset];
+	BOOL hasPref = !![[NSUserDefaults standardUserDefaults] objectForKey:presetKey];
+	return PREF_INT(hasPref ? presetKey : key);
+}
+
+- (NSString *) preset {
+	return self.cbPresets.stringValue ?: @"default";
 }
 
 - (void)windowDidLoad {
 	[super windowDidLoad];
 
+	[self.cbPresets removeAllItems];
+	[self.cbPresets addItemWithObjectValue:PRESET_COMIC];
+	[self.cbPresets addItemWithObjectValue:PRESET_WEBTOON];
+	[self.cbPresets selectItemWithObjectValue:forWebtoon ? PRESET_WEBTOON : PRESET_COMIC];
+
+	manualPrefs = [NSMutableDictionary dictionary];
+	for (NSString *pref in [prefsMapping allKeys])
+		manualPrefs[pref] = @([self pref:prefsMapping[pref]]);
+
 	[self setUseDefaults:YES];
 }
 
-- (AZDownloadParams *) aquireParams:(BOOL)useDefaults {
-	if (useDefaults)
-		return [AZDownloadParams defaultParams];
+- (NSDictionary *) fetchDefaults:(NSString *)preset {
+	NSMutableDictionary *result = [NSMutableDictionary dictionary];
+	for (NSString *pref in [prefsMapping allKeys])
+		result[pref] = @([self pref:prefsMapping[pref] forPreset:preset]);
+
+	return result;
+}
+
+- (AZDownloadParams *) aquireParams:(BOOL)useDefaults forManga:(AZErgoManga *)manga {
+	forWebtoon = manga.isWebtoon;
+
+	if (useDefaults) {
+		return [AZDownloadParams params:[self fetchDefaults:forWebtoon ? PRESET_WEBTOON : PRESET_COMIC]];
+	}
 
 	switch ([self beginSheet]) {
 		case AZDialogReturnCancel:
@@ -81,17 +150,17 @@
 
 	AZDownloadParams *params = [AZDownloadParams defaultParams];
 
-	if (self.cbCustomWidth.state==NSOnState)
+//	if (self.cbCustomWidth.state==NSOnState)
 		params = [params setDownloadParameter:kDownloadParamMaxWidth value:@(self.sCustomWidth.integerValue)];
 
-	if (self.cbCustomHeight.state==NSOnState)
+//	if (self.cbCustomHeight.state==NSOnState)
 		params = [params setDownloadParameter:kDownloadParamMaxHeight value:@(self.sCustomHeight.integerValue)];
 
-	if (self.cbCustomQuality.state==NSOnState)
+//	if (self.cbCustomQuality.state==NSOnState)
 		params = [params setDownloadParameter:kDownloadParamQuality value:@(self.sCustomQuality.integerValue)];
 
-	if (self.cbCustomIsWebtoon.state==NSOnState)
-		params = [params setDownloadParameter:kDownloadParamIsWebtoon value:@(YES)];
+//	if (self.cbCustomIsWebtoon.state==NSOnState)
+		params = [params setDownloadParameter:kDownloadParamIsWebtoon value:@(self.sCustomIsWebtoon.state==NSOnState)];
 
 	return params;
 }
@@ -101,7 +170,8 @@
 	BOOL didSave = checkbox.state == NSOnState;
 	if (didSave) {
 		NSSlider *value = (id)[self searchControl:[@"s" stringByAppendingString:param]];
-		PREF_SAVE_INT(value.integerValue, pref);
+
+		[self setPref:pref value:value.integerValue];
 	}
 
 	return didSave;
@@ -128,7 +198,7 @@
 		NSButton *checkbox = (id)[self searchControl:[NSString stringWithFormat:@"c%@",identifier]];
 		checkbox.title = [NSString stringWithFormat:@"%@ (%ld):", label, (long)value];
 
-		NSInteger defaultVal = PREF_INT(prefsMapping[identifier]);
+		NSInteger defaultVal = [self pref:prefsMapping[identifier]];
 		checkbox.state = (value != defaultVal) ? NSOnState : NSOffState;
 		((NSSlider *)[self searchControl:[@"s" stringByAppendingString:identifier]]).integerValue = value;
 
@@ -153,7 +223,7 @@
 		[self.cbCustomIsWebtoon setState:NSOffState];
 
 		for (NSString *pref in [prefsMapping allKeys])
-			[self setCustom:pref value:PREF_INT(prefsMapping[pref])];
+			[self setCustom:pref value:[self pref:prefsMapping[pref]]];
 	}
 }
 
@@ -175,7 +245,7 @@
 - (void) cache:(BOOL)cache value:(NSString *)identifier {
 	NSSlider *value = (id)[self searchControl:[@"s" stringByAppendingString:identifier]];
 
-	NSInteger restoredValue = PREF_INT(prefsMapping[identifier]);
+	NSInteger restoredValue = [self pref:prefsMapping[identifier]];
 	if (cache)
 		manualPrefs[identifier] = @(value.integerValue);
 	else
@@ -189,6 +259,10 @@
 	[self cache:(checkbox.state != NSOnState) value:[checkbox.identifier substringFromIndex:1]];
 
 	[self setUseDefaults:![self hasCustomSettings]];
+}
+
+- (IBAction)actionPresetSelected:(id)sender {
+	[self setUseDefaults:YES];
 }
 
 @end

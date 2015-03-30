@@ -10,6 +10,7 @@
 
 typedef NS_ENUM(NSUInteger, AZErgoDownloaderState) {
 	AZErgoDownloaderStateIddle = 0,
+	AZErgoDownloaderStateWorking = 1,
 };
 
 @class AZDownload, AZErgoCustomDownloader, AZStorage;
@@ -25,16 +26,9 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloaderState) {
 
 @property (nonatomic, weak) AZStorage *storage;
 @property (nonatomic) NSDictionary *downloads;
-@property (nonatomic, weak) id<AZErgoDownloaderDelegate> delegate;
 
 - (AZDownload *) addDownload:(AZDownload *)download;
-- (AZDownload *) hasDownloadForURL:(NSURL *)url;
+- (AZDownload *) hasDownloadForURL:(NSString *)url;
 - (void) removeDownload:(AZDownload *)download;
-
-@end
-
-@interface AZErgoCustomDownloader (Downloads)
-
-- (void) detouchTask:(AZDownload *)download;
 
 @end

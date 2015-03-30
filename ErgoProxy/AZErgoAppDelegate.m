@@ -18,25 +18,33 @@
 #import "AZErgoManualSchedulerWindowController.h"
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
 #import "AZErgoMangaAddWindowController.h"
+#import "AZErgoChapterStateWindowController.h"
 
 #import "AZDownloadSpeedWatcher.h"
 
 #import "AZErgoStatusItem.h"
 
+#import "AZErgoMangachanSource.h"
+
+#import "AZErgoTabPreferencesWindowController.h"
+
 #define APP_TITLE @"ErgoProxy"
 
 @interface AZErgoAppDelegate () <AZDownloadSpeedWatcherDelegate, AZErgoDownloaderDelegate>
 @property (weak) IBOutlet NSMenu *mNavMenu;
+@property (weak) IBOutlet NSMenuItem *miToggleDownloaders;
 
+@property (nonatomic) BOOL runningDownloaders;
 @end
 
 MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 
 @implementation AZErgoAppDelegate {
-	BOOL running, paused;
+	BOOL paused;
 	NSDictionary *tabMapping;
 	AZErgoStatusItem *statusItem;
 }
+@synthesize runningDownloaders = _runningDownloaders;
 
 - (void) registerTabs {
 	AZSynkEnabledStorage *storage = [AZSynkEnabledStorage initSharedProxy:@{
@@ -44,18 +52,16 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 																																					kDPParameterStorageFile:@"ErgoProxy.sqlite",
 																																					}];
 
+	[[AZDataProxy sharedProxy] subscribeForUpdateNotifications:self
+																										selector:@selector(synkNotification:)];
 	[storage synkToggled];
 
 	PREF_SAVE_BOOL(NO, @"NSConstraintBasedLayoutVisualizeMutuallyExclusiveConstraints");
 	if (![PREF_STR(PREFS_PROXY_URL) length])
 		PREF_SAVE_STR(@"http://ankh.ua/", PREFS_PROXY_URL);
 
-	[self bindAsDelegateTo:[AZDownloadSpeedWatcher sharedSpeedWatcher] solo:NO];
-
-	[AZProxifier sharedProxifier].url = [NSURL URLWithString:PREF_STR(PREFS_PROXY_URL)];
-
-	running = NO;
 	paused = NO;
+	self.runningDownloaders = NO;
 
 	tabMapping = @{
 								 @1: AZEPUIDMangaTab,
@@ -64,6 +70,8 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 								 @4: AZEPUIDBrowserTab,
 								 @5: AZEPUIDTagBrowserTab,
 								 @6: AZEPUIDUtilsTab,
+								 @7: AZEPUIDDownloadPriorityTab,
+								 @8: @"chapters-state",
 								 };
 
 	[self registerTab:[AZErgoMainTab class]];
@@ -74,7 +82,13 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 	[self registerTab:[AZErgoMangaTab class]];
 	[self registerTab:[AZErgoTagBrowser class]];
 	[self registerTab:[AZErgoMangaInfoTab class]];
+
+	[self registerTab:[AZErgoDowdloadPriorityTab class]];
+
 	[self registerTab:[AZErgoUtilsTab class]];
+
+
+	[AZErgoMangachanSource sharedSource];
 
 	[[NSRunLoop mainRunLoop] addTimer:[NSTimer timerWithTimeInterval:0.5
 																														target:self
@@ -82,8 +96,17 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 																													userInfo:nil
 																													 repeats:YES]
 														forMode:NSDefaultRunLoopMode];
+}
 
-	statusItem = [AZErgoStatusItem new];
+- (void) synkNotification:(NSNotification *)notification {
+	[self bindAsDelegateTo:[AZDownloadSpeedWatcher sharedSpeedWatcher] solo:NO];
+	[self bindAsDelegateTo:[AZProxifier sharedProxifier] solo:NO];
+
+	[AZProxifier sharedProxifier].url = PREF_STR(PREFS_PROXY_URL);
+
+	statusItem = statusItem ?: [AZErgoStatusItem new];
+
+//	[[AZErgoTabPreferencesWindowController sharedController] test];
 }
 
 - (NSString *) initialTab {
@@ -123,6 +146,23 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 	self.window.title = [NSString stringWithFormat:@"%@%@", APP_TITLE, averageStr];
 }
 
+- (void) downloader:(AZErgoCustomDownloader *)downloader stateSchanged:(AZErgoDownloaderState)state {
+	if (state == AZErgoDownloaderStateWorking)
+		self.runningDownloaders = YES;
+	else
+		self.runningDownloaders = !![[AZProxifier sharedProxifier] hasRunningDownloaders];
+}
+
+- (void) downloader:(AZErgoCustomDownloader *)downloader readyForNextStage:(AZDownload *)download {
+
+}
+
+- (void) setRunningDownloaders:(BOOL)runningDownloaders {
+	self.miToggleDownloaders.title = runningDownloaders ? @"Stop downloaders" : @"Toggle downloaders";
+
+	_runningDownloaders = runningDownloaders;
+}
+
 - (IBAction)actionShowPreferences:(id)sender {
 	[self.tabsGroup navigateTo:AZEPUIDPreferencesTab withNavData:nil];
 }
@@ -146,7 +186,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 }
 
 - (IBAction)actionAddWatcher:(id)sender {
-	[[AZErgoUpdateWatchSubmitterWindowController sharedController] showWatchSubmitter];
+	[[AZErgoUpdateWatchSubmitterWindowController sharedController] showWatchSubmitter:nil];
 }
 
 - (IBAction)actionManualSchedule:(id)sender {
@@ -157,8 +197,13 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 	NSMenuItem *item = sender;
 	NSString *tab = tabMapping[@(item.tag)];
 
+	if ([tab isEqualToString:@"chapters-state"]) {
+		[[AZErgoChapterStateWindowController sharedController] showStateController];
+		return;
+	}
+
 	if (!tab) {
-		NSLog(@"Unknown menu navigation item tag %lu", item.tag);
+		DDLogWarn(@"Unknown menu navigation item tag %lu", item.tag);
 		return;
 	}
 
@@ -174,25 +219,39 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 }
 
 - (IBAction)actionRunDownloader:(id)sender {
-	@synchronized(self) {
-		NSError *error = nil;
-		NSString *path = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
-		NSString *test = [path stringByAppendingPathComponent:@".~test"];
-		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
-		if (![[NSFileManager defaultManager] createDirectoryAtPath:test withIntermediateDirectories:NO attributes:@{} error:&error]) {
-			[NSApp presentError:error];
-			return;
-		}
-		[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+	dispatch_async_at_background(^{
+		@synchronized(self) {
+			BOOL forceRunning = !self.runningDownloaders;
 
-		[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
+			if (forceRunning) {
+				NSError *error = nil;
+				NSString *path = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
+				NSString *test = [path stringByAppendingPathComponent:@".~test"];
+				[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+				if (![[NSFileManager defaultManager] createDirectoryAtPath:test withIntermediateDirectories:NO attributes:@{} error:&error]) {
+					NSString *message = error.localizedDescription;
+					if ([error.domain isEqualToString:NSCocoaErrorDomain] && (error.code == 4)) {
+						NSError *under = error.userInfo[NSUnderlyingErrorKey];
+						if ([under.domain isEqualToString:NSPOSIXErrorDomain] && (under.code == 2))
+							message = [NSString stringWithFormat:NSLocalizedString(@"Can't access \"%@\"", @"Unavailable storage"), path];
+					}
+					[AZAlert showAlert:AZErrorTitle message:message];
+					return;
+				}
+				[[NSFileManager defaultManager] removeItemAtPath:test error:nil];
+			}
 
-		[[AZProxifier sharedProxifier] runDownloaders:(running = !running)];
-		((NSMenuItem *) sender).title = running ? @"Stop downloaders" : @"Download";
-		if (running) {
-			[[AZProxifier sharedProxifier] pauseDownloaders:(paused = NO)];
+			dispatch_async_at_main(^{
+				[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
+
+				self.runningDownloaders = forceRunning;
+				[[AZProxifier sharedProxifier] runDownloaders:self.runningDownloaders];
+				if (forceRunning) {
+					[[AZProxifier sharedProxifier] pauseDownloaders:(paused = NO)];
+				}
+			});
 		}
-	}
+	});
 }
 
 - (IBAction)actionPauseDownloader:(id)sender {

@@ -9,6 +9,8 @@
 #import "AZGroupableDataSource.h"
 #import "AZCoreDataEntity.h"
 
+MULTIDELEGATED_INJECT_MULTIDELEGATED(AZGroupableDataSource)
+
 @implementation AZGroupableDataSource (Groupping)
 
 - (NSString *) rootIdentifierFromItem:(id)item {
@@ -32,11 +34,8 @@
 }
 
 - (id<NSCopying>) orderedUID:(id)item {
-	return nil;
+	return [item description];
 }
-
-#define GET_OR_INIT(_left, _init)\
-({(_left) ?: ((_left) = (_init));})
 
 - (void) groupData {
 	_fetch = [NSMutableDictionary dictionary];
@@ -46,11 +45,11 @@
 		if (!identifier)
 			continue;
 
-//		if (!identifier && [item isKindOfClass:[CoreDataEntity class]])
-//			[(CoreDataEntity *)item delete];
-//		else
+		//		if (!identifier && [item isKindOfClass:[CoreDataEntity class]])
+		//			[(CoreDataEntity *)item delete];
+		//		else
 		{
-//			NSAssert(!!identifier, @"Can't aquire identifier for item root");
+			//			NSAssert(!!identifier, @"Can't aquire identifier for item root");
 
 			NSMutableArray *rootNodeGroup = GET_OR_INIT(_fetch[identifier], [NSMutableArray array]);
 			[rootNodeGroup addObject:item];
@@ -88,11 +87,102 @@
 
 @implementation AZGroupableDataSource
 
-- (void) reload {
-	id data = _data;
-	_data = nil;
+- (void) expandFirstLevelIn:(NSOutlineView *)outlineView {
+	NSArray *sources = [self orderedItemsInGroup:nil];
 
-	[self setData:data];
+	for (id item in sources)
+		[outlineView expandItem:item expandChildren:NO];
+}
+
+- (id) parentOf:(id)item inGroup:(CustomDictionary *)group {
+	if (!item)
+		return nil;
+
+	group = group ?: self->groups;
+
+	for (id parent in [group allValues])
+		if (parent == item)
+			return group;
+		else
+			if ([CustomDictionary isDictionary:parent]) {
+				id subparent = [self parentOf:item inGroup:parent];
+				if (!!subparent)
+					return subparent;
+			}
+
+	return nil;
+}
+
+- (void) diff:(NSArray *)newData {
+	NSSet *old = [NSSet setWithArray:self.data];
+	NSMutableSet *deleted = [old mutableCopy];
+	NSMutableSet *inserted = [NSMutableSet setWithArray:newData];
+
+	[deleted minusSet:inserted];
+	[inserted minusSet:old];
+
+	//	dispatch_async_at_main(^{
+
+	[self.target beginUpdates];
+
+	AZ_Mutable(Dictionary, *deletedItems);
+	for (id item in deleted) {
+		id parentItem = [self parentOf:item inGroup:nil];
+		id parent = parentItem ? ((CustomDictionary *)parentItem)->owner : [NSNull null];
+
+		NSDictionary *r = deletedItems[parent] ?: (deletedItems[parent] = @{@0: parentItem ?: [NSNull null], @1: [NSMutableIndexSet new]});
+
+		NSUInteger index = [self itemIndex:item inGroup:parentItem];
+		[r[@1] addIndex:index];
+	}
+
+	for (id parent in [deletedItems allKeys]) {
+		NSDictionary *r = deletedItems[parent];
+		id parentItem = r[@0];
+		[self.target removeItemsAtIndexes:r[@1] inParent:parentItem withAnimation:NSTableViewAnimationSlideLeft];
+	}
+
+	[self setData:newData];
+//	[self.target reloadData];
+
+	AZ_Mutable(Dictionary, *insertedItems);
+	for (id item in inserted) {
+		id parentItem = [self parentOf:item inGroup:nil];
+		id parent = parentItem ? ((CustomDictionary *)parentItem)->owner : [NSNull null];
+
+		NSDictionary *r = insertedItems[parent] ?: (insertedItems[parent] = @{@0: parentItem ?: [NSNull null], @1: [NSMutableIndexSet new]});
+
+		NSUInteger index = [self itemIndex:item inGroup:parentItem];
+		[r[@1] addIndex:index];
+	}
+
+	for (id parent in [insertedItems allKeys]) {
+		NSDictionary *r = insertedItems[parent];
+		id parentItem = r[@0];
+//		[self.target reloadItem:parentItem];
+//		[self.target expandItem:parentItem];
+		[self.target insertItemsAtIndexes:r[@1] inParent:parentItem withAnimation:NSTableViewAnimationSlideLeft];
+	}
+
+	[self.target endUpdates];
+	//	});
+}
+
+- (instancetype) setTo:(id)target {
+	if ([target respondsToSelector:@selector(setDelegate:)])
+		[target setDelegate:self];
+
+	if ([target respondsToSelector:@selector(setDataSource:)])
+		[target setDataSource:(id)self];
+
+	self.target = target;
+
+	return self;
+}
+
+- (void) reload {
+	[self groupData];
+	[self sort];
 }
 
 - (void) setData:(NSArray *)data {
@@ -100,8 +190,7 @@
 		return;
 
 	_data = data;
-	[self groupData];
-	[self sort];
+	[self reload];
 }
 
 - (void) setGroupped:(BOOL)groupped {
@@ -110,6 +199,56 @@
 
 	_groupped = groupped;
 	[self setData:_data];
+}
+
+- (NSArray *) orderedItemsInGroup:(id)group {
+	BOOL inGroup = (!!group) && [CustomDictionary isDictionary:group];
+	id key = inGroup ? ((CustomDictionary *)group)->owner : @0;
+	NSDictionary *mapping = keysMapping[key];
+
+	CustomDictionary *dictionary = (!group) ? groups : group;
+	AZ_MutableI(Array, *ordered, arrayWithCapacity:[dictionary count]);
+
+	for (id key in mapping)
+		[ordered addObject:dictionary[key]];
+
+	return ordered;
+}
+
+- (id) orderedItemAtIndex:(NSInteger)index inGroup:(id)group {
+	BOOL inGroup = (!!group) && [CustomDictionary isDictionary:group];
+	id key = inGroup ? ((CustomDictionary *)group)->owner : @0;
+	NSArray *mapping = keysMapping[key];
+	CustomDictionary *dictionary = (!group) ? groups : group;
+
+	if (!group) { // root node
+		if (_filter && !index)
+			return nil;
+
+		index = index - (_filter ? 1 : 0);
+	}
+
+	if ((index < 0) || (index >= [mapping count]))
+		return nil;
+
+	return dictionary[mapping[index]];
+}
+
+- (NSUInteger) itemIndex:(id)item inGroup:(id)group {
+	BOOL inGroup = (!!group) && [CustomDictionary isDictionary:group];
+
+	id key = inGroup ? ((CustomDictionary *)group)->owner : @0;
+
+	CustomDictionary *dictionary = (!group) ? groups : group;
+
+	id key2 = [[dictionary allKeysForObject:item] firstObject];
+
+	NSUInteger index = [keysMapping[key] indexOfObject:key2];
+
+	if (_filter && !group)
+		index--;
+
+	return index;
 }
 
 - (void) sort {
@@ -128,26 +267,6 @@
 
 	NSArray *keys = dic ? [self sort:dic keys:[dic allKeys]] : @[];
 	return keys;
-}
-
-- (CGFloat) groupCellHeight:(id)item {
-	return 20.f;
-}
-
-- (CGFloat) cellHeight:(id)item {
-	return 24.f;
-}
-
-- (NSString *) outlineView:(NSOutlineView *)outlineView cellTypeForItem:(id)item {
-	NSString *cellType = @"ItemCell";
-
-	if (item == outlineView)
-		cellType = @"HeaderCell";
-	else
-		if ([CustomDictionary isDictionary:item])
-			cellType = @"GroupCell";
-
-	return cellType;
 }
 
 - (id) findOutlineItem:(id)item recursive:(id)holder {
@@ -171,25 +290,62 @@
 }
 
 - (id) cellViewFromSender:(id)sender {
-	AZErgoConfigurableTableCellView *ucv = sender;
-	while (ucv && ![ucv isKindOfClass:[AZErgoConfigurableTableCellView class]]) {
+	AZConfigurableTableCellView *ucv = sender;
+	while (ucv && ![ucv isKindOfClass:[AZConfigurableTableCellView class]]) {
 		ucv = (id)((NSView *)ucv).superview;
 	}
 
 	return ucv;
 }
 
+- (void) setUserInfo:(id)object forKey:(id<NSCopying>)key {
+	if (!object)
+		return;
+
+	if (!self.userInfo)
+		self.userInfo = [NSMutableDictionary new];
+
+	self.userInfo[key] = object;
+}
+
+- (id) userInfoForKey:(id<NSCopying>)key {
+	return self.userInfo[key];
+}
+
 @end
 
-@implementation AZGroupableDataSource (DelegateAndDatasource)
+@implementation AZGroupableDataSource (AccessorsBehaviour)
+
+- (CGFloat) groupCellHeight:(id)item {
+	return 20.f;
+}
+
+- (CGFloat) cellHeight:(id)item {
+	return 24.f;
+}
+
+- (NSString *) outlineView:(NSOutlineView *)outlineView cellTypeForItem:(id)item {
+	NSString *cellType = @"ItemCell";
+
+	if (item == outlineView)
+		cellType = @"HeaderCell";
+	else
+		if ([CustomDictionary isDictionary:item])
+			cellType = @"GroupCell";
+
+	return cellType;
+}
 
 - (IBAction) actionDelegatedClick:(id)sender {
+	NSString *action = [sender respondsToSelector:@selector(identifier)] ? [sender identifier] : nil;
+
+	[self.md_delegate delegatedAction:[AZActionIntent action:action intentFrom:self withSender:sender]];
 }
 
 - (NSView *)outlineView:(NSOutlineView *)outlineView viewForTableColumn:(NSTableColumn *)tableColumn item:(id)item {
 	NSString *cellType = [self outlineView:outlineView cellTypeForItem:item];
 
-	AZErgoConfigurableTableCellView *cellView = [outlineView makeViewWithIdentifier:cellType owner:self];
+	AZConfigurableTableCellView *cellView = [outlineView makeViewWithIdentifier:cellType owner:self];
 	[cellView configureForEntity:item inOutlineView:outlineView];
 
 	return cellView;

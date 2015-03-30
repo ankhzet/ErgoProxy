@@ -20,6 +20,4 @@
 
 - (NSString *) getSubstitution:(NSString *)key;
 
-+ (NSString *) formatChapterID:(float)chapter;
-
 @end

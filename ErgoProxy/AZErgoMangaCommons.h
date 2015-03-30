@@ -13,5 +13,6 @@
 #import "AZErgoMangaTag.h"
 #import "AZErgoMangaTitle.h"
 #import "AZErgoMangaProgress.h"
+#import "AZErgoMangaChapter.h"
 
 #endif

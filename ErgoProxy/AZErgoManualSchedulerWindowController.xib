@@ -144,7 +144,7 @@
                     <scrollView horizontalLineScroll="10" horizontalPageScroll="10" verticalLineScroll="10" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" translatesAutoresizingMaskIntoConstraints="NO" id="aUc-Kd-fm7">
                         <rect key="frame" x="20" y="49" width="516" height="126"/>
                         <autoresizingMask key="autoresizingMask"/>
-                        <clipView key="contentView" id="z5Z-Tv-f9p">
+                        <clipView key="contentView" copiesOnScroll="NO" id="z5Z-Tv-f9p">
                             <rect key="frame" x="1" y="1" width="514" height="124"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
@@ -173,6 +173,20 @@
                             <autoresizingMask key="autoresizingMask"/>
                         </scroller>
                     </scrollView>
+                    <button verticalHuggingPriority="749" verticalCompressionResistancePriority="749" translatesAutoresizingMaskIntoConstraints="NO" id="cUU-MJ-aMx">
+                        <rect key="frame" x="501" y="63" width="20" height="21"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <constraints>
+                            <constraint firstAttribute="width" constant="20" id="W4z-wo-Bqt"/>
+                        </constraints>
+                        <buttonCell key="cell" type="smallSquare" bezelStyle="smallSquare" image="NSRevealFreestandingTemplate" imagePosition="overlaps" alignment="center" state="on" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="oN9-lb-CkY">
+                            <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                            <font key="font" metaFont="system"/>
+                        </buttonCell>
+                        <connections>
+                            <action selector="actionFindSimilar:" target="-2" id="7oZ-Ee-Trz"/>
+                        </connections>
+                    </button>
                     <view translatesAutoresizingMaskIntoConstraints="NO" id="YSt-fI-Cyf">
                         <rect key="frame" x="0.0" y="0.0" width="556" height="41"/>
                         <autoresizingMask key="autoresizingMask"/>
@@ -242,8 +256,10 @@ Gw
                     <constraint firstItem="aUc-Kd-fm7" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="20" symbolic="YES" id="6qb-mO-bt2"/>
                     <constraint firstItem="2C5-QW-z1Q" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="20" symbolic="YES" id="FSs-5C-UGG"/>
                     <constraint firstAttribute="trailing" secondItem="2C5-QW-z1Q" secondAttribute="trailing" constant="20" symbolic="YES" id="HXZ-W2-oBC"/>
+                    <constraint firstItem="aUc-Kd-fm7" firstAttribute="bottom" secondItem="cUU-MJ-aMx" secondAttribute="bottom" constant="15" id="Kqw-eg-XPl"/>
                     <constraint firstItem="YSt-fI-Cyf" firstAttribute="top" secondItem="aUc-Kd-fm7" secondAttribute="bottom" constant="8" symbolic="YES" id="Mp1-ib-Dmb"/>
                     <constraint firstAttribute="trailing" secondItem="YSt-fI-Cyf" secondAttribute="trailing" id="U4L-DK-r04"/>
+                    <constraint firstItem="aUc-Kd-fm7" firstAttribute="trailing" secondItem="cUU-MJ-aMx" secondAttribute="trailing" constant="15" id="WTg-Pa-5Kd"/>
                     <constraint firstItem="aUc-Kd-fm7" firstAttribute="top" secondItem="2C5-QW-z1Q" secondAttribute="bottom" constant="8" symbolic="YES" id="Y1j-nj-aB2"/>
                     <constraint firstAttribute="trailing" secondItem="aUc-Kd-fm7" secondAttribute="trailing" constant="20" symbolic="YES" id="nMu-GT-XZX"/>
                     <constraint firstItem="YSt-fI-Cyf" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="yho-nq-idv"/>
@@ -256,5 +272,6 @@ Gw
     </objects>
     <resources>
         <image name="NSRefreshTemplate" width="10" height="12"/>
+        <image name="NSRevealFreestandingTemplate" width="14" height="14"/>
     </resources>
 </document>

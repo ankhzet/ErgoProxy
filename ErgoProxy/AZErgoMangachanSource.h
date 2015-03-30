@@ -10,4 +10,6 @@
 
 @interface AZErgoMangachanSource : AZErgoUpdatesSource
 
+- (NSSet *) parseTitles:(NSString *)string;
+
 @end

@@ -11,6 +11,8 @@
 
 #import "AZProxifier.h"
 #import "AZDownload.h"
+#import "AZErgoMangaCommons.h"
+#import "AZErgoUpdatesCommons.h"
 
 @interface AZErgoManualSchedulerWindowController ()
 
@@ -31,7 +33,10 @@
 }
 
 - (BOOL) applyChanges {
-	AZDownloadParams *params = [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:[self isUsingDefaults]];
+	NSString *mangaName = self.mangaDirectory;
+	AZErgoManga *manga = [AZErgoManga mangaWithName:mangaName];
+
+	AZDownloadParams *params = [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:[self isUsingDefaults] forManga:manga];
 
 	if (!params)
 		return NO;
@@ -39,18 +44,17 @@
 	NSArray *scans = self.scansList;
 	if (![scans count]) return NO;
 
-	NSString *manga = self.mangaDirectory;
 	float chapter = self.mangaChapter;
 	NSUInteger pageIDX = 1;
 
 	AZProxifier *proxifier = [AZProxifier sharedProxifier];
 
 	for (NSString *scan in scans) {
-		NSURL *url = [NSURL URLWithString:scan];
-		AZDownload *download = [proxifier downloadForURL:url withParams:params];
-		download.manga = manga;
+		AZDownload *download = [proxifier downloadForURL:scan withParams:params];
+		download.forManga = [manga inContext:download.managedObjectContext];
 		download.chapter = chapter;
 		download.page = pageIDX++;
+		download.state = AZErgoDownloadStateNone;
 	}
 
 	self.scansList = nil;
@@ -76,7 +80,7 @@
 - (float) mangaChapter {
 	NSString *chapString = self.tfChapter.stringValue;
 	if ([chapString rangeOfString:@"."].location != NSNotFound) {
-		NSLog(@"%@ (%@) is not a valid float!", chapString, @([chapString floatValue]));
+		DDLogVerbose(@"%@ (%@) is not a valid float!", chapString, @([chapString floatValue]));
 	}
 
 	return [[chapString stringByReplacingOccurrencesOfString:@"." withString:@","] floatValue];
@@ -92,9 +96,14 @@
 
 	NSMutableArray *result = [NSMutableArray arrayWithCapacity:[scans count]];
 
-	for (__strong NSString *scan in scans)
+	for (__strong NSString *scan in scans) {
+		NSRange r = [scan rangeOfString:@"#"];
+		if (!!r.length)
+			scan = [scan substringToIndex:r.location];
+
 		if ([(scan = [scan stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]]) length])
 			[result addObject:scan];
+	}
 
 	return result;
 }
@@ -168,7 +177,7 @@
 		if ([chName1 rangeOfCharacterFromSet:nonNumeric].location != NSNotFound)
 			return NSOrderedAscending;
 
-		return [@([chName2 floatValue]) compare:@([chName1 floatValue])];
+		return SIGN([chName2 floatValue] - [chName1 floatValue]);
 	}];
 
 	self.mangaChapter = MAX(1, (sorted && [sorted count]) ? [sorted[0] floatValue] : 1);
@@ -178,6 +187,39 @@
 	float v = ((NSStepper *) sender).floatValue;
 	v = truncf(v);
 	self.tfChapter.floatValue = v;
+}
+
+- (IBAction)actionFindSimilar:(id)sender {
+	NSArray *scans = self.scansList;
+	AZ_MutableI(Array, *result, arrayWithCapacity:[scans count]);
+
+	for (NSString *scan in scans) {
+    NSArray *downloads = [AZDownload all:@"sourceURL == %@", scan];
+		AZ_Mutable(Dictionary, *mangas);
+		for (AZDownload *download in downloads) {
+			NSString *chapterTitle = nil;
+			AZErgoUpdateWatch *watch = download.forManga ? [AZErgoUpdateWatch watchByManga:download.forManga.name] : nil;
+			AZErgoUpdateChapter *chapter = [watch chapterByIDX:download.chapter];
+			if (chapter) {
+				chapterTitle = [chapter fullTitle];
+			} else
+				chapterTitle = [NSString stringWithFormat:@"ch. %.1f", download.chapter];
+
+			NSMutableArray *chaps = GET_OR_INIT(mangas[download.forManga.name], [NSMutableArray new]);
+			[chaps addObject:[NSString stringWithFormat:@"%@ (p. %lu)", chapterTitle, download.page]];
+		}
+
+		AZ_MutableI(Array, *chapters, arrayWithCapacity:[downloads count]);
+		for (NSString *mangaName in [mangas allKeys]) {
+			[chapters addObject:[NSString stringWithFormat:@"%@ :: %@", [AZErgoManga mangaByName:mangaName], [mangas[mangaName] componentsJoinedByString:@", "]]];
+		}
+
+		NSString *summary = [NSString stringWithFormat:@"%@ # \t\t %@", scan, (![chapters count]) ? @"not found" : [chapters componentsJoinedByString:@", "]];
+
+		[result addObject:summary];
+	}
+
+	self.scansList = result;
 }
 
 @end

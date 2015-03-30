@@ -9,10 +9,15 @@
 #import <Foundation/Foundation.h>
 
 @class AZErgoDownloadDetailsPopover;
-@protocol AZErgoDownloadDetailsPresenterProtocol <NSObject>
+@interface AZErgoEntityDetailsPresenter : NSObject
+@property (nonatomic) id entity;
+@property (nonatomic) AZErgoDownloadDetailsPopover *popover;
 
 - (instancetype) presenterForEntity:(id)entity in:(AZErgoDownloadDetailsPopover *)popover;
 - (void) presentEntity:(id)entity detailsIn:(AZErgoDownloadDetailsPopover *)popover;
+
+- (void) presentAction:(void(^)(AZErgoEntityDetailsPresenter *presenter))block;
+
 - (void) dropHash;
 - (void) deleteEntity;
 - (void) previewEntity;
@@ -20,13 +25,6 @@
 - (void) browseEntity;
 - (void) trashEntity;
 - (void) lockEntity;
-
-@end
-
-
-@interface AZErgoEntityDetailsPresenter : NSObject <AZErgoDownloadDetailsPresenterProtocol>
-@property (nonatomic) id entity;
-@property (nonatomic) AZErgoDownloadDetailsPopover *popover;
 
 @end
 

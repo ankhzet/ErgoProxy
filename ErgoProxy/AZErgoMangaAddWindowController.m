@@ -50,13 +50,13 @@
 	if (![cleanedTitles count])
 		return NO;
 
-	AZErgoManga *manga = [AZErgoManga filter:[NSPredicate predicateWithFormat:@"name ==[c] %@", dir] limit:1];
+	AZErgoManga *manga = [AZErgoManga any:@"name ==[c] %@", dir];
 	if (manga) {
 		[AZUtils notifyErrorMsg:[NSString stringWithFormat:NSLocalizedString(@"Manga with source directory \"%@\" already registered in DB", @"Manga registered message"), dir]];
 		return NO;
 	}
 
-	manga = [AZErgoManga filter:[NSPredicate predicateWithFormat:@"any titles.title in %@", cleanedTitles] limit:1];
+	manga = [AZErgoManga any:@"any titles.title in %@", cleanedTitles];
 
 	if (manga) {
 		[AZUtils notifyErrorMsg:[NSString stringWithFormat:NSLocalizedString(@"Manga with such titles already registered in DB", @"Manga registered with titles message"), dir]];

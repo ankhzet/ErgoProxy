@@ -8,11 +8,13 @@
 
 #import "AZSheetWindowController.h"
 
+@class AZErgoUpdateWatch;
+
 @interface AZErgoUpdateWatchSubmitterWindowController : AZSheetWindowController
 
 @property (nonatomic) NSString *directory;
 @property (nonatomic) NSString *identifier;
 
-- (void) showWatchSubmitter;
+- (void) showWatchSubmitter:(AZErgoUpdateWatch *)watch;
 
 @end

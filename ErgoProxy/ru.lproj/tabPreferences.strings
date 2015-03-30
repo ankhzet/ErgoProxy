@@ -1,0 +1,51 @@
+
+/* Class = "NSTextFieldCell"; title = "Server address:"; ObjectID = "0FR-ZP-I5I"; */
+"0FR-ZP-I5I.title" = "Адрес сервера:";
+
+/* Class = "NSButtonCell"; title = "Group downloads by chapter"; ObjectID = "7rf-bR-j4H"; */
+"7rf-bR-j4H.title" = "Группировать загрузки по главам";
+
+/* Class = "NSButtonCell"; title = "... or login as guest"; ObjectID = "EKe-aM-U0M"; */
+"EKe-aM-U0M.title" = "... или логиниться в качестве гостя";
+
+/* Class = "NSBox"; title = "Account"; ObjectID = "Lmg-hi-q5I"; */
+"Lmg-hi-q5I.title" = "Аккаунт";
+
+/* Class = "NSTextFieldCell"; title = "Autocheck, seconds:"; ObjectID = "RME-Ic-AIQ"; */
+"RME-Ic-AIQ.title" = "Автопроверка, секунды:";
+
+/* Class = "NSTextFieldCell"; title = "Manga storage folder:"; ObjectID = "VWL-Qq-Mrt"; */
+"VWL-Qq-Mrt.title" = "Хранилище манги:";
+
+/* Class = "NSBox"; title = "Common settings"; ObjectID = "Vvf-M3-VEI"; */
+"Vvf-M3-VEI.title" = "Общие настройки";
+
+/* Class = "NSButtonCell"; title = "Hide finished downloads"; ObjectID = "Wet-2C-PS1"; */
+"Wet-2C-PS1.title" = "Скрыть завершенные загрузки";
+
+/* Class = "NSTextFieldCell"; title = "Password:"; ObjectID = "cqG-rE-Fn0"; */
+"cqG-rE-Fn0.title" = "Пароль:";
+
+/* Class = "NSButtonCell"; title = "Login automatically"; ObjectID = "lJQ-Rh-kDe"; */
+"lJQ-Rh-kDe.title" = "Автологин";
+
+/* Class = "NSBox"; title = "Server options"; ObjectID = "oNL-rg-tJI"; */
+"oNL-rg-tJI.title" = "Настройки сервера";
+
+/* Class = "NSButtonCell"; title = "..."; ObjectID = "oma-ce-uFd"; */
+"oma-ce-uFd.title" = "...";
+
+/* Class = "NSButtonCell"; title = "Resolve data for all downloads in first place"; ObjectID = "qPj-F8-4H4"; */
+"qPj-F8-4H4.title" = "Перед загрузкой файлов получить данные всех файлов";
+
+/* Class = "NSButtonCell"; title = "Hide downloaded chapters in watcher"; ObjectID = "uvO-oP-eoQ"; */
+"uvO-oP-eoQ.title" = "Скрыть загруженные главы на вкладке автопроверке";
+
+/* Class = "NSTextFieldCell"; title = "Login:"; ObjectID = "vGR-4c-cDs"; */
+"vGR-4c-cDs.title" = "Логин:";
+
+/* Class = "NSBox"; title = "Watcher settings"; ObjectID = "yIP-kb-dRc"; */
+"yIP-kb-dRc.title" = "Настройки автопроверки";
+
+/* Class = "NSTextFieldCell"; title = "Downloads per storage:"; ObjectID = "ypm-om-WJI"; */
+"ypm-om-WJI.title" = "Паралельные задания:";

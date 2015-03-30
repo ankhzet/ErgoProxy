@@ -35,9 +35,7 @@
 																											 NSStrokeWidthAttributeName: @10,
 																											 };
 
-	NSDictionary *background = @{
-															 NSForegroundColorAttributeName: [NSColor whiteColor],
-															 };
+	NSDictionary *background;
 
 	CGSize size = [text sizeWithAttributes:foreground];
 	CGPoint point = NSMakePoint(rect.origin.x + (rect.size.width - size.width) / 2., rect.origin.y + (rect.size.height - size.height) / 2.);

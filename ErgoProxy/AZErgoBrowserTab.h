@@ -6,8 +6,14 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import "AZTabProvider.h"
+#import "AZErgoTabsComons.h"
 
 @interface AZErgoBrowserTab : AZTabProvider
+
++ (AZErgoBrowserTab *) browserTab;
+
+- (NSString *) loadedURI;
+
+- (NSString *) title;
 
 @end

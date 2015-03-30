@@ -1,0 +1,39 @@
+
+/* Class = "NSTextFieldCell"; title = "Manga"; ObjectID = "0gJ-Fd-R3n"; */
+"0gJ-Fd-R3n.title" = "Манга";
+
+/* Class = "NSTextFieldCell"; title = "Tag"; ObjectID = "1xz-fQ-IId"; */
+"1xz-fQ-IId.title" = "Тег";
+
+/* Class = "NSTextFieldCell"; placeholderString = "Tag name"; ObjectID = "4Xb-OM-AN9"; */
+"4Xb-OM-AN9.placeholderString" = "Название тега";
+
+/* Class = "NSTextFieldCell"; title = "Group"; ObjectID = "5PU-Zj-zN2"; */
+"5PU-Zj-zN2.title" = "Группа";
+
+/* Class = "NSTextFieldCell"; title = "Text Cell"; ObjectID = "7bg-XX-wN3"; */
+"7bg-XX-wN3.title" = "Text Cell";
+
+/* Class = "NSTextFieldCell"; title = "123"; ObjectID = "GF1-bt-0ID"; */
+"GF1-bt-0ID.title" = "123";
+
+/* Class = "NSButtonCell"; title = "Skip manga with this tag"; ObjectID = "KdO-SA-eqP"; */
+"KdO-SA-eqP.title" = "Не показывать в основном списке мангу с этим тегом";
+
+/* Class = "NSButtonCell"; title = "Apply"; ObjectID = "O47-ME-FCb"; */
+"O47-ME-FCb.title" = "Применить";
+
+/* Class = "NSBox"; title = "Tag"; ObjectID = "Zxq-yM-f7J"; */
+"Zxq-yM-f7J.title" = "Тег";
+
+/* Class = "NSBox"; title = "Related manga"; ObjectID = "bYg-az-ImX"; */
+"bYg-az-ImX.title" = "Манга с этим тегом";
+
+/* Class = "NSTextFieldCell"; title = "Table View Cell"; ObjectID = "eRC-js-XRZ"; */
+"eRC-js-XRZ.title" = "Table View Cell";
+
+/* Class = "NSTextFieldCell"; title = "Text Cell"; ObjectID = "lHD-NC-5J2"; */
+"lHD-NC-5J2.title" = "Text Cell";
+
+/* Class = "NSButtonCell"; title = "Show [only] related manga"; ObjectID = "qfi-U9-LFK"; */
+"qfi-U9-LFK.title" = "Показывать [только] мангу с этим тегом";

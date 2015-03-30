@@ -31,4 +31,12 @@
 - (AZErgoUpdateChapterDownloads) chapterState:(AZErgoUpdateChapter *)chapter;
 - (void) clearChapterState:(AZErgoUpdateChapter *)chapter;
 
+- (BOOL) requiresCheck;
+
+- (AZErgoUpdateChapter *) chapterByIDX:(float)chapter;
+- (AZErgoUpdateChapter *) lastChapter;
+- (AZErgoUpdateChapter *) firstChapter;
+
++ (AZErgoUpdateWatch *) watchByManga:(NSString *)manga;
+
 @end

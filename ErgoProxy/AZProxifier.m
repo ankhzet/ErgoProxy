@@ -31,9 +31,7 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 	static AZProxifier *instance;
 	static dispatch_once_t onceToken;
 	dispatch_once(&onceToken, ^{
-    instance = [self unique:[NSPredicate predicateWithFormat:@"url = null"] initWith:^(AZProxifier *instantiated) {
-			instantiated.url = nil;
-		}];
+    instance = [self any] ?: [self insertNew];
 	});
 	return instance;
 }
@@ -43,8 +41,8 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 	storage.proxifier = self;
 }
 
-- (AZStorage *) storageWithURL:(NSURL *)url {
-	for (AZStorage *storage in self.storages)
+- (AZStorage *) storageWithURL:(NSString *)url {
+	for (AZStorage *storage in [self.storages allObjects])
 		if ([storage.url isEqualTo:url] || [[storage fullURL] isEqualTo:url])
 			return storage;
 
@@ -57,7 +55,7 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 	return [[downloaders allValues] objectEnumerator];
 }
 
-- (AZErgoDownloader *) downloaderForURL:(NSURL *)url {
+- (AZErgoDownloader *) downloaderForURL:(NSString *)url {
 	for (AZErgoDownloader *downloader in [downloaders allValues])
 		if ([downloader hasDownloadForURL:url])
 			return downloader;
@@ -74,19 +72,23 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 			downloaders = [NSMutableDictionary dictionary];
 
 		downloader = downloaders[hash] = [AZErgoDownloader downloaderForStorage:storage];
-		downloader.delegate = self;
+		[self bindAsDelegateTo:downloader solo:NO];
+
+		if ([self hasRunningDownloaders])
+			[downloader processDownloads];
 	}
 
 	return downloader;
 }
 
-- (AZDownload *) downloadForURL:(NSURL *)url withParams:(AZDownloadParams *)params {
+- (AZDownload *) downloadForURL:(NSString *)url withParams:(AZDownloadParams *)params {
 	AZErgoDownloader *downloader = [self downloaderForURL:url];
 	if (downloader)
 		return [downloader hasDownloadForURL:url];
 
 	AZDownload *download = [AZDownload downloadForURL:url withParams:params];
 	download.proxifier = self;
+	download.state = AZErgoDownloadStateDownloaded;
 
 	downloader = [self newDownloaderForStorage:nil andParams:params];
 	[downloader addDownload:download];
@@ -97,6 +99,8 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 }
 
 - (void) reRegisterDownload:(AZDownload *)download {
+	[download fixState];
+
 	if (HAS_BIT(download.state, AZErgoDownloadStateDownloaded))
 		return;
 
@@ -142,6 +146,15 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 			[downloader resume];
 }
 
+- (NSUInteger) hasRunningDownloaders {
+	NSUInteger running = 0;
+	for (AZErgoDownloader *downloader in [downloaders allValues])
+		if (downloader.running)
+			running++;
+
+	return running;
+}
+
 @end
 
 @implementation AZProxifier (Delegation)
@@ -155,7 +168,7 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZProxifier)
 }
 
 - (void) downloader:(AZErgoCustomDownloader *)downloader stateSchanged:(AZErgoDownloaderState)state {
-	//TODO: reaction to downloader:stateChanged:
+	[self.md_delegate downloader:downloader stateSchanged:state];
 }
 
 - (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state {

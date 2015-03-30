@@ -12,8 +12,10 @@
                 <outlet property="cbCustomIsWebtoon" destination="xeI-rI-q5F" id="v9a-p5-rm7"/>
                 <outlet property="cbCustomQuality" destination="zhm-Hw-1ql" id="KCw-kL-Zvw"/>
                 <outlet property="cbCustomWidth" destination="GDf-wE-6yz" id="egR-K8-Cag"/>
+                <outlet property="cbPresets" destination="HKm-Aj-T0r" id="t5F-Gi-vIx"/>
                 <outlet property="cbUseDefaults" destination="0Jv-oN-Sbi" id="KwH-q0-feK"/>
                 <outlet property="sCustomHeight" destination="3dE-VG-MWA" id="H0D-D6-xYF"/>
+                <outlet property="sCustomIsWebtoon" destination="RJv-Kr-wCf" id="TiO-LL-peW"/>
                 <outlet property="sCustomQuality" destination="qQK-VV-dl7" id="TGH-OM-bQr"/>
                 <outlet property="sCustomWidth" destination="S5K-MN-txF" id="Dbm-vS-leC"/>
                 <outlet property="window" destination="1" id="3"/>
@@ -21,13 +23,13 @@
         </customObject>
         <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
         <customObject id="-3" userLabel="Application"/>
-        <window title="Window" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" wantsToBeColor="NO" visibleAtLaunch="NO" animationBehavior="default" id="1">
+        <window title="Download preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" wantsToBeColor="NO" visibleAtLaunch="NO" animationBehavior="default" id="1">
             <windowStyleMask key="styleMask" titled="YES" closable="YES"/>
             <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
-            <rect key="contentRect" x="196" y="240" width="652" height="380"/>
+            <rect key="contentRect" x="196" y="240" width="652" height="303"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <view key="contentView" id="2">
-                <rect key="frame" x="0.0" y="0.0" width="652" height="380"/>
+                <rect key="frame" x="0.0" y="0.0" width="652" height="303"/>
                 <autoresizingMask key="autoresizingMask"/>
                 <subviews>
                     <button translatesAutoresizingMaskIntoConstraints="NO" id="0Jv-oN-Sbi">
@@ -42,47 +44,47 @@
                         </connections>
                     </button>
                     <box autoresizesSubviews="NO" title="Constraints" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="JfU-zX-TMJ">
-                        <rect key="frame" x="17" y="57" width="618" height="303"/>
+                        <rect key="frame" x="17" y="57" width="618" height="159"/>
                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                         <view key="contentView">
-                            <rect key="frame" x="1" y="1" width="616" height="287"/>
+                            <rect key="frame" x="1" y="1" width="616" height="143"/>
                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                             <subviews>
                                 <slider identifier="sWidth" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="S5K-MN-txF">
-                                    <rect key="frame" x="224" y="251" width="376" height="26"/>
+                                    <rect key="frame" x="224" y="107" width="376" height="26"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="24" id="r7J-CL-Ekw"/>
                                     </constraints>
-                                    <sliderCell key="cell" state="on" alignment="left" minValue="100" maxValue="6000" doubleValue="1600" tickMarkPosition="above" numberOfTickMarks="60" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ysc-T7-m5e"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="500" maxValue="21000" doubleValue="3000" tickMarkPosition="above" numberOfTickMarks="42" allowsTickMarkValuesOnly="YES" sliderType="linear" id="ysc-T7-m5e"/>
                                     <connections>
                                         <action selector="actionCustomValueSlided:" target="-2" id="Ncx-ah-Wt5"/>
                                     </connections>
                                 </slider>
                                 <slider identifier="sHeight" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="3dE-VG-MWA">
-                                    <rect key="frame" x="224" y="219" width="376" height="26"/>
+                                    <rect key="frame" x="224" y="75" width="376" height="26"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="24" id="ybc-bQ-HUJ"/>
                                     </constraints>
-                                    <sliderCell key="cell" state="on" alignment="left" minValue="100" maxValue="6000" doubleValue="1100" tickMarkPosition="above" numberOfTickMarks="60" allowsTickMarkValuesOnly="YES" sliderType="linear" id="8OZ-rl-7k6"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="300" maxValue="21000" doubleValue="900" tickMarkPosition="above" numberOfTickMarks="70" allowsTickMarkValuesOnly="YES" sliderType="linear" id="8OZ-rl-7k6"/>
                                     <connections>
                                         <action selector="actionCustomValueSlided:" target="-2" id="Qmq-sm-thl"/>
                                     </connections>
                                 </slider>
                                 <slider identifier="sQuality" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qQK-VV-dl7">
-                                    <rect key="frame" x="224" y="187" width="376" height="26"/>
+                                    <rect key="frame" x="224" y="43" width="376" height="26"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="24" id="Y3O-Oj-ODi"/>
                                     </constraints>
-                                    <sliderCell key="cell" state="on" alignment="left" minValue="30" maxValue="100" doubleValue="50" tickMarkPosition="above" numberOfTickMarks="8" allowsTickMarkValuesOnly="YES" sliderType="linear" id="fLe-nI-WMA"/>
+                                    <sliderCell key="cell" continuous="YES" state="on" alignment="left" minValue="30" maxValue="100" doubleValue="50" tickMarkPosition="above" numberOfTickMarks="8" allowsTickMarkValuesOnly="YES" sliderType="linear" id="fLe-nI-WMA"/>
                                     <connections>
                                         <action selector="actionCustomValueSlided:" target="-2" id="rGd-At-uie"/>
                                     </connections>
                                 </slider>
                                 <button identifier="cIsWebtoon" translatesAutoresizingMaskIntoConstraints="NO" id="xeI-rI-q5F">
-                                    <rect key="frame" x="16" y="159" width="204" height="18"/>
+                                    <rect key="frame" x="16" y="15" width="204" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="height" constant="14" id="9yi-mx-3nG"/>
@@ -97,7 +99,7 @@
                                     </connections>
                                 </button>
                                 <button identifier="cQuality" translatesAutoresizingMaskIntoConstraints="NO" id="zhm-Hw-1ql">
-                                    <rect key="frame" x="16" y="188" width="204" height="18"/>
+                                    <rect key="frame" x="16" y="44" width="204" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="200" id="rX0-7D-LvQ"/>
@@ -111,7 +113,7 @@
                                     </connections>
                                 </button>
                                 <button identifier="cHeight" translatesAutoresizingMaskIntoConstraints="NO" id="V9q-hx-mjQ">
-                                    <rect key="frame" x="16" y="220" width="204" height="18"/>
+                                    <rect key="frame" x="16" y="76" width="204" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="200" id="E96-L3-Hgq"/>
@@ -125,7 +127,7 @@
                                     </connections>
                                 </button>
                                 <button identifier="cWidth" translatesAutoresizingMaskIntoConstraints="NO" id="GDf-wE-6yz">
-                                    <rect key="frame" x="16" y="252" width="204" height="18"/>
+                                    <rect key="frame" x="16" y="108" width="204" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <constraints>
                                         <constraint firstAttribute="width" constant="200" id="fh1-hw-agm"/>
@@ -139,7 +141,7 @@
                                     </connections>
                                 </button>
                                 <button identifier="sIsWebtoon" translatesAutoresizingMaskIntoConstraints="NO" id="RJv-Kr-wCf">
-                                    <rect key="frame" x="224" y="159" width="376" height="18"/>
+                                    <rect key="frame" x="224" y="15" width="376" height="18"/>
                                     <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                     <buttonCell key="cell" type="check" bezelStyle="regularSquare" imagePosition="left" state="on" inset="2" id="48G-7S-WKe">
                                         <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
@@ -163,6 +165,7 @@
                             <constraint firstAttribute="trailing" secondItem="S5K-MN-txF" secondAttribute="trailing" constant="16" id="Kiv-yf-xYJ"/>
                             <constraint firstItem="S5K-MN-txF" firstAttribute="leading" secondItem="GDf-wE-6yz" secondAttribute="trailing" constant="8" symbolic="YES" id="LuQ-1P-nCG"/>
                             <constraint firstItem="3dE-VG-MWA" firstAttribute="leading" secondItem="V9q-hx-mjQ" secondAttribute="trailing" constant="8" symbolic="YES" id="UGA-C8-8mQ"/>
+                            <constraint firstAttribute="bottom" secondItem="RJv-Kr-wCf" secondAttribute="bottom" constant="14" id="XaR-aq-XmB"/>
                             <constraint firstItem="3dE-VG-MWA" firstAttribute="top" secondItem="S5K-MN-txF" secondAttribute="bottom" constant="8" symbolic="YES" id="XhN-4K-ZzC"/>
                             <constraint firstAttribute="trailing" secondItem="3dE-VG-MWA" secondAttribute="trailing" constant="16" id="csj-4j-Y4c"/>
                             <constraint firstItem="xeI-rI-q5F" firstAttribute="top" secondItem="qQK-VV-dl7" secondAttribute="bottom" constant="14" id="czZ-VO-eje"/>
@@ -223,6 +226,50 @@ Gw
                             <action selector="actionApply:" target="-2" id="H1T-ne-tdG"/>
                         </connections>
                     </button>
+                    <box autoresizesSubviews="NO" title="Presets" borderType="line" translatesAutoresizingMaskIntoConstraints="NO" id="AXS-Xh-6cF">
+                        <rect key="frame" x="17" y="220" width="618" height="63"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                        <view key="contentView">
+                            <rect key="frame" x="1" y="1" width="616" height="47"/>
+                            <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
+                            <subviews>
+                                <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="dbm-Jg-oK5">
+                                    <rect key="frame" x="15" y="17" width="206" height="17"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <constraints>
+                                        <constraint firstAttribute="width" constant="200" id="pIH-Hq-uNT"/>
+                                    </constraints>
+                                    <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="Preset name:" id="Vg0-6B-iG4">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
+                                    </textFieldCell>
+                                </textField>
+                                <comboBox verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="HKm-Aj-T0r">
+                                    <rect key="frame" x="226" y="13" width="375" height="26"/>
+                                    <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                    <comboBoxCell key="cell" scrollable="YES" lineBreakMode="clipping" allowsUndo="NO" sendsActionOnEndEditing="YES" borderStyle="bezel" drawsBackground="YES" completes="NO" numberOfVisibleItems="5" id="EaA-Xk-CEy">
+                                        <font key="font" metaFont="system"/>
+                                        <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
+                                        <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                    </comboBoxCell>
+                                    <connections>
+                                        <action selector="actionPresetSelected:" target="-2" id="Bgk-Jh-0jE"/>
+                                    </connections>
+                                </comboBox>
+                            </subviews>
+                        </view>
+                        <constraints>
+                            <constraint firstAttribute="trailing" secondItem="HKm-Aj-T0r" secondAttribute="trailing" constant="16" id="LgD-Ps-OdA"/>
+                            <constraint firstItem="dbm-Jg-oK5" firstAttribute="top" secondItem="AXS-Xh-6cF" secondAttribute="top" constant="28" id="MGK-3p-mc8"/>
+                            <constraint firstItem="HKm-Aj-T0r" firstAttribute="leading" secondItem="dbm-Jg-oK5" secondAttribute="trailing" constant="8" symbolic="YES" id="ipe-Xc-ozT"/>
+                            <constraint firstItem="dbm-Jg-oK5" firstAttribute="leading" secondItem="AXS-Xh-6cF" secondAttribute="leading" constant="16" id="j9S-QK-wYe"/>
+                            <constraint firstAttribute="bottom" secondItem="dbm-Jg-oK5" secondAttribute="bottom" constant="14" id="nq5-ZU-5Tj"/>
+                            <constraint firstItem="HKm-Aj-T0r" firstAttribute="baseline" secondItem="dbm-Jg-oK5" secondAttribute="baseline" id="ri4-up-3Xw"/>
+                        </constraints>
+                        <color key="borderColor" white="0.0" alpha="0.41999999999999998" colorSpace="calibratedWhite"/>
+                        <color key="fillColor" white="0.0" alpha="0.0" colorSpace="calibratedWhite"/>
+                    </box>
                 </subviews>
                 <constraints>
                     <constraint firstItem="Ue8-0N-UxT" firstAttribute="top" secondItem="8Ms-bJ-c3w" secondAttribute="top" id="0JY-nm-aKo"/>
@@ -230,13 +277,16 @@ Gw
                     <constraint firstAttribute="bottom" secondItem="8Ms-bJ-c3w" secondAttribute="bottom" constant="20" symbolic="YES" id="A9I-EP-kzC"/>
                     <constraint firstAttribute="trailing" secondItem="8Ms-bJ-c3w" secondAttribute="trailing" constant="20" symbolic="YES" id="Euw-a2-8nr"/>
                     <constraint firstItem="Ue8-0N-UxT" firstAttribute="leading" secondItem="OAd-4i-gsW" secondAttribute="trailing" constant="12" symbolic="YES" id="NSn-Hc-g2M"/>
+                    <constraint firstItem="JfU-zX-TMJ" firstAttribute="top" secondItem="AXS-Xh-6cF" secondAttribute="bottom" constant="8" symbolic="YES" id="Op4-Og-L53"/>
+                    <constraint firstAttribute="trailing" secondItem="AXS-Xh-6cF" secondAttribute="trailing" constant="20" symbolic="YES" id="Qkn-iQ-Wbg"/>
                     <constraint firstItem="0Jv-oN-Sbi" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="20" symbolic="YES" id="aYV-jS-paQ"/>
                     <constraint firstItem="8Ms-bJ-c3w" firstAttribute="leading" secondItem="Ue8-0N-UxT" secondAttribute="trailing" constant="12" symbolic="YES" id="cgG-x2-3qm"/>
-                    <constraint firstItem="8Ms-bJ-c3w" firstAttribute="top" secondItem="JfU-zX-TMJ" secondAttribute="bottom" constant="20" symbolic="YES" id="diT-0b-Erm"/>
                     <constraint firstAttribute="bottom" secondItem="OAd-4i-gsW" secondAttribute="bottom" constant="20" symbolic="YES" id="fuM-9e-woB"/>
+                    <constraint firstItem="AXS-Xh-6cF" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="20" symbolic="YES" id="jFH-lr-D14"/>
                     <constraint firstItem="JfU-zX-TMJ" firstAttribute="leading" secondItem="2" secondAttribute="leading" constant="20" symbolic="YES" id="k4F-4K-1AH"/>
+                    <constraint firstItem="OAd-4i-gsW" firstAttribute="top" secondItem="JfU-zX-TMJ" secondAttribute="bottom" constant="20" symbolic="YES" id="kA4-pR-jfu"/>
                     <constraint firstItem="8Ms-bJ-c3w" firstAttribute="baseline" secondItem="0Jv-oN-Sbi" secondAttribute="baseline" id="nwB-tC-bPk"/>
-                    <constraint firstItem="JfU-zX-TMJ" firstAttribute="top" secondItem="2" secondAttribute="top" constant="20" symbolic="YES" id="u78-it-v04"/>
+                    <constraint firstItem="AXS-Xh-6cF" firstAttribute="top" secondItem="2" secondAttribute="top" constant="20" symbolic="YES" id="qZL-GC-hoq"/>
                     <constraint firstItem="Ue8-0N-UxT" firstAttribute="bottom" secondItem="8Ms-bJ-c3w" secondAttribute="bottom" id="ujh-Mu-BJZ"/>
                     <constraint firstAttribute="trailing" secondItem="JfU-zX-TMJ" secondAttribute="trailing" constant="20" symbolic="YES" id="zGR-wd-dns"/>
                 </constraints>

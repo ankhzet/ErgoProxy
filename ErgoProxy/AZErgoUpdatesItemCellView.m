@@ -19,45 +19,38 @@
 - (void) configureForEntity:(AZErgoUpdateChapter *)chapter inOutlineView:(NSOutlineView *)view {
 	self.bindedEntity = chapter;
 
-	BOOL dummy = chapter.idx < 0;
-	NSString *title;
-	if ([chapter.title length])
-		if (dummy)
-			title = chapter.title;
-		else
-			title = [@"- " stringByAppendingString:chapter.title];
-	else
-		title = @"";
-
-	if (!dummy) {
-		NSString *chap = (!!((int)(chapter.idx * 10) % 10)) ? [NSString stringWithFormat:@"%.1f\t", chapter.idx] : [NSString stringWithFormat:@"%d\t  ", (int)(chapter.idx)];
-
-		title = [NSString stringWithFormat:@"v %d\t  ch %@%@", (int)chapter.volume, chap, title];
-	}
-
-	self.tfTitle.stringValue = title;
-	self.tfDate.objectValue = (chapter.date && !dummy) ? chapter.date : @"";
+	self.tfTitle.stringValue = chapter.fullTitle ?: @"<failed to format title>";
+	self.tfDate.objectValue = (chapter.date && !chapter.isDummy) ? chapter.date : @"";
 
 	[self checkOV:view downloads:chapter];
 }
 
 - (void) checkOV:(NSOutlineView *)view downloads:(AZErgoUpdateChapter *)chapter {
-	if (chapter.state != AZErgoUpdateChapterDownloadsUnknown)
-		[self showState:chapter.state];
-	else {
-		[self.ivStatus setImage:[NSImage imageNamed:NSImageNameStatusNone]];
-		[self setNeedsLayout:YES];
+	switch (chapter.state) {
+		case AZErgoUpdateChapterDownloadsFailed:
+			[self showState:chapter.state];
+			[self.ivStatus setHidden:chapter.isDummy];
+			[self.bListScans setHidden:chapter.isDummy];
+			break;
+		case AZErgoUpdateChapterDownloadsUnknown:
+			[self showState:chapter.state];
+			break;
 
-		dispatch_async(dispatch_get_global_queue(DISPATCH_QUEUE_PRIORITY_DEFAULT, 0), ^{
-			AZErgoUpdateChapterDownloads state = [chapter.watch chapterState:chapter];
+		default:
+			[self.ivStatus setImage:[NSImage imageNamed:NSImageNameStatusNone]];
+			[self setNeedsLayout:YES];
 
-			dispatch_sync(dispatch_get_main_queue(), ^{
-				if (chapter != self.bindedEntity)
-					return;
+			dispatch_async_at_background(^{
+				AZErgoUpdateChapterDownloads state = [chapter.watch chapterState:chapter];
 
-				[self showState:state];
+				dispatch_sync_at_main(^{
+					if (chapter != self.bindedEntity)
+						return;
+
+					[self showState:state];
+				});
 			});
-		});
+			break;
 	}
 }
 
@@ -67,7 +60,6 @@
 	[self.ivStatus setHidden:NO];
 	switch (state) {
 		case AZErgoUpdateChapterDownloadsFailed:
-//			[self.ivStatus setHidden:YES];
 			image = NSImageNameStatusUnavailable;
 			break;
 

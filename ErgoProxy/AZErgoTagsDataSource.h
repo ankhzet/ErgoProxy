@@ -18,6 +18,4 @@
 
 @interface AZErgoTagsDataSource : AZGroupableDataSource
 
-@property (nonatomic, weak) id<AZErgoTagsDataSourceDelegate> delegate;
-
 @end

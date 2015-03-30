@@ -13,7 +13,7 @@
 @implementation AZProxyServer
 @dynamic url;
 
-+ (instancetype) serverWithURL:(NSURL *)url {
++ (instancetype) serverWithURL:(NSString *)url {
 	AZProxyServer *server = [self insertNew];
 	server.url = url;
 	return server;

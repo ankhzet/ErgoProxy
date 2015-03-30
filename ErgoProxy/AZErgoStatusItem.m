@@ -193,10 +193,14 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 - (void) menuNeedsUpdate:(NSMenu *)aMenu {
 	NSMenuItem *browserItem = [aMenu itemWithTag:1];
 	if (browserItem && [AZErgoBrowserTab browserTab]) {
-		NSString *uri = [[AZErgoBrowserTab browserTab] loadedURI];
+		NSString *title = [[AZErgoBrowserTab browserTab] title];
+		if (!title) {
+			NSString *uri = [[AZErgoBrowserTab browserTab] loadedURI];
+			title = [self parseBrowserURI:uri];
+		}
 
-		[browserItem setEnabled:!!uri];
-		browserItem.title = [self parseBrowserURI:uri] ?: LOC_FORMAT(@"Reader");
+		[browserItem setEnabled:!!title];
+		browserItem.title = title ?: LOC_FORMAT(@"Reader");
 	}
 }
 
@@ -214,19 +218,14 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 		NSString *chapterIdx = [parts shiftObject];
 		if (chapterIdx) {
 			NSUInteger idx = _IDX([chapterIdx floatValue]);
-			chapterIdx = [@(_IDI(idx)) stringValue];
+			title = [NSString stringWithFormat:@"%@ ⟩ ch. %@", title, @(_IDI(idx))];
 
-			AZErgoUpdateWatch *watch = [AZErgoUpdateWatch filter:[NSPredicate predicateWithFormat:@"manga == %@", mangaName] limit:1];
-			AZErgoUpdateChapter *chapter = nil;
-			for (AZErgoUpdateChapter *c in [watch.updates allObjects])
-				if (idx == _IDX(c.idx)) {
-					chapter = c;
+			AZErgoUpdateWatch *watch = [AZErgoUpdateWatch any:@"manga ==[c] %@", mangaName];
+			for (AZErgoUpdateChapter *chapter in [watch.updates allObjects])
+				if (idx == _IDX(chapter.idx)) {
+					title = [NSString stringWithFormat:@"%@ %@", title, chapter.title];
 					break;
 				}
-
-			if (chapter) {
-				title = [NSString stringWithFormat:@"%@ ⟩ ch. %@ %@", title, chapterIdx, chapter.title];
-			}
 		}
 		return title;
 	}
@@ -243,11 +242,14 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 }
 
 - (void) download:(AZDownload *)download stateChanged:(AZErgoDownloadState)state {
-	NSString *url = [download.sourceURL absoluteString];
-	if (url && !HAS_BIT(state, AZErgoDownloadStateDownloading))
-		[downloads removeObjectForKey:url];
-	else
+	NSString *url = download.sourceURL;
+	if (!url)
+		return;
+
+	if (HAS_BIT(state, AZErgoDownloadStateDownloading))
 		downloads[url] = download;
+	else
+		[downloads removeObjectForKey:url];
 
 	[self redraw];
 }

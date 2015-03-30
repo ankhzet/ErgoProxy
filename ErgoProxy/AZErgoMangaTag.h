@@ -12,6 +12,9 @@ typedef NS_ENUM(NSUInteger, AZErgoTagGroup) {
 	AZErgoTagGroupCommon = 0,
 	AZErgoTagGroupComplete = 1,
 	AZErgoTagGroupReaded = 2,
+	AZErgoTagGroupDownloaded = 3,
+	AZErgoTagGroupSuspended = 4,
+	AZErgoTagGroupWebtoon = 5,
 	AZErgoTagGroupAdult = 10,
 };
 
@@ -27,6 +30,11 @@ typedef NS_ENUM(NSUInteger, AZErgoTagGroup) {
 
 + (instancetype) tagByGuid:(NSNumber *)guid;
 + (instancetype) tagByName:(NSString *)name;
++ (instancetype) tagWithName:(NSString *)name;
++ (instancetype) tagWithGuid:(NSNumber *)guid;
+
++ (NSString *) tagGroupName:(AZErgoTagGroup)group;
++ (NSArray *) taggedManga:(AZErgoTagGroup)guid;
 
 @end
 

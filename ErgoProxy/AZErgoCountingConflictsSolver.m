@@ -9,6 +9,7 @@
 #import "AZErgoCountingConflictsSolver.h"
 
 @implementation Chapter
+@synthesize volume = _volume, baseIdx = _baseIdx, idx = _idx, date, genData, mangaName, title;
 
 + (instancetype) chapter:(float)idx ofVolume:(NSInteger)volume {
 	Chapter *i = [self new];
@@ -18,7 +19,7 @@
 }
 
 - (NSString *) description {
-	return [NSString stringWithFormat:@"%ld-%.2f", (long)_volume, _idx];
+	return [NSString stringWithFormat:@"%ld-%.2f", (long)_volume, ((int)(_idx*1000))/1000.];
 }
 
 - (void) setBaseIdx:(float)baseIdx {
@@ -27,8 +28,13 @@
 }
 
 - (BOOL) isEqual:(Chapter *)object {
-	return (!!object) && (_volume == object->_volume) && (ABS(_idx - object->_idx) < 0.01);
+	return (!!object) && (_volume == object->_volume) && (ABS(_idx - object->_idx) < 0.0001);
 }
+
+- (BOOL) isBonus {
+	return !!_FRC(_idx);
+}
+
 
 @end
 
@@ -55,7 +61,9 @@
 	orderChanged = NO;
 
 	return _ordered = [chapters sortedArrayUsingComparator:^NSComparisonResult(Chapter *c1, Chapter *c2) {
-		return [@(c1.volume + c1.baseIdx / 10000.f) compare:@(c2.volume + c2.baseIdx / 10000.f)];
+		double v1 = c1.volume + c1.baseIdx / 10000.f;
+		double v2 = c2.volume + c2.baseIdx / 10000.f;
+		return SIGN(v1 - v2);
 	}];
 }
 
@@ -77,21 +85,117 @@
 	return _conflicts;
 }
 
+- (NSUInteger) bonus:(NSUInteger)idx fromCount:(NSUInteger)total {
+	NSInteger result;
+
+	if (idx < 9) {
+		total = MIN(9, total);
+
+		NSInteger offset = _IDX(idx) / 10.f;
+		if (total > 5) {
+			offset -= _IDX(total - 5) / 10.f;
+		}
+
+		result = _IDX(0.5f) + offset;
+		return result;
+	}
+
+	NSUInteger offset = [self bonus:idx-9 fromCount:total-9];
+	result = _IDX(0.9f) + offset / 10.f;
+	return result;
+}
+
 - (void) solveConflicts {
-	int tries = 5;
+	int tries = 20;
 
 	while (tries--) {
-		[self solveShifts];
+		if ([self.volumes count] > 2)
+			[self solveShifts];
+
 		for (NSNumber *volume in self.volumes)
 			[self solveVolumeConflicts:[volume integerValue]];
 
 		NSUInteger conflicts = 0;
-		for (NSNumber *c in self.conflicts)
+		for (NSNumber *c in [self.conflicts allValues])
 			if ([c unsignedIntegerValue] > 1)
 				conflicts++;
 
-		if (!conflicts)
-			break;
+		if (!conflicts) {
+			conflictsChanged = YES;
+			[self conflicts];
+
+			conflicts = 0;
+			NSUInteger max = 0;
+			Chapter *prev = nil;
+			for (Chapter *c in self.ordered) {
+				NSUInteger current = _IDX(c.idx);
+				if (max < current)
+					max = current;
+
+				if (current < max) {
+					conflicts++;
+					Chapter *c2 = [self seekLower:prev sameVolume:NO];
+					c2 = [self seekLower:c2 sameVolume:NO];
+					if (!c2) c2 = [self.ordered firstObject];
+
+
+					NSArray *range = [self between:c2 and:prev];
+//					range = [@[c2] arrayByAddingObjectsFromArray:range];
+					NSUInteger idx = _IDX(c2.idx);
+					for (Chapter *b in range)
+						b.idx = _IDI(idx + [self bonus:[range indexOfObjectIdenticalTo:b] fromCount:[range count]]);
+				}
+
+				prev = c;
+			}
+
+			if (!conflicts) {
+				Chapter *wait = nil;
+				for (Chapter *c in self.ordered) {
+					if ((wait && (c != wait)) || !c.isBonus)
+						continue;
+
+					wait = nil;
+
+					Chapter *next = [self seekHigher:c sameVolume:NO];
+					BOOL lastPart = !next;
+					if (lastPart)
+						next = [self.ordered lastObject];
+					else
+						wait = next;
+
+					NSArray *bonuses = [@[c] arrayByAddingObjectsFromArray:[self between:c and:next]];
+					if (lastPart) bonuses = [bonuses arrayByAddingObject:next];
+
+					if (![bonuses count])
+						continue;
+
+					NSUInteger min = _IDX(9999), max = _IDX(0);
+					for (Chapter *c in bonuses) {
+						NSUInteger idx = _FRC(c.idx);
+						if (idx > max) max = idx;
+						if (idx < min) min = idx;
+					}
+
+					if ((min == _IDX(0.5f)) || (max >= _IDX(0.9f)))
+						continue;
+
+					NSInteger delta = _IDX(0.9f) - max;
+					if (min > _IDX(0.5f)) delta = -delta;
+
+					for (Chapter *c in bonuses)
+						[self changeChapter:c index:_IDX(c.idx) + delta];
+				}
+
+				break;
+			}
+
+//			for (Chapter *c in self.ordered)
+//				c.idx = c.baseIdx;
+
+			orderChanged = YES;
+		}
+
 	}
 }
 
@@ -142,19 +246,19 @@
 - (void) solveShifts {
 	NSUInteger nextLoverBound = NSUIntegerMax;
 	for (NSNumber *v in [self.volumes reverseObjectEnumerator]) {
-		NSUInteger volume = [v unsignedIntegerValue];
-		NSUInteger vIdx = _IDX(volume);
+		NSInteger volume = [v unsignedIntegerValue];
+		NSInteger vIdx = _IDX(volume);
 
     NSArray *vChapters = [self volumeChapters:volume];
 
-		NSUInteger selfUpperBound = nextLoverBound;
+		NSInteger selfUpperBound = nextLoverBound;
 
 		Chapter *first = [vChapters firstObject];
-		NSUInteger firstIdx = _IDX(first.idx);
+		NSInteger firstIdx = _IDX(first.idx);
 		if (firstIdx < vIdx) {
-			NSUInteger newIdx = selfUpperBound;
+			NSInteger newIdx = selfUpperBound;
 			for (Chapter *c in [vChapters reverseObjectEnumerator]) {
-				NSUInteger last = _IDX(c.idx);
+				NSInteger last = _IDX(c.idx);
 
 				if (selfUpperBound == NSUIntegerMax)
 					selfUpperBound = (newIdx = last);
@@ -162,7 +266,7 @@
 				if (last >= selfUpperBound)
 					newIdx = MIN(last, selfUpperBound);
 				else {
-					newIdx -= _IDX(1);
+					newIdx = MAX(newIdx - _IDX(1.f), _IDX(1.f));
 					[self changeChapter:c index:newIdx];
 				}
 			}
@@ -170,7 +274,7 @@
 			NSInteger delta = vIdx - newIdx;
 			if (delta > 0) {
 				newIdx = vIdx;
-				NSUInteger fixIdx = volume;
+				NSInteger fixIdx = volume;
 				for (Chapter *c in vChapters)
 					if (_IDX(c.idx) < selfUpperBound)
 						[self changeChapter:c index:_IDX(fixIdx++)];
@@ -186,14 +290,14 @@
 - (void) solveVolumeConflicts:(NSInteger)volume {
 	NSArray *conflicted = [self hasConflictedChapters:volume];
 	for (Chapter *chapter in conflicted) {
-    Chapter *lower = [self seekLower:chapter];
+		Chapter *lower = [self seekLower:chapter];
 
 		if (lower) {
 			NSArray *between = [self between:lower and:chapter];
 
-			NSInteger bCount = [between count], origin = 5 + bCount;
-			if (origin > 9) {
-				NSInteger delta = origin - 9;
+			NSInteger bCount = [between count], origin = _IDX(0.5f + bCount / 10.f);
+			while (origin >= _IDX(1.f)) {
+				NSInteger delta = origin - _IDX(0.9f);
 				origin -= delta;
 
 				for (Chapter *bonuses in between)
@@ -211,7 +315,7 @@
 	NSMutableArray *bonus = [NSMutableArray arrayWithCapacity:[bChapters count]];
 
 	for (Chapter *chapter in bChapters)
-		if (_FRC(chapter.idx)) // can be translated to bonus chapter
+		if (chapter.isBonus) // can be translated to bonus chapter
 			[bonus addObject:chapter];
 
 	return bonus;
@@ -232,16 +336,42 @@
 }
 
 - (Chapter *) seekLower:(Chapter *)from {
+	return [self seekLower:from sameVolume:YES];
+}
+
+- (Chapter *) seekLower:(Chapter *)from sameVolume:(BOOL)sameVol {
 	NSUInteger index = [self.ordered indexOfObjectIdenticalTo:from];
 
-	while (index-- > 0) {
-		Chapter *candidate = [self.ordered objectAtIndex:index];
+	if (index != NSNotFound)
+		while (index-- > 0) {
+			Chapter *candidate = [self.ordered objectAtIndex:index];
 
-		if (candidate.volume != from.volume)
-			break;
+			if (sameVol && (candidate.volume != from.volume))
+				break;
 
-		if (!_FRC(candidate.idx))
-			return candidate;
+			if (!_FRC(candidate.idx))
+				return candidate;
+		}
+
+	return nil;
+}
+
+- (Chapter *) seekHigher:(Chapter *)from sameVolume:(BOOL)sameVol {
+	NSArray *ordered = self.ordered;
+
+	NSUInteger index = [ordered indexOfObjectIdenticalTo:from];
+
+	if (index != NSNotFound) {
+		NSUInteger count = [ordered count];
+		while (++index < count) {
+			Chapter *candidate = [ordered objectAtIndex:index];
+
+			if (sameVol && (candidate.volume != from.volume))
+				break;
+
+			if (!_FRC(candidate.idx))
+				return candidate;
+		}
 	}
 
 	return nil;

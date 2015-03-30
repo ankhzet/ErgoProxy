@@ -22,6 +22,7 @@ typedef NS_ENUM(NSUInteger, AZErgoUpdateChapterDownloads) {
 
 #import "AZCoreDataEntity.h"
 #import "AZErgoUpdateWatch.h"
+#import "AZErgoChapterProtocol.h"
 #import "AZErgoUpdateChapter.h"
 #import "AZErgoUpdatesSource.h"
 #import "AZErgoUpdatesSourceDescription.h"

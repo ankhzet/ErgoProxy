@@ -18,6 +18,33 @@
 
 @end
 
+@protocol AZErgoUpdatesSourceParserProtocol <NSObject>
+
+- (BOOL) correspondsTo:(NSString *)resoureURL;
+- (NSString *) parseURL:(NSString *)url;
+- (NSString *) genDataToFolder:(NSString *)genData;
+
+- (NSSet *) parseTitles:(NSString *)string;
+
+- (NSArray *) titlesFromDocument:(TFHpple *)document;
+- (NSArray *) tagsFromDocument:(TFHpple *)document;
+- (NSString *) annotationFromDocument:(TFHpple *)document;
+- (NSString *) previewFromDocument:(TFHpple *)document;
+- (NSArray *) chaptersFromDocument:(TFHpple *)document;
+- (NSArray *) scansFromDocument:(TFHpple *)document;
+- (NSDictionary *) entitiesFromDocument:(TFHpple *)document;
+- (BOOL) isCompleteFromDocument:(TFHpple *)document;
+
+- (NSString *) mappedTagName:(NSString *)name;
+
++ (float) chapterIdx:(NSString *)pattern;
++ (int) chapterVolume:(NSString *)pattern;
++ (NSString *) chapterTitle:(NSString *)pattern;
++ (NSString *) chapterTip:(NSString *)pattern;
++ (NSString *) chapter:(NSString *)pattern element:(NSUInteger)element;
+
+@end
+
 
 @interface AZErgoUpdatesSource : NSObject
 
@@ -26,10 +53,9 @@
 
 @property (nonatomic) id<AZErgoUpdatesSourceDelegate> delegate;
 
-- (BOOL) checkAll;
+- (BOOL) checkAll:(void(^)(dispatch_block_t block))block;
 - (void) checkWatch:(AZErgoUpdateWatch *)watch;
-- (void) checkWatch:(AZErgoUpdateWatch *)watch withBlock:(void(^)(AZErgoUpdateWatch *watch, NSUInteger updates))block;
-- (void) checkUpdate:(AZErgoUpdateChapter *)chapter withBlock:(void(^)(AZErgoUpdateChapter *chapter, NSArray *scans))block;
+- (void) checkUpdate:(AZErgoUpdateChapter *)chapter withBlock:(void(^)(NSArray *scans))block;
 
 @end
 
@@ -40,7 +66,7 @@
 + (NSDictionary *) sharedSources;
 + (instancetype) sharedSource;
 + (BOOL) inProcess;
-+ (NSUInteger) checkAll;
++ (NSUInteger) checkAll:(void(^)(dispatch_block_t block))block;
 
 @end
 
@@ -51,20 +77,12 @@ extern const NSUInteger LABEL_ELEMENT_CHAPTER;
 extern const NSUInteger LABEL_ELEMENT_TIP;
 
 
-@interface AZErgoUpdatesSource (SourceRelated)
+@interface AZErgoUpdatesSource (SourceRelated) <AZErgoUpdatesSourceParserProtocol>
 
 - (id) action:(NSString *)action request:(NSString *)genData;
-- (id) chaptersAction:(AZErgoUpdateWatch *)watch;
+- (id) infoAction:(AZErgoUpdateWatch *)watch;
 - (id) scansAction:(AZErgoUpdateChapter *)chapter;
-
-- (NSArray *) chaptersFromDocument:(TFHpple *)document;
-- (NSArray *) scansFromDocument:(TFHpple *)document;
-
-+ (float) chapterIdx:(NSString *)pattern;
-+ (int) chapterVolume:(NSString *)pattern;
-+ (NSString *) chapterTitle:(NSString *)pattern;
-+ (NSString *) chapterTip:(NSString *)pattern;
-+ (NSString *) chapter:(NSString *)pattern element:(NSUInteger)element;
+- (id) searchAction:(NSString *)query;
 
 @end
 

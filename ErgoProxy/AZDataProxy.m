@@ -17,7 +17,7 @@ NSString *const kDPParameterSyncDirectory = @"kDPParameterSyncDirectory";
 NSString *const changeNotificationName = @"CoreDataChangeNotification";
 
 @implementation AZDataProxy {
-	dispatch_queue_t cdOwnerQueue, cdFetchQueue;
+	dispatch_queue_t cdOwnerQueue, cdPropagateQueue;
 	NSThread *cdOwnerThread;
 }
 
@@ -34,8 +34,8 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	self.localDataDirectory = @"Documents";
 	self.dataStorageFileName = @"Database.sqlite";
 
-	cdOwnerQueue = dispatch_queue_create("org.ankhzet.coredata-owner", DISPATCH_QUEUE_SERIAL);
-	cdFetchQueue = dispatch_queue_create("org.ankhzet.coredata-fetcher", DISPATCH_QUEUE_SERIAL);
+	cdOwnerQueue = dispatch_queue_create_recursive_serial("org.ankhzet.coredata-context-owner");
+	cdPropagateQueue = dispatch_queue_create_recursive_serial("org.ankhzet.coredata-propagation-queue");
 
 	return self;
 }
@@ -93,63 +93,128 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 }
 
 // save CoreData-managed data
--(BOOL)saveContext {
+- (void) saveContext {
+	[self.managedObjectContext performBlock:^{
+		@synchronized(self) {
+			if (![self.managedObjectContext commitEditing])
+				DDLogError(@"%@:%@ unable to commit editing before saving", [self class], NSStringFromSelector(_cmd));
 
-	__block BOOL result = YES;
-	NSManagedObjectContext *managedObjectContext = self.managedObjectContext;
-
-	if (managedObjectContext != nil) {
-
-		dispatch_sync(cdFetchQueue, ^{
-			@synchronized(self) {
-				if (![managedObjectContext commitEditing])
-					NSLog(@"%@:%@ unable to commit editing before saving", [self class], NSStringFromSelector(_cmd));
-
-				@try {
-					NSError *error = nil;
-					if ([managedObjectContext hasChanges] && !(result = [managedObjectContext save:&error])) {
-						NSLog(@"Unresolved error %@, %@", error, [error userInfo]);
-						return;
+			NSError *error = nil;
+			if ([self.managedObjectContext hasChanges]) {
+				if ([self.managedObjectContext tryLock])
+					@try {
+						if (![self.managedObjectContext save:&error]) {
+							DDLogError(@"Unresolved error %@, %@", error, [error userInfo]);
+						}
 					}
-				}
-				@catch (NSException *exception) {
-					NSLog(@"CoreData error: %@", exception);
-				}
 				@finally {
+					[self.managedObjectContext unlock];
 				}
 			}
-		});
-
-	}
-	
-	return result;
-}
-
-- (void) performSelectorOnContextsThread:(dispatch_block_t)param {
-	param();
+		}
+	}];
 }
 
 - (void) performOnFetchThread:(dispatch_block_t)block {
-	dispatch_sync(cdFetchQueue, ^{
-		dispatch_sync(cdOwnerQueue, ^{
-			[self performSelector:@selector(performSelectorOnContextsThread:)
-									 onThread:cdOwnerThread
-								 withObject:block
-							waitUntilDone:YES];
-		});
-	});
+	[self.managedObjectContext performBlockAndWait:block];
 }
 
+- (NSUInteger) countForFetchRequest:(NSFetchRequest *)request error:(NSError **)error {
+	__block NSUInteger result = 0;
+
+	NSManagedObjectContext *c = self.managedObjectContext;
+	[c performBlockAndWait:^{
+		result = [c countForFetchRequest:request error:error];
+	}];
+
+	return result;
+}
 
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error {
+	__block NSArray *temp = nil;
 
-	__block NSArray *result = nil;
+//	BOOL lock = YES;
+//
+//	dispatch_semaphore_t s = dispatch_semaphore_create(0);
+//
+//	u_int64_t t = dispatch_time(DISPATCH_TIME_NOW, 0);
+//
+//		[self.managedObjectContext lock];
 
-	[self performOnFetchThread:^{
-		@synchronized(self) {
-			result = [self.managedObjectContext executeFetchRequest:request error:error];
+	[self.managedObjectContext performBlockAndWait:^{
+//	[self.managedObjectContext performBlock:^{
+//		[self.managedObjectContext lock];
+		temp = [self.managedObjectContext executeFetchRequest:request error:error];
+//		[self.managedObjectContext unlock];
+//		dispatch_semaphore_signal(s);
+	}];
+
+
+//	while (lock) {
+//
+//		if (!dispatch_semaphore_wait(s, dispatch_time(DISPATCH_TIME_NOW, NSEC_PER_SEC * 0.001)))
+//			break;
+//
+//		if (dispatch_time(DISPATCH_TIME_NOW, 0) - t > NSEC_PER_SEC * 5) {
+//			lock = NO;
+//			NSLog(@"CD fetch timeout!");
+//		}
+//
+//	}
+
+//	[self.managedObjectContext unlock];
+
+	return temp;//[temp transitCoreDataObjects];
+}
+
+- (BOOL) securedTransaction:(AZSecureCoreDataTransactionBlok)block {
+	__block BOOL result = YES;
+
+	[self.managedObjectContext lock];
+
+	[self.managedObjectContext performBlockAndWait:^{
+//	[self performOnFetchThread:^{
+		NSManagedObjectContext *tempContext = self.managedObjectContext;
+		//[[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
+//
+//	dispatch_sync_recursive(cdPropagateQueue, ^{
+
+//		[tempContext performBlockAndWait:^{
+//			[tempContext setPersistentStoreCoordinator:self.persistentStoreCoordinator];
+//		[tempContext setParentContext:self.managedObjectContext];
+//		[tempContext setUndoManager:nil];
+
+		BOOL propagateChanges = YES;
+		@try {
+			block(tempContext, &propagateChanges);
+		}
+		@catch (id exception) {
+			result = NO;
+			DDLogError(@"Secured CoreData transaction error: %@", [exception description]);
+		}
+		@finally {
+			if (propagateChanges) {
+				@try {
+//					[tempContext performBlock:^{
+//						[tempContext processPendingChanges];
+//					}];
+				}
+				@catch (id exception) {
+						DDLogError(@"Secured CoreData transaction changes propagation error: %@", exception);
+				}
+//				NSError *error = nil;
+//					if (![tempContext save:&error]) {
+//						result = NO;
+//						NSLog(@"Secured CoreData transaction changes propagation error: %@", [error localizedDescription]);
+//					}
+			}
 		}
 	}];
+//	});
+//		}];
+//	}];
+
+	[self.managedObjectContext unlock];
 
 	return result;
 }
@@ -164,10 +229,14 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 																			 inManagedObjectContext:self.managedObjectContext];
 }
 
-- (void) deleteObject:(NSManagedObject *)object {
-	[self.managedObjectContext deleteObject:object];
+- (id) objectWithID:(NSManagedObjectID *)id {
+	return [self.managedObjectContext objectWithID:id];
 }
 
+
+- (void) deleteObject:(NSManagedObject *)object {
+	[object.managedObjectContext deleteObject:object];
+}
 
 #pragma mark - Notifications
 
@@ -195,11 +264,12 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	
 	NSPersistentStoreCoordinator *coordinator = [self persistentStoreCoordinator];
 	if (coordinator != nil) {
-		dispatch_sync(cdOwnerQueue, ^{
+		dispatch_sync_recursive(cdOwnerQueue, ^{
 			cdOwnerThread = [NSThread currentThread];
 
 			_managedObjectContext = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSPrivateQueueConcurrencyType];
 			[_managedObjectContext setPersistentStoreCoordinator:coordinator];
+			[_managedObjectContext setUndoManager:nil];
 		});
 	}
 	return _managedObjectContext;
@@ -235,7 +305,7 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 }
 
 - (NSPersistentStore *) addPersistentStore:(NSPersistentStoreCoordinator *)coordinator {
-	NSLog(@"localDataStorageFile = %@", self.dataStorageFileName);
+	DDLogVerbose(@"localDataStorageFile = %@", self.dataStorageFileName);
 	NSURL *localStore = [self localStorageFileURL]; // absolute url
 
 	// options for persistent store
@@ -243,7 +313,7 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	NSDictionary *options =
 	@{
 		NSMigratePersistentStoresAutomaticallyOption:@YES,
-		NSInferMappingModelAutomaticallyOption:@YES
+//		NSInferMappingModelAutomaticallyOption:@YES,
 		};
 
 	[coordinator lock];
@@ -257,7 +327,7 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 																		error:&error];
 
 	if (!store) {
-		NSLog(@"Unresolved CoreData error %@, %@", error, [error userInfo]);
+		DDLogError(@"Unresolved CoreData error %@, %@", error, [error userInfo]);
 		/*
 		 Typical reasons for an error here include:
 		 * The persistent store is not accessible;
@@ -277,6 +347,48 @@ NSString *const changeNotificationName = @"CoreDataChangeNotification";
 	[coordinator unlock];
 
 	return store;
+}
+
+@end
+
+@implementation NSManagedObjectContext (PerThreadContext)
+#define AZ_SHARED_THREAD_MOC_KEY @"AZ_managedObjectContext"
+
++ (NSManagedObjectContext *) contextForCurrentThread {
+	NSManagedObjectContext *context = nil;
+
+	static OSSpinLock lock = OS_SPINLOCK_INIT;
+	@try {
+		OSSpinLockLock(&lock);
+
+		NSMutableDictionary *info = [NSThread currentThread].threadDictionary;
+		if (!(context = info[AZ_SHARED_THREAD_MOC_KEY])) {
+			context = [[NSManagedObjectContext alloc] initWithConcurrencyType:NSConfinementConcurrencyType];
+			context.parentContext = [AZDataProxy sharedProxy].managedObjectContext;
+			info[AZ_SHARED_THREAD_MOC_KEY] = context;
+		}
+	}
+	@finally {
+		OSSpinLockUnlock(&lock);
+	}
+	return context;
+}
+
+@end
+
+@implementation NSArray (AZDataProxy)
+
+- (NSArray *) transitCoreDataObjects {
+	NSUInteger count = [self count];
+	if (!count)
+		return self;
+
+	NSManagedObjectContext *t = [NSManagedObjectContext contextForCurrentThread];
+	NSMutableArray *result = [NSMutableArray arrayWithCapacity:count];
+	for (NSManagedObject *object in self)
+		[result addObject:[t objectWithID:object.objectID]];
+
+	return result;
 }
 
 @end

@@ -12,19 +12,58 @@
 
 @interface AZErgoManga : AZCoreDataEntity
 
-@property (nonatomic, retain) NSString * annotation;
-@property (nonatomic, retain) NSString * name;
+@property (nonatomic, retain) NSString *annotation;
+@property (nonatomic, retain) NSString *name;
+@property (nonatomic, retain) NSString *preview;
+@property (nonatomic) NSUInteger order;
 @property (nonatomic, retain) NSSet *tags;
 @property (nonatomic, retain) NSSet *titles;
 @property (nonatomic, retain) AZErgoMangaProgress *progress;
+@property (nonatomic, retain) NSSet *downloads;
+@property (nonatomic, retain) NSDate *fsCheck;
+
++ (instancetype) mangaWithName:(NSString *)name;
++ (instancetype) mangaByName:(NSString *)name;
+
++ (NSArray *) allDownloaded:(BOOL)downloaded;
+
+- (NSComparisonResult) compare:(AZErgoManga *)another;
+- (NSComparisonResult) orderedCompare:(AZErgoManga *)another;
+
+- (NSString *) previewFile;
+- (NSString *) mangaFolder;
+
+- (BOOL) hasToCheckFS;
+- (void) checkFSWithCompletion:(void(^)(AZErgoManga *manga))complete;
+
+@end
+
+@interface AZErgoManga (Titles)
+
++ (NSString *) mainTitle:(NSArray *)titles;
 
 - (NSString *) mainTitle;
 - (NSArray *) additionalTitles;
-- (NSArray *) titleEntities:(BOOL)cyrylic;
+- (NSArray *) titleEntities;
++ (NSArray *) titleEntities:(NSArray *)titles cyrylic:(BOOL)cyrylic;
+
+- (void) removeAllTitles;
+- (void) setAllTitles:(NSArray *)titles;
+
+@end
+
+@interface AZErgoManga (Tags)
 
 - (NSArray *) tagNames;
 
-- (AZErgoMangaTag *) toggle:(BOOL)on tag:(NSUInteger)guid;
+- (void) toggle:(BOOL)on tag:(AZErgoMangaTag *)tag;
+- (AZErgoMangaTag *) toggle:(BOOL)on tagWithGUID:(NSUInteger)guid;
+- (AZErgoMangaTag *) toggle:(BOOL)on tagWithName:(NSString *)name;
+
+- (BOOL) isComplete;
+- (BOOL) isReaded;
+- (BOOL) isDownloaded;
+- (BOOL) isWebtoon;
 
 @end
 

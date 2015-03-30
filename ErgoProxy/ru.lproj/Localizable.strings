@@ -1,0 +1,15 @@
+/* 
+  Localizable.strings
+  ErgoProxy
+
+  Created by Ankh on 03.02.15.
+  Copyright (c) 2015 Ankh. All rights reserved.
+*/
+
+"Progress tags" = "Теги прогресса";
+
+"Type tags" = "Теги типа";
+
+"Rated content (18+)" = "Контент для взрослых";
+
+"Common tags" = "Общие теги";

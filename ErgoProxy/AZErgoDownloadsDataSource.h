@@ -23,7 +23,9 @@ typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 @property (nonatomic) IBOutlet id<AZErgoDownloadsDataSourceDelegate> delegate;
 
 
-- (AZErgoDownloadedAmount) downloaded:(id)node reclaim:(BOOL)reclaim;
+- (AZErgoDownloadedAmount) downloaded:(id)node;
+- (BOOL) unfinished:(id)node;
+
 - (void) expandUnfinishedInOutlineView:(NSOutlineView *)outlineView;
 
 @end

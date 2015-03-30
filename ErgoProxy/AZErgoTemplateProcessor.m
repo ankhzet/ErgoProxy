@@ -45,33 +45,31 @@
 	return [[NSString alloc] initWithData:_closeTag encoding:NSUTF8StringEncoding];
 }
 
+char zeroes[ZEROES_LEN] = {0, 0, 0, 0, 0, 0, 0, 0};
+
 - (void) setOpenTag:(NSString *)openTag {
 	_openTag = [[openTag dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
-
-	char zeroes[ZEROES_LEN] = {0, 0, 0, 0, 0, 0, 0, 0};
 	[_openTag appendBytes:&zeroes length:8];
 }
 
 - (void) setCloseTag:(NSString *)closeTag {
 	_closeTag = [[closeTag dataUsingEncoding:NSUTF8StringEncoding] mutableCopy];
-
-	char zeroes[ZEROES_LEN] = {0, 0, 0, 0, 0, 0, 0, 0};
 	[_closeTag appendBytes:&zeroes length:8];
 }
 
 
-char* search(const char *where, const char *_pattern, NSUInteger count) {
+char* search(const char *where, const char *_pattern, NSInteger count) {
 	char *buff = (void *)where;
 
 	while (*buff) {
 
 		char *pattern = (void *)_pattern;
-		while ((!!count) && (*buff != *pattern)) {
+		while ((count > 0) && (*buff != *pattern)) {
 			buff++;
 			count--;
 		}
 
-		if (*buff != *pattern)
+		if ((count <= 0) || (*buff != *pattern))
 			return NULL;
 
 		char *mem = buff;
@@ -180,14 +178,16 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 								}
 							}
 
-							void *src = *buffer + fullRange.location + fullRange.length;
-							void *dst = *buffer + fullRange.location + valueLen;
+							NSInteger remaining = *length - (NSInteger)(fullRange.location + fullRange.length);
 
-							NSUInteger remaining = *length - (fullRange.location + fullRange.length);
+							if (remaining > 0) {
+								void *src = *buffer + fullRange.location + fullRange.length;
+								void *dst = *buffer + fullRange.location + valueLen;
+								memmove(dst, src, remaining);
+							}
 
-							memmove(dst, src, remaining);
-
-							memcpy(*buffer + fullRange.location, [valueData bytes], valueLen);
+							if (valueLen > 0)
+								memcpy(*buffer + fullRange.location, [valueData bytes], valueLen);
 
 							*length    += diff;
 //							offset     += diff;
@@ -215,6 +215,17 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 
 @implementation AZErgoTextTemplateProcessor
 
++ (NSString *) processTemplate:(NSString *)template withDataSubstitutioner:(AZErgoSubstitutioner *)substitutioner {
+	NSString *tpl = [self template:template];
+
+	if (tpl) {
+		AZErgoTextTemplateProcessor *processor = [self new];
+		return [processor processString:tpl withDataSubstitutioner:substitutioner];
+	}
+
+	return nil;
+}
+
 - (NSString *) processString:(NSString *)template withDataSubstitutioner:(AZErgoSubstitutioner *)substitutioner {
 	NSString *result = nil;
 
@@ -235,6 +246,16 @@ char* search(const char *where, const char *_pattern, NSUInteger count) {
 	}
 
 	return result;
+}
+
++ (NSString *) tplPath:(NSString *)tplName {
+	return [[NSBundle mainBundle] pathForResource:tplName ofType:@"tpl" inDirectory:@"web"];
+}
+
++ (NSString *) template:(NSString *)tplName {
+	NSString *tplPath = [self tplPath:tplName];
+
+	return [NSString stringWithContentsOfFile:tplPath encoding:NSUTF8StringEncoding error:nil];
 }
 
 @end

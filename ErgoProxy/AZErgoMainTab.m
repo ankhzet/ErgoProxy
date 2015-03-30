@@ -13,6 +13,7 @@
 
 #import "AZProxifier.h"
 #import "AZDownload.h"
+#import "AZErgoMangaCommons.h"
 
 #import "AZErgoUpdateWatch.h"
 
@@ -21,7 +22,7 @@
 #import "AZDataProxy.h"
 
 @interface AZErgoMainTab () <AZErgoDownloadStateListener, AZErgoDownloadsDataSourceDelegate> {
-	AZErgoDownloadsDataSource *downloads;
+	AZErgoDownloadsDataSource *_downloads;
 }
 @property (weak) IBOutlet NSOutlineView *ovDownloads;
 @property (strong) IBOutlet AZErgoDownloadDetailsPopover *pDownloadPopover;
@@ -40,11 +41,16 @@ MULTIDELEGATED_INJECT_LISTENER (AZErgoMainTab)
 
 	[[AZDataProxy sharedProxy] subscribeForUpdateNotifications:self
 																										selector:@selector(synkNotification:)];
+
+//	[self delayed:@"auto-download" forTime:2. withBlock:^{
+//		[self filterDownloaded:[AZDownload fetchDownloads] reclaim:YES];
+//		[[AZProxifier sharedProxifier] runDownloaders:YES];
+//	}];
 	return self;
 }
 
 - (void) synkNotification:(NSNotification *)notification {
-	[self updateContents];
+//	[self updateContents];
 }
 
 - (NSString *) tabIdentifier {
@@ -52,9 +58,6 @@ MULTIDELEGATED_INJECT_LISTENER (AZErgoMainTab)
 }
 
 - (void) show {
-	if (!downloads)
-		downloads = (id)self.ovDownloads.delegate;
-
 	[self bindAsDelegateTo:[AZProxifier sharedProxifier] solo:YES];
 
 	[super show];
@@ -64,7 +67,17 @@ MULTIDELEGATED_INJECT_LISTENER (AZErgoMainTab)
 	[self unbindDelegate];
 }
 
+- (AZErgoDownloadsDataSource *) downloads {
+	if ((!_downloads) && !!self.ovDownloads) {
+		_downloads = [(id)self.ovDownloads.dataSource setTo:self.ovDownloads];
+		_downloads.groupped = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED);
+	}
+
+	return _downloads;
+}
+
 - (void) updateContents {
+	self.downloads.groupped = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED);
 	[self delayFetch:YES];
 }
 
@@ -74,24 +87,54 @@ MULTIDELEGATED_INJECT_LISTENER (AZErgoMainTab)
 }
 
 - (void) fetchDownloads:(BOOL)fullFetch {
-	NSArray *data = downloads.data;
+	BOOL filterFinished = PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED);
+
+	__block NSArray *data = self.downloads.data;
 	if (fullFetch) {
-		[downloads setData:nil];
-		downloads.groupped = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED);
-		data = [AZDownload fetchDownloads];
+//		[downloads setData:nil];
+//		downloads.groupped = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED);
+
+		[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+			[context lock];
+			if (filterFinished) {
+				NSMutableArray *all = [[AZErgoManga all] mutableCopy];
+				[all removeObjectsInArray:[AZErgoMangaTag taggedManga:AZErgoTagGroupDownloaded]];
+				[all removeObjectsInArray:[AZErgoMangaTag taggedManga:AZErgoTagGroupReaded]];
+				[all removeObjectsInArray:[AZErgoMangaTag taggedManga:AZErgoTagGroupSuspended]];
+				AZ_Mutable(Array, *filtered);
+				for (AZErgoManga *manga in all)
+					[filtered addObjectsFromArray:[manga.downloads allObjects]];
+
+				data = filtered;
+//				data =  [AZDownload filter:[NSPredicate predicateWithFormat:@"(totalSize == 0) or (downloaded < totalSize)"]
+//														 limit:0];
+			} else {
+				NSArray *mangas = [AZErgoManga allDownloaded:NO];
+				AZ_Mutable(Array, *fetch);
+				for (AZErgoManga *manga in mangas)
+					[fetch addObjectsFromArray:[manga.downloads allObjects]];
+
+				data = fetch;
+			}
+			[context unlock];
+		}];
+
 	}
 
-	NSArray *filtered = [self filterDownloaded:data reclaim:fullFetch];
-	if (PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED))
-		data = filtered;
+	if (filterFinished || fullFetch) {
+		NSArray *filtered = [self filterDownloaded:data reclaim:fullFetch];
+		if (filterFinished)
+			data = filtered;
+	}
 
-	[downloads setData:data];
+	[self.downloads setData:data];
 
 
 	[self.ovDownloads performWithSavedScroll:^{
+//		[self.downloads diff:data];
 		[self.ovDownloads reloadData];
 		//		if (fullFetch)
-		[downloads expandUnfinishedInOutlineView:self.ovDownloads];
+		[self.downloads expandUnfinishedInOutlineView:self.ovDownloads];
 	}];
 }
 
@@ -110,24 +153,41 @@ MULTIDELEGATED_INJECT_LISTENER (AZErgoMainTab)
 	[self delayed:@"downloads-fetch" withBlock:^{
 		[self fetchDownloads:fullFetch];
 
-		[self delayed:@"database-flush" forTime:30. withBlock:^{
+		[self delayed:@"database-flush" forTime:10. withBlock:^{
 			[[AZDataProxy sharedProxy] saveContext];
 		}];
 	}];
 }
 
 - (NSArray *) filterDownloaded:(NSArray *)data reclaim:(BOOL)reclaim {
-	Class downloadClass = [AZDownload class];
-	return [data objectsAtIndexes:[data indexesOfObjectsPassingTest:^BOOL(AZDownload *obj, NSUInteger idx, BOOL *stop) {
-		AZErgoDownloadedAmount downloaded = [downloads downloaded:obj reclaim:reclaim];
-		BOOL show = (downloaded.downloaded < downloaded.total);
+	AZ_MutableI(Array, *filtered, arrayWithCapacity:[data count]);
+	AZ_MutableI(Array, *restarts, arrayWithCapacity:[data count]);
 
-		if ((!show) && [obj isKindOfClass:downloadClass]) {
-			show = HAS_BIT(obj.state, AZErgoDownloadStateProcessing) || (obj.downloaded < obj.totalSize);
+	for (AZDownload *download in data) {
+		BOOL show = HAS_BIT(download.state, AZErgoDownloadStateProcessing);
+
+		if (!show) {
+			BOOL started = NO;
+			show = ![download downloadComplete:&started];
+
+			if (show)
+				[restarts addObject:download];
+
+			show &= started;
 		}
 
-		return show;
-	}]];
+		if (show)
+			[filtered addObject:download];
+	}
+
+	if (reclaim)
+		[self delayed:@"re-register" withBlock:^{
+			AZProxifier *proxifier = [AZProxifier sharedProxifier];
+			for (AZDownload *download in restarts)
+				[proxifier reRegisterDownload:download];
+		}];
+
+	return filtered;
 }
 
 #pragma mark - Delegated & protocol methods

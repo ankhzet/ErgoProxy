@@ -1,5 +1,5 @@
 //
-//  AZErgoConfigurableTableCellView.h
+//  AZConfigurableTableCellView.h
 //  ErgoProxy
 //
 //  Created by Ankh on 15.10.14.
@@ -8,7 +8,7 @@
 
 #import <Cocoa/Cocoa.h>
 
-@interface AZErgoConfigurableTableCellView : NSTableCellView
+@interface AZConfigurableTableCellView : NSTableCellView
 
 @property (nonatomic, weak) id bindedEntity;
 

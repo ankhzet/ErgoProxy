@@ -9,7 +9,7 @@
 #import <Cocoa/Cocoa.h>
 
 @class AZDownload;
-@interface AZErgoDownloadDetailsPopover : NSPopover
+@interface AZErgoDownloadDetailsPopover : NSPopover <NSPopoverDelegate>
 
 @property (weak) IBOutlet NSButton *bPreview;
 @property (weak) IBOutlet NSButton *bPreviewTrash;

@@ -9,9 +9,17 @@
 #import <Foundation/Foundation.h>
 #import "CustomDictionary.h"
 #import "KeyedHolder.h"
-#import "AZErgoConfigurableTableCellView.h"
+#import "AZConfigurableTableCellView.h"
 
-@class RootDictionary;
+#import "AZMultipleTargetDelegate.h"
+
+#import "AZActionIntent.h"
+
+@protocol AZErgoUpdatesDataSourceDelegate <NSObject>
+
+- (void) delegatedAction:(AZActionIntent *)action;
+
+@end
 
 @interface AZGroupableDataSource : NSObject<NSCollectionViewDelegate, NSOutlineViewDataSource, NSOutlineViewDelegate> {
 @protected
@@ -24,24 +32,49 @@
 @property (nonatomic) NSArray *data;
 @property (nonatomic) BOOL groupped;
 @property (nonatomic) BOOL filter;
+@property (nonatomic) NSMutableDictionary *userInfo;
+
+@property (nonatomic) id target;
+
+- (instancetype) setTo:(id)target;
 
 - (void) reload;
+- (void) diff:(NSArray *)newData;
 
 - (id) findOutlineItem:(id)item recursive:(id)holder;
 - (id) cellViewFromSender:(id)sender;
 
+- (void) setUserInfo:(id)object forKey:(id<NSCopying>)key;
+- (id) userInfoForKey:(id<NSCopying>)key;
+
+- (void) expandFirstLevelIn:(NSOutlineView *)outlineView;
+
 @end
 
-@interface AZGroupableDataSource (AccessorsBehaviour)
+@interface AZGroupableDataSource (Sorting)
+
+- (void) sort;
+- (NSArray *) sort:(CustomDictionary *)group keys:(NSArray *)keys;
+
+- (NSArray *) orderedItemsInGroup:(id)group;
+- (id) orderedItemAtIndex:(NSInteger)index inGroup:(id)group;
+- (NSUInteger) itemIndex:(id)item inGroup:(id)group;
+
+@end
+
+
+@interface AZGroupableDataSource (AccessorsBehaviour) <AZMultipleTargetDelegateProtocol>
 
 - (IBAction) actionDelegatedClick:(id)sender;
-
-- (NSArray *) sort:(CustomDictionary *)group keys:(NSArray *)keys;
 
 - (NSString *) outlineView:(NSOutlineView *)outlineView cellTypeForItem:(id)item;
 
 - (CGFloat) groupCellHeight:(id)item;
 - (CGFloat) cellHeight:(id)item;
+
+@end
+
+@interface AZGroupableDataSource (Groupping)
 
 - (NSString *) rootIdentifierFromItem:(id)item;
 - (NSString *) groupIdentifierFromItem:(id)item;

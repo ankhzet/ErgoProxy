@@ -16,6 +16,8 @@ extern NSString *const kDPParameterModelName;
 extern NSString *const kDPParameterStorageFile;
 extern NSString *const kDPParameterSyncDirectory;
 
+typedef void(^AZSecureCoreDataTransactionBlok)(NSManagedObjectContext *context, BOOL *propagateChanges);
+
 @interface AZDataProxy : NSObject
 
 // CoreData stuff
@@ -52,13 +54,18 @@ extern NSString *const kDPParameterSyncDirectory;
 + (instancetype) sharedProxy;
 
 // flush CoreData to storage...
--(BOOL) saveContext;
+- (void) saveContext;
 
 - (NSArray *)executeFetchRequest:(NSFetchRequest *)request error:(NSError **)error;
+- (NSUInteger)countForFetchRequest:(NSFetchRequest *)request error:(NSError **)error;
+
 - (NSEntityDescription *) entityForName:(NSString *)name;
 - (id) insertNewObjectForEntityForName:(NSString *)name;
 - (void) deleteObject:(NSManagedObject *)object;
+- (id) objectWithID:(NSManagedObjectID *)id;
+
 - (void) performOnFetchThread:(dispatch_block_t)block;
+- (BOOL) securedTransaction:(AZSecureCoreDataTransactionBlok)block;
 
 // absolute url for local data storage (e.g. database file)
 -(NSURL *) localDataDirURL;
@@ -76,3 +83,12 @@ extern NSString *const kDPParameterSyncDirectory;
 
 
 @end
+
+@interface NSManagedObjectContext (PerThreadContext)
++ (NSManagedObjectContext *) contextForCurrentThread;
+@end;
+
+@interface NSArray (AZDataProxy)
+- (NSArray *) transitCoreDataObjects;
+@end
+

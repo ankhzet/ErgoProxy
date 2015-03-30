@@ -1,0 +1,96 @@
+<?xml version="1.0" encoding="UTF-8" standalone="no"?>
+<document type="com.apple.InterfaceBuilder3.Cocoa.XIB" version="3.0" toolsVersion="4514" systemVersion="12F45" targetRuntime="MacOSX.Cocoa" propertyAccessControl="none" useAutolayout="YES">
+    <dependencies>
+        <deployment defaultVersion="1080" identifier="macosx"/>
+        <plugIn identifier="com.apple.InterfaceBuilder.CocoaPlugin" version="4514"/>
+    </dependencies>
+    <objects>
+        <customObject id="-2" userLabel="File's Owner" customClass="AZErgoTabPreferencesWindowController">
+            <connections>
+                <outlet property="contentView" destination="4gZ-Bn-T0z" id="pH7-2b-UNQ"/>
+                <outlet property="window" destination="1" id="3"/>
+            </connections>
+        </customObject>
+        <customObject id="-1" userLabel="First Responder" customClass="FirstResponder"/>
+        <customObject id="-3" userLabel="Application"/>
+        <window title="Tab preferences" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" oneShot="NO" wantsToBeColor="NO" visibleAtLaunch="NO" animationBehavior="default" id="1">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" resizable="YES"/>
+            <windowPositionMask key="initialPositionMask" leftStrut="YES" rightStrut="YES" topStrut="YES" bottomStrut="YES"/>
+            <rect key="contentRect" x="196" y="240" width="549" height="270"/>
+            <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
+            <view key="contentView" id="2">
+                <rect key="frame" x="0.0" y="0.0" width="549" height="270"/>
+                <autoresizingMask key="autoresizingMask"/>
+                <subviews>
+                    <view translatesAutoresizingMaskIntoConstraints="NO" id="1Vs-Ly-hsK">
+                        <rect key="frame" x="0.0" y="0.0" width="549" height="41"/>
+                        <autoresizingMask key="autoresizingMask"/>
+                        <subviews>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="el4-tl-UFK">
+                                <rect key="frame" x="401" y="13" width="76" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Apply" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="uj0-VY-K5U">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="actionApply:" target="-2" id="cbP-qs-N1J"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="JGk-jJ-4vD">
+                                <rect key="frame" x="477" y="13" width="58" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Ok" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="GEW-uM-Pwo">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="actionOk:" target="-2" id="1j9-Zq-0jL"/>
+                                </connections>
+                            </button>
+                            <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="LAs-NC-VPi">
+                                <rect key="frame" x="319" y="13" width="82" height="32"/>
+                                <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                <buttonCell key="cell" type="push" title="Cancel" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Eda-Kp-aEY">
+                                    <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
+                                    <font key="font" metaFont="system"/>
+                                    <string key="keyEquivalent" base64-UTF8="YES">
+Gw
+</string>
+                                </buttonCell>
+                                <connections>
+                                    <action selector="actionCancel:" target="-2" id="WsX-xE-Jk0"/>
+                                </connections>
+                            </button>
+                        </subviews>
+                        <constraints>
+                            <constraint firstItem="JGk-jJ-4vD" firstAttribute="leading" secondItem="el4-tl-UFK" secondAttribute="trailing" constant="12" symbolic="YES" id="32d-A6-tqi"/>
+                            <constraint firstItem="el4-tl-UFK" firstAttribute="top" secondItem="1Vs-Ly-hsK" secondAttribute="top" id="7Lc-eF-U0m"/>
+                            <constraint firstAttribute="bottom" secondItem="JGk-jJ-4vD" secondAttribute="bottom" constant="20" symbolic="YES" id="M7c-rW-ABM"/>
+                            <constraint firstAttribute="bottom" secondItem="el4-tl-UFK" secondAttribute="bottom" constant="20" symbolic="YES" id="SIc-zB-Tg6"/>
+                            <constraint firstAttribute="bottom" secondItem="LAs-NC-VPi" secondAttribute="bottom" constant="20" symbolic="YES" id="Xj6-YL-jdT"/>
+                            <constraint firstAttribute="trailing" secondItem="JGk-jJ-4vD" secondAttribute="trailing" constant="20" symbolic="YES" id="m2d-TY-Dur"/>
+                            <constraint firstItem="el4-tl-UFK" firstAttribute="leading" secondItem="LAs-NC-VPi" secondAttribute="trailing" constant="12" symbolic="YES" id="sfA-ad-nda"/>
+                        </constraints>
+                    </view>
+                    <customView translatesAutoresizingMaskIntoConstraints="NO" id="4gZ-Bn-T0z">
+                        <rect key="frame" x="0.0" y="49" width="549" height="221"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </customView>
+                </subviews>
+                <constraints>
+                    <constraint firstItem="1Vs-Ly-hsK" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="Aci-Cj-hTD"/>
+                    <constraint firstAttribute="trailing" secondItem="1Vs-Ly-hsK" secondAttribute="trailing" id="Hjf-dh-aTe"/>
+                    <constraint firstItem="1Vs-Ly-hsK" firstAttribute="top" secondItem="4gZ-Bn-T0z" secondAttribute="bottom" constant="8" symbolic="YES" id="MGj-JB-qCS"/>
+                    <constraint firstItem="4gZ-Bn-T0z" firstAttribute="leading" secondItem="2" secondAttribute="leading" id="isY-NC-nUr"/>
+                    <constraint firstAttribute="trailing" secondItem="4gZ-Bn-T0z" secondAttribute="trailing" id="kv5-Rm-HgK"/>
+                    <constraint firstItem="4gZ-Bn-T0z" firstAttribute="top" secondItem="2" secondAttribute="top" id="nch-BG-LvK"/>
+                    <constraint firstAttribute="bottom" secondItem="1Vs-Ly-hsK" secondAttribute="bottom" id="vhh-1g-lLn"/>
+                </constraints>
+            </view>
+            <connections>
+                <outlet property="delegate" destination="-2" id="4"/>
+            </connections>
+        </window>
+    </objects>
+</document>

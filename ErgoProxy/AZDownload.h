@@ -8,6 +8,8 @@
 
 #import "AZCoreDataEntity.h"
 
+#import "AZMultipleTargetDelegate.h"
+
 typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 	AZErgoDownloadStateNone        = 0 << 0, // newly created download
 	AZErgoDownloadStateProcessing  = 1 << 1, // task in process
@@ -29,12 +31,11 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 @end
 
-@class AZDownloadParams, AZProxifier, AZStorage;
+@class AZDownloadParams, AZProxifier, AZStorage, AZErgoManga, AZErgoUpdateChapter;
 @interface AZDownload : AZCoreDataEntity
 
-@property (nonatomic, retain) NSURL *sourceURL;
+@property (nonatomic, retain) NSString *sourceURL;
 
-@property (nonatomic) NSString *manga;
 @property (nonatomic) float chapter;
 @property (nonatomic) NSInteger page;
 
@@ -52,27 +53,41 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 @property (nonatomic, retain) AZProxifier *proxifier;
 @property (nonatomic, retain) AZStorage *storage;
 
+@property (nonatomic, retain) AZErgoManga *forManga;
+@property (nonatomic, retain) AZErgoUpdateChapter *updateChapter;
+
 @property (nonatomic, retain) NSString *proxifierHash;
 @property (nonatomic) NSUInteger scanID;
 
 @property (nonatomic) id error;
 
 - (BOOL) isBonusChapter;
+- (BOOL) isFinished;
+- (BOOL) isUnfinished;
+- (BOOL) downloadComplete:(BOOL *)isStarted;
+
+- (NSComparisonResult) compareState:(AZDownload *)other;
+
 - (NSUInteger) indexHash;
 
-+ (NSArray *) fetchDownloads;
 + (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter;
++ (NSUInteger) manga:(NSString *)manga countChapterDownloads:(float)chapter;
++ (NSArray *) mangaDownloads:(NSString *)manga limit:(NSUInteger)limit;
 
 - (void) downloadError:(id)error;
 
 - (void) setDownloadedAmount:(NSUInteger)_downloaded;
+
+- (void) reset:(AZDownloadParams *)withParams;
+
+- (void) fixState;
 
 @end
 
 
 @interface AZDownload (Instantiation)
 
-+ (AZDownload *) downloadForURL:(NSURL *)url withParams:(AZDownloadParams *)params;
++ (AZDownload *) downloadForURL:(NSString *)url withParams:(AZDownloadParams *)params;
 
 @end
 
@@ -93,7 +108,7 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 - (NSDictionary *) fetchParams:(BOOL)base64;
 
-+ (NSURL *) storageToken:(id)jsonProxifierResponse;
++ (NSString *) storageToken:(id)jsonProxifierResponse;
 + (NSString *) hashToken:(id)jsonProxifierResponse;
 + (NSUInteger) scanToken:(id)jsonProxifierResponse;
 
@@ -106,7 +121,7 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 @end
 
-@interface AZDownload (Delegation)
+@interface AZDownload (Delegation) <AZMultipleTargetDelegateProtocol>
 
 - (void) notifyStateChanged;
 - (void) notifyProgressChanged;

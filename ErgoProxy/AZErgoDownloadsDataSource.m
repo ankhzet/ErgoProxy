@@ -12,6 +12,7 @@
 #import "AZProxifier.h"
 #import "AZErgoUpdatesCommons.h"
 
+#import "AZErgoMangaCommons.h"
 
 @implementation AZErgoDownloadsDataSource
 
@@ -23,30 +24,39 @@
 	self.filter = rootNodes != groups;
 }
 
-- (AZErgoDownloadedAmount) downloaded:(id)node reclaim:(BOOL)reclaim {
+- (AZErgoDownloadedAmount) downloaded:(id)node {
 	AZErgoDownloadedAmount amount = {.total = 0, .downloaded = 0};
 
 	if ([CustomDictionary isDictionary:node]) {
 		CustomDictionary *dic = node;
 		for (id key in [dic allKeys]) {
-			AZErgoDownloadedAmount sub = [self downloaded:dic[key] reclaim:reclaim];
+			AZErgoDownloadedAmount sub = [self downloaded:dic[key]];
 			amount.total += sub.total;
 			amount.downloaded += MIN(sub.downloaded, sub.total);
 		}
 	} else {
-		amount.total = ((AZDownload *)node).totalSize;
-		amount.downloaded = ((AZDownload *)node).downloaded;
-//		if (!amount.total)
-//			amount.total = 1;
-
-		if (reclaim && ((amount.downloaded < amount.total) || !amount.total))
-			[[AZProxifier sharedProxifier] reRegisterDownload:node];
+		AZDownload *download = ((AZDownload *)node);
+		amount.total = download.totalSize;
+		amount.downloaded = download.downloaded;
 	}
 
 	return amount;
 }
 
-#define _DLD_UNFINISHED(_amount) ((!_amount.total) || (_amount.downloaded < _amount.total))
+- (BOOL) unfinished:(id)node {
+	if ([CustomDictionary isDictionary:node]) {
+		CustomDictionary *dic = node;
+		for (id key in [dic allKeys])
+			if ([self unfinished:dic[key]])
+				return YES;
+
+	} else {
+		AZDownload *download = node;
+		return (download.lastDownloadIteration <= [NSDate timeIntervalSinceReferenceDate]) && !download.isFinished;
+	}
+
+	return NO;
+}
 
 - (void) expandUnfinishedInOutlineView:(NSOutlineView *)outlineView {
 	[outlineView collapseItem:nil collapseChildren:YES];
@@ -68,7 +78,7 @@
 
 	for (CustomDictionary *item in items) {
 		BOOL expandable = [self outlineView:outlineView isItemExpandable:item];
-		BOOL expand = expandable && _DLD_UNFINISHED([self downloaded:item reclaim:NO]);
+		BOOL expand = expandable && [self unfinished:item];
 		if (expand)
 			[toExpand addObject:item];
 	}
@@ -82,7 +92,7 @@
 
 - (IBAction) actionDelegatedClick:(id)sender {
 	if (self.delegate) {
-		AZErgoConfigurableTableCellView *dcv = [self cellViewFromSender:sender];
+		AZConfigurableTableCellView *dcv = [self cellViewFromSender:sender];
 		if (!dcv) return;
 
 		[self.delegate showEntity:dcv.bindedEntity detailsFromSender:sender];
@@ -127,13 +137,13 @@
 
 			AZDownload *anyDownload = [[asDictionary allValues] firstObject];
 			if (anyDownload)
-				mangaName = anyDownload.manga;
+				mangaName = anyDownload.forManga.name;
 		} else
-			mangaName = ((AZDownload *)node).manga;
+			mangaName = ((AZDownload *)node).forManga.name;
 
 	AZErgoUpdateWatch *related = nil;
 	if (!!mangaName)
-		related = [AZErgoUpdateWatch filter:[NSPredicate predicateWithFormat:@"manga ==[c] %@", mangaName] limit:1];
+		related = [AZErgoUpdateWatch any:@"manga == %@", mangaName];
 
 	return related;
 }
@@ -151,21 +161,23 @@
 
 			AZDownload *anyDownload = [[(CustomDictionary *)node allValues] firstObject];
 			if (anyDownload) {
-				manga = anyDownload.manga;
+				return anyDownload.updateChapter;
+				manga = anyDownload.forManga.name;
 				chapterIdx = @(anyDownload.chapter);
 			} else {
 				AZErgoUpdateWatch *relatedManga = [self relatedManga:node];
 				manga = relatedManga.manga;
 			}
 		} else {
-			manga = ((AZDownload *)node).manga;
+			return ((AZDownload *)node).updateChapter;
+			manga = ((AZDownload *)node).forManga.name;
 			chapterIdx = @(((AZDownload *)node).chapter);
 		}
 
 	AZErgoUpdateChapter *related = nil;
 
 	if (!(!chapterIdx || !manga))
-		related = [AZErgoUpdateChapter filter:[NSPredicate predicateWithFormat:@"watch.manga ==[c] %@ and abs(idx - %lf) < 0.01", manga, [chapterIdx floatValue]] limit:1];
+		related = [AZErgoUpdateChapter any:@"watch.manga ==[c] %@ and abs(idx - %lf) < 0.01", manga, [chapterIdx floatValue]];
 
 	return related;
 }
@@ -183,10 +195,11 @@
 }
 
 - (id) rootNodeOf:(AZDownload *)item {
-	return item.manga;
+	return item.forManga.name;
 }
 
 - (id) groupNodeOf:(AZDownload *)item {
+//	[AZErgoMangaChapter formatChapterID:<#(float)#>]
 	return [NSString stringWithFormat:@"%06.1f",item.chapter];
 }
 

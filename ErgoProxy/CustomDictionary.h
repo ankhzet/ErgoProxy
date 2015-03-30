@@ -22,6 +22,8 @@
 - (NSUInteger) count;
 - (NSArray *) allKeys;
 - (NSArray *) allValues;
+- (NSArray *) allKeysForObject:(id)object;
+
 + (BOOL) isDictionary:(id)object;
 
 @end

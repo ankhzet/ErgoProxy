@@ -54,7 +54,7 @@
 	if (![self synkable])
 		return NO;
 
-	NSLog(@"%s", __PRETTY_FUNCTION__);
+//	NSLog(@"%s", __PRETTY_FUNCTION__);
 	if (fromRemote) {
 		remoteChanges = changes;
 		return YES;
@@ -158,7 +158,7 @@
 		if ([self synkable]) {
 			[self addRemoteStore:coordinator];
 		} else {
-			NSLog(@"Not a synk-enabled device (or disabled in preferences) - using a local store");
+			DDLogVerbose(@"Not a synk-enabled device (or disabled in preferences) - using a local store");
 			[self addPersistentStore:coordinator];
 		}
 
@@ -199,24 +199,25 @@
 }
 
 - (void)remoteChangesImport:(NSNotification *)notification {
-	NSLog(@"Merging in changes from remote storage...");
+	DDLogVerbose(@"Merging in changes from remote storage...");
 
 	[self performSynkIfRequiredFromRemote:YES withChanges:notification.userInfo];
 	NSManagedObjectContext *moc = [self managedObjectContext];
 
 	[moc performBlock:^{
 		[moc mergeChangesFromContextDidSaveNotification:notification];
-		if (![self saveContext])
-			NSLog(@"Strange CoreData behavior, context save after merge failed.");
-		else
+		[self saveContext];
+////			NSLog(@"Strange CoreData behavior, context save after merge failed.");
+//		else
 			[self notifyChangedWithUserInfo:[notification userInfo]];
 	}];
 }
 
 - (void)localChangesSave:(NSNotification *)notification {
-	NSLog(@"Changes in local storage...");
+//	NSLog(@"Changes in local storage...");
 
-	[self performSynkIfRequiredFromRemote:NO withChanges:notification.userInfo];
+	[self.managedObjectContext mergeChangesFromContextDidSaveNotification:notification];
+//	[self performSynkIfRequiredFromRemote:NO withChanges:notification.userInfo];
 }
 
 /*! @brief Save CoreData db updates. If there are related file updates - they will be pushed on to remote storage. */

@@ -9,26 +9,6 @@
 </div>
 <style>
 
-.magnifier {
-	display: none;
-	position: absolute;
-	z-index: 9999;
-	border: 1px solid black;
-	border-radius: 4px;
-	box-shadow: 1px 1px 3px 0.5 #202020;
-	background-color: #ddd;
-	padding: 2px;
-}
-.magnifier .m-inner {
-	border: 1px inset white;
-	border-radius: 3px;
-	background-color: #ddd;
-	background-repeat: no-repeat;
-}
-.magnifier img {
-	display: none;
-}
-
 .sidebar {
 	height: auto;
 	position: absolute;
@@ -57,6 +37,15 @@
 {
 	content: '';
 }
+
+#cacheholder #cache img {
+	max-width: 100%;
+	max-height: {{view.height}}px;
+	margin: 0;
+	border: 1px solid #88e;
+	border-radius: 3px;
+}
+
 </style>
 
 <script src="/theme/js/magnifier.js"></script>
@@ -86,41 +75,35 @@ function fullscreen(src) {
 }
 
 function locate(chapter, delta) {
+	var location = '/reader/{{manga.root}}/' + ((chapter > 0) ? '/' + chapter : '');
 	var params = [];
 	if ($('.fs').hasClass('f')) params.push('fullscreen=1');
 	if (delta) params.push('delta=' + delta);
-	var location = (chapter > 0)
-		? '/reader/{{manga_root}}/' + chapter
-		: '/reader/{{manga_root}}';
 	if (params.length) location += '?' + params.join('&');
 	document.location = location;
 }
 
-$('.prev').click(function() { locate({{chapter_id}},-1); });
-$('.next').click(function() { locate({{chapter_id}}, 1); });
-
-$('.manhwa').click(function() {
-	$.getJSON('/mm/{{manga_root}}?param=1')
-		.success(function(data) {locate({{chapter_id}})});
-});
+$('.prev').click(function() { locate({{manga.chapter.id}},-1); });
+$('.next').click(function() { locate({{manga.chapter.id}}, 1); });
 
 $(function(){
 	var chapter = {
-		manga_id: {{manga_id}},
-		manga: {{MANGA_TITLES:json}},
-		chapter: {{chapter_id}},
-		page: parseInt((m = document.location.hash.match(/page(\d+)/i)) ? m[1] : {{page_id}}),
-		manhwa: false,
+		manga_id: "{{manga.id}}",
+		manga: {{manga.titles:json}},
+		chapter: {{manga.chapter.id}},
+		page: parseInt((m = document.location.hash.match(/page(\d+)/i)) ? m[1] : {{manga.page_id}}),
+		downloaded: {{manga.is_downloaded:bool}},
+		manhwa: {{manga.is_webtoon:bool}},
 		original : false,
-		root: "/manga/{{MANGA_ROOT}}/{{chapter_id:chapter}}/",
-		pages: {{SCAN_LIST:json}},
+		root: "/manga/{{manga.root}}/{{manga.chapter.id:chapter}}/",
+		pages: {{manga.scans:json}},
 		holder: $('#cache'),
 
 		scan_to: function(delta) {
 			var nextPage = this.page + delta;
 			var prev = $('#page' + this.page);
 			var next = $('#page' + nextPage);
-			var nextOnNextChapter = (nextPage < 1) || (nextPage > this.pages.length);
+			var nextOnNextChapter = (this.manhwa && (!!delta)) || (nextPage < 1) || (nextPage > this.pages.length);
 			var noNeedToLoad = (!!next.length) || nextOnNextChapter;
 			if (!noNeedToLoad) {
 				this.onload($('#cache img').length ? this.page : 0);
@@ -130,10 +113,10 @@ $(function(){
 				if (!this.manhwa && prev) $(prev).hide();
 				if (!this.manhwa && next) $(next).show();
 				this.page += delta;
-				$AJAX('/progress/{{manga_root}}/{{chapter_id:chapter}}/' + this.page, {});
+				$AJAX('/progress/{{manga.root}}/{{manga.chapter.id}}/' + this.page, {});
 				this.scan_num(this.page);
 			} else
-				locate({{chapter_id}}, delta);
+				locate({{manga.chapter.id}}, delta);
 		},
 
 		scan_prev: function () { this.scan_to(-1); },
@@ -158,7 +141,7 @@ $(function(){
 				return;
 			}
 			var a = $('<a id="page' + (idx + 1) + '">');
-			var show = false || (this.page ? (this.page == idx + 1) : !idx);
+			var show = this.manhwa || (this.page ? (this.page == idx + 1) : !idx);
 			a.toggle(show);
 			if (show)
 				this.scan_num(idx + 1);
@@ -186,7 +169,7 @@ $(function(){
 			this.loading = [idx + 1, img];
 			a.append($('<a name="page' + (idx + 1) + '" />'));
 			a.append(img);
-			if (!(this.pages[idx + 1] && false)) {
+			if (!(this.pages[idx + 1] && this.manhwa)) {
 				a.click(function() {chapter.scan_next()});
 				img.css('cursor', 'pointer');
 			}
@@ -211,7 +194,7 @@ $(function(){
 
 			$('.preview').click(function() {
 				var page = chapter.root + chapter.pages[chapter.page - 1];
-				document.location = '/preview/{{manga_root}}?origin=' + page;
+				document.location = '/preview/{{manga.root}}?origin=' + page;
 			});
 
 			$(window).keydown(function(event) {
@@ -223,7 +206,7 @@ $(function(){
 					chapter.scan_next(this);
 					break;
 				case 70: // f
-					fullscreen($('.fs'));
+//					fullscreen($('.fs'));
 					break;
 				}
 			});

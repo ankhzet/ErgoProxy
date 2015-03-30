@@ -1,20 +1,20 @@
 //
-//  AZErgoConfigurableTableCellView.m
+//  AZConfigurableTableCellView.m
 //  ErgoProxy
 //
 //  Created by Ankh on 15.10.14.
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import "AZErgoConfigurableTableCellView.h"
+#import "AZConfigurableTableCellView.h"
 #import "CustomDictionary.h"
 #import "KeyedHolder.h"
 
 #import "AZMultipleTargetDelegate.h"
 
-MULTIDELEGATED_INJECT_LISTENER(AZErgoConfigurableTableCellView)
+MULTIDELEGATED_INJECT_LISTENER(AZConfigurableTableCellView)
 
-@implementation AZErgoConfigurableTableCellView
+@implementation AZConfigurableTableCellView
 @synthesize bindedEntity = _bindedEntity;
 
 - (void) setBindedEntity:(id)bindedEntity {
@@ -37,13 +37,15 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoConfigurableTableCellView)
 
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
 	self.bindedEntity = entity;
+
+	self.textField.stringValue = [self plainTitle] ?: @"";
 }
 
 - (NSString *) plainTitle {
 	if ([CustomDictionary isDictionary:self.bindedEntity]) {
 		KeyedHolder *holder = ((CustomDictionary *)self.bindedEntity)->owner;
 		id object = holder->holdedObject;
-		return [object isKindOfClass:[NSString class]] ? [object capitalizedString] : [object description];
+		return [object isKindOfClass:[NSString class]] ? [object uppercaseFirstCharString] : [object description];
 	}
 
 	return [self.bindedEntity description] ?: @"<!plain title unavailable>";

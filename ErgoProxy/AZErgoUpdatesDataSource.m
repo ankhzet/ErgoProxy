@@ -15,30 +15,6 @@
 
 #import "AZErgoUpdatesGroupCellView.h"
 
-@implementation AZErgoUpdateActionIntent
-@synthesize action, initiator, source, initiatorContainedBy, initiatorRelatedEntity;
-
-+ (instancetype) action:(NSString *)action intentFrom:(AZErgoUpdatesDataSource *)source withSender:(id)sender {
-	AZErgoUpdateActionIntent *intent = [self new];
-
-	intent->action = action;
-	intent->source = source;
-	intent->initiator = sender;
-
-	AZErgoUpdatesCellView *container = [source cellViewFromSender:sender];
-
-	intent->initiatorContainedBy = container;
-	intent->initiatorRelatedEntity = container.bindedEntity;
-
-	return intent;
-}
-
-- (BOOL) is:(NSString *)actionIdentifier {
-	return (action == actionIdentifier) || [action isEqualToString:actionIdentifier];
-}
-
-@end
-
 @implementation AZErgoUpdatesDataSource
 
 - (CGFloat) cellHeight:(id)item {
@@ -70,20 +46,11 @@
 }
 
 - (NSArray *) sort:(CustomDictionary *)group keys:(NSArray *)keys {
-	return [[[keys sortedArrayUsingSelector:@selector(compare:)] reverseObjectEnumerator] allObjects];
+	return [keys sortedArrayUsingSelector:@selector(compare:)];
 }
 
 - (BOOL)outlineView:(NSOutlineView *)outlineView isItemExpandable:(id)item {
-	return self.expanded ? [CustomDictionary isDictionary:item] : [item isKindOfClass:[GroupsDictionary class]];
-}
-
-- (IBAction) actionDelegatedClick:(id)sender {
-	if (!self.delegate)
-		return;
-
-	NSString *action = [sender respondsToSelector:@selector(identifier)] ? [sender identifier] : nil;
-
-	[self.delegate delegatedAction:[AZErgoUpdateActionIntent action:action intentFrom:self withSender:sender]];
+	return self.expanded ? [CustomDictionary isDictionary:item] : [GroupsDictionary isDictionary:item];
 }
 
 @end

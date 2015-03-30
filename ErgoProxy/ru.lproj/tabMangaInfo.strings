@@ -1,0 +1,36 @@
+
+/* Class = "NSTextFieldCell"; title = "Теги:"; ObjectID = "9am-JO-p2Z"; */
+"9am-JO-p2Z.title" = "Теги:";
+
+/* Class = "NSTextFieldCell"; placeholderString = "Теги"; ObjectID = "Bcz-vO-cAU"; */
+"Bcz-vO-cAU.placeholderString" = "Теги";
+
+/* Class = "NSTextFieldCell"; title = "Описание:"; ObjectID = "BwQ-6G-pz3"; */
+"BwQ-6G-pz3.title" = "Описание:";
+
+/* Class = "NSButtonCell"; title = "Прочитана"; ObjectID = "CFk-XU-odc"; */
+"CFk-XU-odc.title" = "Прочитана";
+
+/* Class = "NSButtonCell"; title = "Читать"; ObjectID = "NZm-oS-rGh"; */
+"NZm-oS-rGh.title" = "Читать";
+
+/* Class = "NSButtonCell"; title = "Загружена"; ObjectID = "Rtm-ud-hIA"; */
+"Rtm-ud-hIA.title" = "Загружена";
+
+/* Class = "NSButtonCell"; title = "Завершена"; ObjectID = "V3t-9N-i6O"; */
+"V3t-9N-i6O.title" = "Завершена";
+
+/* Class = "NSBox"; title = "Опции"; ObjectID = "VLN-mv-tJ8"; */
+"VLN-mv-tJ8.title" = "Опции";
+
+/* Class = "NSBox"; title = "Общее"; ObjectID = "VYV-0o-sZs"; */
+"VYV-0o-sZs.title" = "Общее";
+
+/* Class = "NSTextFieldCell"; title = "Названия:"; ObjectID = "WqR-7s-Fcp"; */
+"WqR-7s-Fcp.title" = "Названия:";
+
+/* Class = "NSTextFieldCell"; title = "Папка:"; ObjectID = "nJS-Iz-wOL"; */
+"nJS-Iz-wOL.title" = "Папка:";
+
+/* Class = "NSButtonCell"; title = "Удалить"; ObjectID = "ybo-kb-6ua"; */
+"ybo-kb-6ua.title" = "Удалить";

@@ -6,8 +6,8 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import "AZErgoConfigurableTableCellView.h"
+#import "AZConfigurableTableCellView.h"
 
-@interface AZErgoUpdatesCellView : AZErgoConfigurableTableCellView
+@interface AZErgoUpdatesCellView : AZConfigurableTableCellView
 
 @end

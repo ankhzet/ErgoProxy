@@ -25,7 +25,7 @@
 - (void) configureForEntity:(AZDownload *)entity inOutlineView:(NSOutlineView *)view {
 	self.bindedEntity = entity;
 
-	self.tfURL.stringValue = [entity.sourceURL path];
+	self.tfURL.stringValue = [[NSURL URLWithString:entity.sourceURL] path];
 	self.tfPage.integerValue = entity.page;
 	self.tfChapter.floatValue = entity.chapter;
 

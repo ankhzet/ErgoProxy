@@ -6,9 +6,9 @@
 //  Copyright (c) 2014 Ankh. All rights reserved.
 //
 
-#import "AZErgoConfigurableTableCellView.h"
+#import "AZConfigurableTableCellView.h"
 
-@interface AZErgoDownloadGroupCellView : AZErgoConfigurableTableCellView
+@interface AZErgoDownloadGroupCellView : AZConfigurableTableCellView
 
 @property (weak) IBOutlet NSTextField *tfGroupTitle;
 @property (weak) IBOutlet NSTextField *tfDownloadsCount;

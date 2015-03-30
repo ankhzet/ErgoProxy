@@ -16,11 +16,14 @@
 #import "AZDownloadParameter.h"
 #import "AZDownloadParams.h"
 
+#import "AZErgoDownloadPrefsWindowController.h"
+
 #import "AZDataProxy.h"
 
 #import "AZErgoDownloadsDataSource.h"
 
 #import "AZErgoUpdatesCommons.h"
+#import "AZErgoMangaCommons.h"
 
 @implementation AZErgoEntityDetailsPresenter {
 @public
@@ -37,6 +40,10 @@
 
 - (void) presentEntity:(id)entity detailsIn:(AZErgoDownloadDetailsPopover *)popover {
 	[self presenterForEntity:entity in:popover];
+}
+
+- (void) presentAction:(void(^)(AZErgoEntityDetailsPresenter *presenter))block {
+	block(self);
 }
 
 - (NSString *) detailsTitle {
@@ -125,7 +132,7 @@
 
 	if (!mangaTitle) {
 		if (pageIDX)
-			mangaTitle = download.manga;
+			mangaTitle = download.forManga.mainTitle;
 		else {
 			if ([GroupsDictionary isDictionary:self.entity])
 				mangaTitle = [self plainTitle];
@@ -133,7 +140,7 @@
 				CustomDictionary *downloads = self.entity;
 				AZDownload *anyDownload = [[downloads allValues] firstObject];
 				if (anyDownload)
-					mangaTitle = anyDownload.manga;
+					mangaTitle = anyDownload.forManga.mainTitle;
 			}
 		}
 	}
@@ -161,15 +168,20 @@
 - (void) presentEntity:(id)entity detailsIn:(AZErgoDownloadDetailsPopover *)popover {
 	[self presenterForEntity:entity in:popover];
 
-	[popover.tfURL setCollapsed:NO];
+	[[popover.tfURL superview] setCollapsed:NO];
 	[popover.bPreview setCollapsed:NO];
 
-	popover.tfURL.stringValue = [download.sourceURL absoluteString];
-	popover.tfWidth.stringValue = [NSString stringWithFormat:@"Width: %@ or less", [download.downloadParameters downloadParameter:kDownloadParamMaxWidth].value];
-	popover.tfHeight.stringValue = [NSString stringWithFormat:@"Height: %@ or less", [download.downloadParameters downloadParameter:kDownloadParamMaxHeight].value];
-	popover.tfQuality.stringValue = [NSString stringWithFormat:@"Quality: %@", [download.downloadParameters downloadParameter:kDownloadParamQuality].value];
+#define _LABEL(_key, _add) ({\
+id val = [download.downloadParameters downloadParameter:(_key)].value;\
+[NSString stringWithFormat:(_add), (!val) ? @"server-default" : val];\
+})
 
-	popover.tfStorage.stringValue = download.storage.url ? [download.storage.url absoluteString] : @"<storage not saved to db!>";
+	popover.tfURL.stringValue = download.sourceURL;
+	popover.tfWidth.stringValue = _LABEL(kDownloadParamMaxWidth, @"Width: %@ or less");
+	popover.tfHeight.stringValue = _LABEL(kDownloadParamMaxHeight, @"Height: %@ or less");
+	popover.tfQuality.stringValue = _LABEL(kDownloadParamQuality, @"Quality: %@");
+
+	popover.tfStorage.stringValue = download.storage.url ? download.storage.url : @"<storage not saved to db!>";
 
 	popover.tfScanID.stringValue = [NSString stringWithFormat:@"scans/id/%lu",download.scanID];
 
@@ -191,18 +203,6 @@
 	popover.tfError.stringValue = download.error ? download.error : @"";
 }
 
-- (void) dropHash {
-	[download downloadError:nil];
-	download.proxifierHash = nil;
-	[[AZProxifier sharedProxifier] reRegisterDownload:download];
-	UNSET_BIT(download.state, AZErgoDownloadStateResolved);
-	UNSET_BIT(download.state, AZErgoDownloadStateAquired);
-	UNSET_BIT(download.state, AZErgoDownloadStateDownloaded);
-	download.downloaded = 0;
-
-	self.popover.tfHash.stringValue = @"";
-}
-
 - (void) deleteEntity {
 	[download delete];
 	[[AZDataProxy sharedProxy] notifyChangedWithUserInfo:nil];
@@ -213,11 +213,13 @@
 }
 
 - (void) browseEntityStorage {
-	[[NSWorkspace sharedWorkspace] openURL:download.storage.url];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:download.storage.url]];
 }
 
 - (void) browseEntity {
-	[[NSWorkspace sharedWorkspace] openURL:[download.storage.url URLByAppendingPathComponent:[NSString stringWithFormat:@"scans/id/%lu",download.scanID]]];
+	NSURL *url = [NSURL URLWithString:download.storage.url];
+	url = [url URLByAppendingPathComponent:[NSString stringWithFormat:@"scans/id/%lu",download.scanID]];
+	[[NSWorkspace sharedWorkspace] openURL:url];
 }
 
 - (void) setLockState:(BOOL)lock {
@@ -251,6 +253,28 @@
 				[self recursive:sub lock:lock];
 }
 
+- (void) recursiveDrop:(id)sender withPrefs:(AZDownloadParams *)prefs {
+	if ([sender isKindOfClass:[AZDownload class]]) {
+		[(AZDownload *)sender reset:prefs];
+		[[AZProxifier sharedProxifier] reRegisterDownload:sender];
+	} else
+		if ([sender isKindOfClass:[CustomDictionary class]])
+			for (id sub in [(CustomDictionary *)sender allValues])
+				[self recursiveDrop:sub withPrefs:prefs];
+}
+
+- (void) dropHash {
+	BOOL keepParams = !([NSEvent modifierFlags] & NSCommandKeyMask);
+	BOOL peekSpecificParams = (!keepParams) && ([NSEvent modifierFlags] & NSShiftKeyMask);
+
+	AZErgoManga *manga = [self.entity isKindOfClass:[AZDownload class]] ? ((AZDownload *)self.entity).forManga : nil;
+	AZDownloadParams *prefs = keepParams ? nil : [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:!peekSpecificParams forManga:manga];
+	[self recursiveDrop:self.entity withPrefs:prefs];
+	self.popover.tfHash.stringValue = @"";
+}
+
+
+
 - (void) trashEntity {
 	[self trashDownload:[NSURL fileURLWithPath:[download localFilePath]]];
 }
@@ -263,13 +287,15 @@
 										error:&error]) {
 		if (error.domain == NSCocoaErrorDomain)
 			if (error.code == 3328) {
-				[AZUtils notifyErrorMsg:NSLocalizedString(@"Can't move to trash: file located at remote drive. Move to Downloads directory on this computer?", @"")
+				[AZUtils notifyErrorMsg:NSLocalizedString(@"Can't move to trash: file located at remote drive. Move to Downloads directory of the program first?", @"")
 										withButtons:@[
 																	NSLocalizedString(@"Ok", @"Ok button title"),
 																	NSLocalizedString(@"Delete permanently", @"Delete permanently button title"),
 																	NSLocalizedString(@"Cancel", @"Cancel button title"),
 																	]
-											 andBlock:^(NSUInteger button) {
+											 andBlock:^(AZDialogReturnCode button) {
+												 if (button == AZDialogReturnCancel)
+													 return;
 
 												 NSArray *path = [url pathComponents];
 												 path = [path subarrayWithRange:NSMakeRange([path count] - 3, 3)];
@@ -277,16 +303,21 @@
 
 												 NSError *error = nil;
 												 switch (button) {
-													 case NSAlertFirstButtonReturn:
-													 case NSAlertSecondButtonReturn: {
+													 case AZDialogReturnOk:
+													 case AZDialogReturnNo: {
+
+														 if ([fm fileExistsAtPath:[local path]]) {
+															 [fm removeItemAtURL:local error:nil];
+														 }
+
+														 if (button == AZDialogReturnNo) {
+															 [fm removeItemAtURL:url error:nil];
+															 break;
+														 }
 
 														 [fm createDirectoryAtURL:[local URLByDeletingLastPathComponent]
 													withIntermediateDirectories:YES attributes:nil
 																								error:nil];
-														 [fm removeItemAtURL:local error:nil];
-
-														 if (button != NSAlertFirstButtonReturn)
-															 break;
 
 														 if ([fm moveItemAtURL:url toURL:local error:&error])
 															 [self trashDownload:local];
@@ -322,16 +353,16 @@
 	[self presenterForEntity:entity in:popover];
 
 	[popover.bPreview setCollapsed:YES];
-	[popover.tfURL setCollapsed:YES];
+	[[popover.tfURL superview] setCollapsed:YES];
 
 	[self setLockState:NO];
 }
 
-- (void) dropHash {
-	AZErgoDownloadDetailsPresenter *ddp = [AZErgoDownloadDetailsPresenter new];
-	for (AZDownload *download in [group allValues])
-		[[ddp presenterForEntity:download in:self.popover] dropHash];
-}
+//- (void) dropHash {
+//	AZErgoDownloadDetailsPresenter *ddp = [AZErgoDownloadDetailsPresenter new];
+//	for (AZDownload *download in [group allValues])
+//		[[ddp presenterForEntity:download in:self.popover] dropHash];
+//}
 
 - (void) deleteEntity {
 	AZErgoDownloadDetailsPresenter *ddp = [AZErgoDownloadDetailsPresenter new];

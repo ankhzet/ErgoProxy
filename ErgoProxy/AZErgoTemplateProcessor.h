@@ -21,6 +21,11 @@
 
 @interface AZErgoTextTemplateProcessor : AZErgoTemplateProcessor
 
++ (NSString *) tplPath:(NSString *)tplName;
++ (NSString *) template:(NSString *)tplName;
+
++ (NSString *) processTemplate:(NSString *)template withDataSubstitutioner:(AZErgoSubstitutioner *)substitutioner;
+
 - (NSString *) processString:(NSString *)template withDataSubstitutioner:(AZErgoSubstitutioner *)substitutioner;
 
 @end

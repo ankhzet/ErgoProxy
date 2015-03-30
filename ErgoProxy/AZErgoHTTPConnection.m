@@ -18,9 +18,11 @@
 #import "AZErgoTemplateProcessor.h"
 #import "AZErgoMangaDataSupplier.h"
 
+#import "AZErgoMangaCommons.h"
+
 static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 
-#define _IDX(_idx) ({(int)(_idx * 10);})
+#define _IDX(_idx) ({(int)((_idx) * 10);})
 
 @implementation AZErgoHTTPConnection
 
@@ -90,7 +92,7 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	if (([components count] == 2) && ([parts count] == 2))
 		return [[HTTPRedirectResponse alloc] initWithPath:[NSString stringWithFormat:@"/reader/%@/", relativePath]];
 
-	relativePath = [[AZErgoMangaDataSupplier mangaStorage] stringByAppendingPathComponent:relativePath];
+	relativePath = [[AZErgoMangaChapter mangaStorage] stringByAppendingPathComponent:relativePath];
 
 	BOOL isDir = NO;
 	if ([[NSFileManager defaultManager] fileExistsAtPath:relativePath isDirectory:&isDir]) {
@@ -110,16 +112,24 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 	if (!!delta)
 		return [self navigateChapter:relativePath withDelta:delta];
 
-	return [AZErgoMangaDataSupplier dataWithReader:relativePath];
+	id response = [AZErgoMangaDataSupplier dataWithReader:relativePath];
+	if (!response) {
+		response = [self serve:method actionManga:relativePath];
+	}
+	return response;
+}
+
+- (id) serve:(NSString *)method actionProgress:(NSString *)relativePath {
+	return [AZErgoMangaDataSupplier dataWithProgress:relativePath];
 }
 
 - (id) navigateChapter:(NSString *)absolutePath withDelta:(int)delta {
 	NSArray *components = [AZErgoMangaDataSupplier componentsFromAbsolutePath:absolutePath];
-	NSString *manga = components[0];
+	NSString *mangaRoot = components[0];
 
 	int chapter = _IDX([components[1] floatValue]);
 
-	NSArray *chapters = [AZErgoMangaDataSupplier fetchChapters:manga];
+	NSArray *chapters = [AZErgoMangaChapter fetchChapters:mangaRoot];
 
 	NSNumber *prev = nil, *next = nil;
 
@@ -137,16 +147,21 @@ static const int httpLogLevel = HTTP_LOG_LEVEL_WARN; // | HTTP_LOG_FLAG_TRACE;
 
 	int old = chapter;
 
+	NSString *page = @"";
 	if (delta > 0) {
 		chapter = next ? [next intValue] : chapter;
 		if (chapter == old) {
-			chapter += _IDX(1);
+			int last = _IDX([[chapters firstObject] floatValue]);
+			chapter = last + _IDX(1);
 		}
-	}
-	if (delta < 0) chapter = prev ? [prev intValue] : chapter;
+		page = @"#page1";
+	} else
+		if (delta < 0) {
+			chapter = prev ? [prev intValue] : chapter;
+		}
 
 	float chap = (chapter / 10.f);
-	return [[HTTPRedirectResponse alloc] initWithPath:[NSString stringWithFormat:@"/reader/%@/%@", manga, @(chap)]];
+	return [[HTTPRedirectResponse alloc] initWithPath:[NSString stringWithFormat:@"/reader/%@/%@%@", mangaRoot, @(chap), page]];
 }
 
 @end

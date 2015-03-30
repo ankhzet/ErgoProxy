@@ -12,12 +12,4 @@
 #import "AZUtils.h"
 #import "DDLog.h"
 
-static const int ddLogLevel = LOG_LEVEL_VERBOSE;
-
-#define HAS_BIT(_v, _b) (((_v) & (_b)) == (_b))
-
-#define UNSET_BIT(_v, _b) ((_v) = ((_v) | (_b)) ^ (_b))
-
-#define VERBOSE_DEBUG NO
-
-#define NSLog(frmt, ...) do{ if(VERBOSE_DEBUG) NSLog((frmt), ##__VA_ARGS__); } while(0)
+static const int ddLogLevel = LOG_LEVEL_INFO;

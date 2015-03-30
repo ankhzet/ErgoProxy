@@ -8,7 +8,6 @@
 
 #import "AZErgoMangaInfoTab.h"
 #import "AZErgoMangaCommons.h"
-#import "AZAlertSheet.h"
 
 @interface AZErgoMangaInfoTab () <NSTextViewDelegate> {
 	AZErgoManga *manga;
@@ -20,6 +19,8 @@
 @property (weak) IBOutlet NSTextField *tfMangaFolder;
 @property (weak) IBOutlet NSButton *cbReaded;
 @property (weak) IBOutlet NSButton *cbComplete;
+@property (weak) IBOutlet NSButton *cbDownloaded;
+@property (weak) IBOutlet NSImageView *ivMangaPreview;
 
 @end
 
@@ -38,12 +39,13 @@
 - (void) updateContents {
 	updating = YES;
 	@try {
-		self.tvMangaTitles.string = [[@[[manga mainTitle]] arrayByAddingObjectsFromArray:[manga additionalTitles]] componentsJoinedByString:@"\n"] ?: @"";
+		self.tvMangaTitles.string = [[@[[manga mainTitle] ?: @""] arrayByAddingObjectsFromArray:[manga additionalTitles]] componentsJoinedByString:@"\n"] ?: @"";
 
 		self.tvMangaAnnotation.string = manga.annotation ?: @"";
 
 		BOOL isReaded = NO;
 		BOOL isComplete = NO;
+		BOOL isDownloaded = NO;
 		NSMutableArray *tags = [NSMutableArray new];
 		for (AZErgoMangaTag *tag in [[manga.tags allObjects] sortedArrayUsingSelector:@selector(caseInsensitiveCompare:)])
 			switch ([tag.guid unsignedIntegerValue]) {
@@ -54,16 +56,27 @@
 					isReaded = YES;
 					break;
 
+				case AZErgoTagGroupDownloaded:
+					isDownloaded = YES;
+					break;
+
 				default:
 					[tags addObject:(![tags count]) ? [tag.tag capitalizedString] : [tag.tag lowercaseString]];
 					break;
 			}
 
 		self.tfMangaTags.stringValue = (!![tags count]) ? [[tags componentsJoinedByString:@", "] stringByAppendingString:@"."] : @"";
-		self.tfMangaFolder.stringValue = manga.name;
+		self.tfMangaFolder.stringValue = manga.name ?: @"";
 
 		self.cbComplete.state = isComplete ? NSOnState : NSOffState;
 		self.cbReaded.state = isReaded ? NSOnState : NSOffState;
+		self.cbDownloaded.state = isDownloaded ? NSOnState : NSOffState;
+
+		NSString *previewFileName = [manga previewFile];
+		NSImage *preview = previewFileName ? [[NSImage alloc] initByReferencingFile:[manga previewFile]] : [NSImage imageNamed:NSImageNameApplicationIcon];
+
+
+		self.ivMangaPreview.image = preview;
 	}
 	@finally {
     updating = NO;
@@ -85,25 +98,7 @@
 			[cleaned addObject:clean];
 	}
 
-	NSArray *has = [[manga titleEntities:YES] arrayByAddingObjectsFromArray:[manga titleEntities:NO]];
-	NSSet *hasTitles = [NSSet setWithArray:has];
-
-	NSMutableSet *delete = [hasTitles mutableCopy];
-	[delete minusSet:cleaned];
-
-	NSMutableSet *add = [cleaned mutableCopy];
-	[add minusSet:hasTitles];
-
-	for (NSString *titleToDelete in delete)
-		for (AZErgoMangaTitle *title in manga.titles)
-			if ([title.title isCaseInsensitiveLike:titleToDelete])
-				[title delete];
-
-	for (NSString *titleToAdd in add) {
-		AZErgoMangaTitle *titleEntity = [AZErgoMangaTitle insertNew];
-		titleEntity.title = titleToAdd;
-		titleEntity.manga = manga;
-	}
+	[manga setAllTitles:[cleaned allObjects]];
 }
 
 - (IBAction)actionTagsChanged:(id)sender {
@@ -128,6 +123,7 @@
 	[delete minusSet:cleaned];
 	[delete removeObject:@"readed"];
 	[delete removeObject:@"complete"];
+	[delete removeObject:@"downloaded"];
 
 	NSMutableSet *add = [cleaned mutableCopy];
 	[add minusSet:hasTags];
@@ -157,10 +153,14 @@
 
 	if (textView == self.tvMangaAnnotation)
 		[self delayed:@"annotation-changed" forTime:0.5 withBlock:^{
-			manga.annotation = textView.string;
+			manga.annotation = [textView.string stringByTrimmingCharactersInSet:[NSCharacterSet whitespaceAndNewlineCharacterSet]];
 		}];
 
 	return YES;
+}
+
+- (IBAction)actionRead:(id)sender {
+	[self.tabs navigateTo:AZEPUIDBrowserTab withNavData:manga.name];
 }
 
 - (IBAction)actionDelete:(id)sender {
@@ -177,27 +177,63 @@
 }
 
 - (IBAction)actionShowTagsEditor:(id)sender {
-	[self.tabs navigateTo:AZEPUIDTagBrowserTab withNavData:nil];
+	[self.tabs navigateTo:AZEPUIDTagBrowserTab withNavData:manga.name];
 }
 
 - (IBAction)actionIsCompleteChanged:(id)sender {
 	BOOL isCompleted = self.cbComplete.state == NSOnState;
-
-	[manga toggle:isCompleted tag:AZErgoTagGroupComplete];
-	if (!isCompleted) {
-		[manga toggle:NO tag:AZErgoTagGroupReaded];
-		self.cbReaded.state = NSOffState;
-	}
+	[self toggle:isCompleted tag:AZErgoTagGroupComplete];
 }
 
 - (IBAction)actionIsReadedChanged:(id)sender {
 	BOOL isReaded = self.cbReaded.state == NSOnState;
+	[self toggle:isReaded tag:AZErgoTagGroupReaded];
+}
 
-	[manga toggle:isReaded tag:AZErgoTagGroupReaded];
-	if (isReaded) {
-		[manga toggle:YES tag:AZErgoTagGroupComplete];
-		self.cbComplete.state = NSOnState;
+- (IBAction)actionIsDownloadedChanged:(id)sender {
+	BOOL isDownloaded = self.cbDownloaded.state == NSOnState;
+	[self toggle:isDownloaded tag:AZErgoTagGroupDownloaded];
+}
+
+- (void) toggle:(BOOL)on tag:(AZErgoTagGroup)guid {
+	[self toggle:on tag:guid chain:nil];
+}
+
+- (void) toggle:(BOOL)on tag:(AZErgoTagGroup)guid chain:(NSSet *)chain {
+	if ([chain containsObject:@(guid)])
+		return;
+
+	[manga toggle:on tagWithGUID:guid];
+	[(NSMutableSet *)(chain = chain ?: [NSMutableSet new]) addObject:@(guid)];
+
+	NSButton *b = nil;
+	switch (guid) {
+		case AZErgoTagGroupComplete:
+			b = self.cbComplete;
+			if (!on) {
+				[self toggle:NO tag:AZErgoTagGroupDownloaded chain:chain];
+			}
+			break;
+		case AZErgoTagGroupDownloaded:
+			b = self.cbDownloaded;
+			if (!on) {
+				[self toggle:NO tag:AZErgoTagGroupReaded chain:chain];
+			} else {
+				[self toggle:YES tag:AZErgoTagGroupComplete chain:chain];
+			}
+			break;
+		case AZErgoTagGroupReaded:
+			b = self.cbReaded;
+			if (on) {
+				[self toggle:YES tag:AZErgoTagGroupDownloaded chain:chain];
+			}
+			break;
+
+		default:
+			break;
 	}
+	if (b)
+		b.state = on ? NSOnState : NSOffState;
 }
 
 @end

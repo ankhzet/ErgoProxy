@@ -64,7 +64,7 @@
 	self.cbHideFinishedDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED) ? NSOnState : NSOffState;
 
 	// downloads prefs
-	self.tfSimultaneousDownloadsPerStorage.integerValue = PREF_INT(PREFS_DOWNLOAD_PER_STORAGE);
+	self.tfSimultaneousDownloadsPerStorage.stringValue = PREF_STR(PREFS_DOWNLOAD_PER_STORAGE);
 	self.cbDownloadsFullResolve.state = PREF_BOOL(PREFS_DOWNLOAD_FULL_RESOLVE) ? NSOnState : NSOffState;
 
 	// watcher
@@ -121,7 +121,7 @@
 	PREF_SAVE_UI_STR(self.tfMangaStorage, PREFS_COMMON_MANGA_STORAGE);
 }
 - (IBAction)actionSimultaneousDownloadsChanged:(id)sender {
-	PREF_SAVE_UI_INT(self.tfSimultaneousDownloadsPerStorage, PREFS_DOWNLOAD_PER_STORAGE);
+	PREF_SAVE_UI_STR(self.tfSimultaneousDownloadsPerStorage, PREFS_DOWNLOAD_PER_STORAGE);
 }
 - (IBAction)actionDownloadsFullResolveChanged:(id)sender {
 	PREF_SAVE_UI_BOOL(self.cbDownloadsFullResolve, PREFS_DOWNLOAD_FULL_RESOLVE);

@@ -50,10 +50,12 @@ PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)
 
 #define PREFS_PROXY_URL @"proxy.url"
 
+#define PREFS_DOWNLOAD_PRESET  @"download.default.preset"
 #define PREFS_DOWNLOAD_WIDTH   @"download.default.width"
 #define PREFS_DOWNLOAD_HEIGHT  @"download.default.height"
 #define PREFS_DOWNLOAD_QUALITY @"download.default.quality"
 #define PREFS_DOWNLOAD_WEBTOON @"download.default.webtoon"
+
 #define PREFS_DOWNLOAD_PER_STORAGE @"download.simultaneous"
 #define PREFS_DOWNLOAD_FULL_RESOLVE @"download.full-resolve"
 

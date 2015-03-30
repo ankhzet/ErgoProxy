@@ -11,4 +11,8 @@
 @implementation AZErgoUpdatesSourceDescription
 @dynamic serverURL, watches;
 
+- (NSComparisonResult) compare:(AZErgoUpdatesSourceDescription *)another {
+	return [self.serverURL compare:another.serverURL];
+}
+
 @end

@@ -9,21 +9,22 @@
 #import <Foundation/Foundation.h>
 
 #import "AZErgoCustomDownloader.h"
+#import "AZMultipleTargetDelegate.h"
 
-@class AZDownload, AZDownloadParams, AZStorage, AZProxifier;
+@class AZStorage;
 @interface AZErgoDownloader : AZErgoCustomDownloader
 
 @property (nonatomic, readonly) BOOL paused;
 @property (nonatomic, readonly) BOOL running;
 @property (nonatomic, readonly) NSUInteger inProcess;
-@property (nonatomic) NSUInteger concurentTasks;
+@property (nonatomic) NSString *concurentTasks;
 @property (nonatomic) NSTimeInterval consecutiveIterationsInterval;
 
 + (instancetype) downloaderForStorage:(AZStorage *)storage;
 
 @end
 
-@interface AZErgoDownloader (Downloading)
+@interface AZErgoDownloader (Downloading) <AZMultipleTargetDelegateProtocol>
 
 - (void) pause;
 - (void) resume;

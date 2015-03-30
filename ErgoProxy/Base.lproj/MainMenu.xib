@@ -70,8 +70,7 @@
                 <menuItem title="File" id="83">
                     <menu key="submenu" title="File" id="81">
                         <items>
-                            <menuItem title="Toggle downloaders" id="Ouh-Pa-k8d">
-                                <modifierMask key="keyEquivalentModifierMask"/>
+                            <menuItem title="Toggle downloaders" keyEquivalent="r" id="Ouh-Pa-k8d">
                                 <connections>
                                     <action selector="actionRunDownloader:" target="494" id="38h-oJ-b7Z"/>
                                 </connections>
@@ -102,7 +101,8 @@
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="ZS8-eU-H21"/>
-                            <menuItem title="Close" keyEquivalent="w" id="73">
+                            <menuItem title="Close" keyEquivalent="q" id="73">
+                                <modifierMask key="keyEquivalentModifierMask" option="YES" command="YES"/>
                                 <connections>
                                     <action selector="performClose:" target="-1" id="193"/>
                                 </connections>
@@ -380,6 +380,11 @@ CA
                                 </connections>
                             </menuItem>
                             <menuItem isSeparatorItem="YES" id="JIr-fP-gbr"/>
+                            <menuItem title="Download priority" tag="7" keyEquivalent="P" id="Bbf-DR-bD0">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="7UD-Cx-Bki"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Tag browser" tag="5" keyEquivalent="T" id="IUd-2P-dBd">
                                 <connections>
                                     <action selector="actionMenuNavigate:" target="494" id="tU9-dc-Zvk"/>
@@ -392,12 +397,28 @@ CA
                                     <action selector="actionMenuNavigate:" target="494" id="td8-9j-8Kk"/>
                                 </connections>
                             </menuItem>
+                            <menuItem title="Utils" tag="6" keyEquivalent="U" id="CXA-hJ-Y49">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="NeP-oS-LbH"/>
+                                </connections>
+                            </menuItem>
+                            <menuItem title="Chapters linking" tag="8" keyEquivalent="L" id="IUc-1r-UUJ">
+                                <connections>
+                                    <action selector="actionMenuNavigate:" target="494" id="Spn-xy-OxI"/>
+                                </connections>
+                            </menuItem>
                         </items>
                     </menu>
                 </menuItem>
                 <menuItem title="Window" id="19">
                     <menu key="submenu" title="Window" systemMenu="window" id="24">
                         <items>
+                            <menuItem title="Enter Full Screen" keyEquivalent="f" id="IVr-MP-XS7">
+                                <modifierMask key="keyEquivalentModifierMask" control="YES" command="YES"/>
+                                <connections>
+                                    <action selector="toggleFullScreen:" target="-1" id="dGU-MP-wmY"/>
+                                </connections>
+                            </menuItem>
                             <menuItem title="Minimize" keyEquivalent="m" id="23">
                                 <connections>
                                     <action selector="performMiniaturize:" target="-1" id="37"/>
@@ -433,8 +454,9 @@ CA
                 </menuItem>
             </items>
         </menu>
-        <window title="ErgoProxy" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" animationBehavior="default" id="371">
-            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES" unifiedTitleAndToolbar="YES"/>
+        <window title="ErgoProxy" allowsToolTipsWhenApplicationIsInactive="NO" autorecalculatesKeyViewLoop="NO" releasedWhenClosed="NO" frameAutosaveName="ErgoMainWindowPos" animationBehavior="default" id="371">
+            <windowStyleMask key="styleMask" titled="YES" closable="YES" miniaturizable="YES" resizable="YES"/>
+            <windowCollectionBehavior key="collectionBehavior" fullScreenPrimary="YES"/>
             <rect key="contentRect" x="335" y="390" width="523" height="356"/>
             <rect key="screenRect" x="0.0" y="0.0" width="1280" height="778"/>
             <value key="minSize" type="size" width="480" height="360"/>
@@ -480,8 +502,6 @@ CA
                             <action selector="actionToolbarNavigate:" target="494" id="gM5-RR-Fzr"/>
                         </connections>
                     </toolbarItem>
-                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="sX3-We-T7X"/>
-                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="dVQ-Wv-wIs"/>
                     <toolbarItem implicitItemIdentifier="D76135C1-C86D-463D-9C4F-1D1E828DF5A5" explicitItemIdentifier="browser" label="Browser" paletteLabel="Browser" tag="-1" image="NSNetwork" autovalidates="NO" selectable="YES" id="SVg-av-H3b">
                         <connections>
                             <action selector="actionToolbarNavigate:" target="494" id="wkb-KW-2mJ"/>
@@ -492,28 +512,37 @@ CA
                             <action selector="actionToolbarNavigate:" target="494" id="vpu-Ba-t3a"/>
                         </connections>
                     </toolbarItem>
+                    <toolbarItem implicitItemIdentifier="NSToolbarFlexibleSpaceItem" id="sX3-We-T7X"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSpaceItem" id="dVQ-Wv-wIs"/>
+                    <toolbarItem implicitItemIdentifier="NSToolbarSeparatorItem" id="ub8-A4-y7Y"/>
                 </allowedToolbarItems>
                 <defaultToolbarItems>
                     <toolbarItem reference="jbr-LD-CjI"/>
                     <toolbarItem reference="p3r-3G-QGr"/>
+                    <toolbarItem reference="ub8-A4-y7Y"/>
                     <toolbarItem reference="gDb-dg-yqS"/>
-                    <toolbarItem reference="dVQ-Wv-wIs"/>
                     <toolbarItem reference="sX3-We-T7X"/>
                     <toolbarItem reference="SVg-av-H3b"/>
                     <toolbarItem reference="dVQ-Wv-wIs"/>
                     <toolbarItem reference="CsQ-mq-E6z"/>
                 </defaultToolbarItems>
             </toolbar>
+            <contentBorderThickness minY="32"/>
+            <connections>
+                <outlet property="delegate" destination="XHe-4O-fCF" id="6KH-iB-Guf"/>
+            </connections>
         </window>
         <customObject id="494" customClass="AZErgoAppDelegate">
             <connections>
                 <outlet property="mNavMenu" destination="f8y-8F-8Gy" id="i6g-uX-Y3B"/>
+                <outlet property="miToggleDownloaders" destination="Ouh-Pa-k8d" id="qaV-Nq-ArJ"/>
                 <outlet property="tbToolBar" destination="7fk-CB-Hum" id="EaD-zZ-OaK"/>
                 <outlet property="tvTabView" destination="RFE-6F-4fQ" id="daH-SF-H22"/>
                 <outlet property="window" destination="371" id="532"/>
             </connections>
         </customObject>
         <customObject id="420" customClass="NSFontManager"/>
+        <customObject id="XHe-4O-fCF" customClass="AZErgoMainWindowDelegate"/>
     </objects>
     <resources>
         <image name="NSListViewTemplate" width="11" height="10"/>

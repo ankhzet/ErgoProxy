@@ -14,8 +14,8 @@
 @property (nonatomic, retain) AZProxifier *proxifier;
 @property (nonatomic, retain) NSSet *downloads;
 
-+ (instancetype) serverWithURL:(NSURL *)url;
++ (instancetype) serverWithURL:(NSString *)url;
 
-- (NSURL *) fullURL;
+- (NSString *) fullURL;
 
 @end

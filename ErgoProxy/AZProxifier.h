@@ -24,9 +24,9 @@
 
 - (void) registerStorage:(AZStorage *)storage;
 
-- (AZStorage *) storageWithURL:(NSURL *)url;
-- (AZDownload *) downloadForURL:(NSURL *)url withParams:(AZDownloadParams *)params;
-- (AZErgoDownloader *) downloaderForURL:(NSURL *)url;
+- (AZStorage *) storageWithURL:(NSString *)url;
+- (AZDownload *) downloadForURL:(NSString *)url withParams:(AZDownloadParams *)params;
+- (AZErgoDownloader *) downloaderForURL:(NSString *)url;
 - (AZErgoDownloader *) newDownloaderForStorage:(AZStorage *)storage andParams:(AZDownloadParams *)params;
 - (void) reRegisterDownload:(AZDownload *)download;
 
@@ -34,6 +34,7 @@
 
 - (void) runDownloaders:(BOOL)run;
 - (void) pauseDownloaders:(BOOL)pause;
+- (NSUInteger) hasRunningDownloaders;
 
 @end
 

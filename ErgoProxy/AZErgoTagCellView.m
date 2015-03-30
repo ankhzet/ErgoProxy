@@ -15,7 +15,7 @@
 	self.bindedEntity = entity;
 
 	self.tfTagName.stringValue = entity.tag ?: @"<tag name unknown>";
-	self.tfRelatedCount.stringValue = [@([[entity manga] count]) stringValue];
+	self.tfRelatedCount.integerValue = [[entity manga] count];
 }
 
 @end

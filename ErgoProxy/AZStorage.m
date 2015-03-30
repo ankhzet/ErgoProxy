@@ -30,21 +30,22 @@
 
  @param url URL of server. Can be absolute or relative.
  */
-+ (instancetype) serverWithURL:(NSURL *)url {
++ (instancetype) serverWithURL:(NSString *)url {
 	return [super serverWithURL:url];
 }
 
 
-- (NSURL *) fullURL {
-	NSURL *result = self.url;
-	if (![result.path isEqualToString:@"/"]) {
-		NSURL *source = [self.proxifier.url standardizedURL];
+- (NSString *) fullURL {
+	NSString *url = self.url;
+	NSURL *result = [NSURL URLWithString:url];
+	if ([url hasPrefix:@"/"]) {
+		NSURL *source = [NSURL URLWithString:self.proxifier.url];
 
 		NSString *scheme = [result.scheme length] ? result.scheme : source.scheme;
 		NSString *subdomen = [result.path length] ? result.path : result.host;
 		result = [[NSURL alloc] initWithScheme:scheme host:[NSString stringWithFormat:@"%@.%@", subdomen, source.host] path:@"/"];
 	}
-	return result;
+	return [result absoluteString];
 }
 
 @end

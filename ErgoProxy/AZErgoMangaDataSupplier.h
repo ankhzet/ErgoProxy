@@ -18,9 +18,8 @@
 + (instancetype) dataWithDirectoryIndex:(NSString *)path;
 + (instancetype) dataWithReader:(NSString *)path;
 
-+ (NSString *)mangaStorage;
++ (instancetype) dataWithProgress:(NSString *)path;
 
 + (NSArray *) componentsFromAbsolutePath:(NSString *)path;
-+ (NSArray *) fetchChapters:(NSString *)manga;
 
 @end

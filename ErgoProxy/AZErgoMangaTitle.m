@@ -15,4 +15,11 @@
 @dynamic title;
 @dynamic manga;
 
+
++ (instancetype) mangaTitile:(NSString *)title {
+	return [self unique:[NSPredicate predicateWithFormat:@"title ==[c] %@", title] initWith:^(AZErgoMangaTitle *entity) {
+		entity.title = [title uppercaseFirstCharString];
+	}];
+}
+
 @end

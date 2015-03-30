@@ -8,12 +8,14 @@
 
 #import "AZJSONAPI.h"
 
-@class AZDownload;
-
-typedef void (^p_block)(BOOL isOk, id json, AZDownload *download);
+@class AZDownload, AZErgoManga;
 
 @interface AZErgoProxifierAPI : AZJSONAPI
 
-- (AZHTTPRequest *) proxifyDownload:(AZDownload *)download withCompletion:(p_block)block;
+- (BOOL) resolveStorage:(AZDownload *)download;
+- (BOOL) aquireScanData:(AZDownload *)download;
+- (BOOL) downloadScan:(AZDownload *)download;
+
+- (BOOL) downloadPreview:(AZErgoManga *)manga atOrigin:(NSString *)serverURL;
 
 @end

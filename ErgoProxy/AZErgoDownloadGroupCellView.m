@@ -36,12 +36,18 @@
 		} else
 			;
 
-	self.tfGroupTitle.stringValue = title ?: @"<cant aquire title!>";
-
-	AZErgoDownloadedAmount amount = [(AZErgoDownloadsDataSource *)view.dataSource downloaded:entity reclaim:NO];
+	AZErgoDownloadedAmount amount = [(AZErgoDownloadsDataSource *)view.dataSource downloaded:entity];
+	NSString *amountString = nil;
 	NSString *downloaded = [NSString cvtFileSize:amount.downloaded];
-	NSString *total = [NSString cvtFileSize:amount.total];
-	self.tfDownloadsCount.stringValue = [NSString stringWithFormat:@"%@/%@", downloaded, total];
+	if (amount.downloaded != amount.total) {
+		NSString *total = [NSString cvtFileSize:amount.total];
+		amountString = [NSString stringWithFormat:@"%@/%@", downloaded, total];
+	} else
+		amountString = downloaded;
+
+
+	self.tfGroupTitle.stringValue = title ?: @"<cant aquire title!>";
+	self.tfDownloadsCount.stringValue = amountString;
 }
 
 @end

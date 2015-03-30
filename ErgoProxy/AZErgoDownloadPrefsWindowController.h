@@ -8,9 +8,9 @@
 
 #import "AZSheetWindowController.h"
 
-@class AZDownloadParams;
+@class AZDownloadParams, AZErgoManga;
 @interface AZErgoDownloadPrefsWindowController : AZSheetWindowController
 
-- (AZDownloadParams *) aquireParams:(BOOL)useDefaults;
+- (AZDownloadParams *) aquireParams:(BOOL)useDefaults forManga:(AZErgoManga *)manga;
 
 @end

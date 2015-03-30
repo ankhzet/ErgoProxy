@@ -11,8 +11,8 @@
 
 @interface AZProxyServer : AZCoreDataEntity
 
-@property (nonatomic, retain) NSURL *url;
+@property (nonatomic, retain) NSString *url;
 
-+ (instancetype) serverWithURL:(NSURL *)url;
++ (instancetype) serverWithURL:(NSString *)url;
 
 @end
