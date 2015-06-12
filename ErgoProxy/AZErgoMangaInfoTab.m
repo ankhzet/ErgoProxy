@@ -26,12 +26,12 @@
 
 @implementation AZErgoMangaInfoTab
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDMangaInfoTab;
 }
 
 - (void) navigateTo:(id)data {
-	manga = [((NSDictionary *)data) objectForKey:@"manga"];
+	manga = [data isKindOfClass:[AZErgoManga class]] ? data : [((NSDictionary *)data) objectForKey:@"manga"];
 
 	[super navigateTo:data];
 }
@@ -135,7 +135,7 @@
 				[manga removeTagsObject:tag];
 
 	for (NSString *tagToAdd in add) {
-		AZErgoMangaTag *tagEntity = [AZErgoMangaTag unique:[NSPredicate predicateWithFormat:@"tag ==[c] %@", tagToAdd] initWith:^(AZErgoMangaTag *tag) {
+		AZErgoMangaTag *tagEntity = [AZErgoMangaTag unique:AZF_ALL_OF(@"tag ==[c] %@", tagToAdd) initWith:^(AZErgoMangaTag *tag) {
 			tag.tag = [tagToAdd capitalizedString];
 		}];
 		[manga addTagsObject:tagEntity];
@@ -234,6 +234,10 @@
 	}
 	if (b)
 		b.state = on ? NSOnState : NSOffState;
+}
+
+- (void) fullfillSingles {
+
 }
 
 @end

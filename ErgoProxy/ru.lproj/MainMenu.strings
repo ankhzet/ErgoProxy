@@ -252,7 +252,7 @@
 "moJ-2L-CY2.title" = "Приостановить загрузку";
 
 /* Class = "NSToolbarItem"; label = "Watch"; ObjectID = "p3r-3G-QGr"; */
-"p3r-3G-QGr.label" = "Автоопроверка";
+"p3r-3G-QGr.label" = "Автопроверка";
 
 /* Class = "NSToolbarItem"; paletteLabel = "Watch"; ObjectID = "p3r-3G-QGr"; */
 "p3r-3G-QGr.paletteLabel" = "Автоопроверка";

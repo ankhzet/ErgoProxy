@@ -172,10 +172,12 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 
 		switch (code) {
 			case AZDialogReturnOk:
-			case AZDialogReturnApply:
-				if ([self.tabsGroup.currentTab.tabIdentifier isEqualToString:AZEPUIDMangaTab])
-					[self.tabsGroup.currentTab updateContents];
+			case AZDialogReturnApply: {
+				AZTabProvider *tab = self.tabsGroup.currentTab;
+				if (tab == [AZErgoMainTab sharedTab])
+					[tab updateContents];
 				break;
+			}
 
 			default:
 				break;
@@ -198,7 +200,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 	NSString *tab = tabMapping[@(item.tag)];
 
 	if ([tab isEqualToString:@"chapters-state"]) {
-		[[AZErgoChapterStateWindowController sharedController] showStateController];
+		[[AZErgoChapterStateWindowController sharedController] showStateController:nil];
 		return;
 	}
 
@@ -215,7 +217,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 
 	for (NSMenuItem *item in self.mNavMenu.itemArray)
 		if (!!item.tag)
-			[item setEnabled:![tabMapping[@(item.tag)] isEqualToString:tab.tabIdentifier]];
+			[item setEnabled:![tabMapping[@(item.tag)] isEqualToString:[[tab class] tabIdentifier]]];
 }
 
 - (IBAction)actionRunDownloader:(id)sender {
@@ -242,8 +244,11 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 			}
 
 			dispatch_async_at_main(^{
-				[[[self tabsGroup] tabByID:AZEPUIDMainTab] updateContents];
+//				[[[self tabsGroup] tabByID:AZEPUIDrMainTab] updateContents];
 
+				if (forceRunning) {
+					[[AZProxifier sharedProxifier] reRegisterDownloads];
+				}
 				self.runningDownloaders = forceRunning;
 				[[AZProxifier sharedProxifier] runDownloaders:self.runningDownloaders];
 				if (forceRunning) {
@@ -263,7 +268,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 
 // Performs the save action for the application, which is to send the save: message to the application's managed object context. Any encountered errors are presented to the user.
 - (IBAction)saveAction:(id)sender {
-	[[AZDataProxy sharedProxy] saveContext];
+	[[AZDataProxy sharedProxy] saveContext:YES];
 }
 
 - (BOOL) applicationShouldTerminateAfterLastWindowClosed:(NSApplication *)sender {
@@ -272,7 +277,9 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoAppDelegate)
 
 - (void) applicationWillTerminate:(NSNotification *)notification {
 	PREF_SAVE_INT(PREF_INT(PREFS_COMMON_MANGA_DOWNLOADED) + [[AZDownloadSpeedWatcher sharedSpeedWatcher] totalDownloaded], PREFS_COMMON_MANGA_DOWNLOADED);
-	[self saveAction:nil];
+
+
+	[[AZDataProxy sharedProxy] saveContext:NO];
 }
 
 @end

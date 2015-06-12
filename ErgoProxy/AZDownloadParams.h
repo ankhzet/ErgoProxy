@@ -14,14 +14,14 @@ extern NSString *kDownloadParamMaxHeight;
 extern NSString *kDownloadParamQuality;
 extern NSString *kDownloadParamIsWebtoon;
 
-@class AZDownloadParameter;
+@class AZDownloadParameter, AZErgoManga;
 @interface AZDownloadParams : AZCoreDataEntity
 
 @property (nonatomic, retain) NSSet *parameters;
 @property (nonatomic, readonly) NSString *hashed;
 
 + (instancetype) params:(NSDictionary *)parameters;
-+ (instancetype) defaultParams;
++ (instancetype) defaultParams:(AZErgoManga *)manga;
 
 - (AZDownloadParameter *) downloadParameter:(NSString *)parameter;
 - (AZDownloadParams *) setDownloadParameter:(NSString *)parameter value:(id)value;

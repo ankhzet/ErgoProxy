@@ -44,3 +44,9 @@ typedef NS_ENUM(NSUInteger, AZErgoTagGroup) {
 - (void) addMangaObject:(AZErgoManga *)manga;
 
 @end
+
+@interface NSArray (ErgoTagsUtils)
+
+- (BOOL) isEqualWithTags:(NSArray *)tags;
+
+@end

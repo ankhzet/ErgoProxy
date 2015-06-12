@@ -76,6 +76,19 @@ describe(@"AZErgoCountingConflictsSolver", ^{
 		test([[AZErgoCountingConflictsSolver solverForChapters:test1Q2] ordered], test1R2);
 	});
 
+	it(@"should properly sort 0-1, 1-1 case", ^{
+		NSArray *test1Q1 = [@"0-1,1-1" chaptersArray];
+		NSArray *test1R1 = [@"0-0.9,1-1" chaptersArray];
+
+//		NSLog(@"\n\n B0 -> %@", [test1Q1 componentsJoinedByString:@" "]);
+		AZErgoCountingConflictsSolver *instance = [AZErgoCountingConflictsSolver solverForChapters:test1Q1];
+		[instance solveConflicts];
+//		NSLog(@"\n R0 -> %@\n", [[instance ordered] componentsJoinedByString:@" "]);
+//		NSLog(@"\n RX -> %@\n\n", [test1Q1 componentsJoinedByString:@" "]);
+
+		[[[instance ordered] should] equal:test1R1];
+	});
+	
 	it(@"should properly fetch volumes", ^{
 		NSArray *test2Q1 = [@"1-1,3-2,2-1,1-3,1-2,1-4,3-1,4-0,5-1" chaptersArray];
 		NSArray *test2Q2 = [@"1-1,1-2.5,1-2,1-4,2-1,5-1,3-1,3-2" chaptersArray];
@@ -459,12 +472,10 @@ describe(@"AZErgoCountingConflictsSolver", ^{
 
 	it(@"should properly resolve all errors", ^{
 		NSArray *test10Q1 = [@"1-1, 1-2, 2-1, 2-2, 2-3, 3-6, 3-7, 3-8, 3-9  , 3-10 , 4-9, 4-10, 5-11" chaptersArray];
-
-		NSArray *test10Q2 = [@"1-1,1-2,2-3,2-4,2-5,3-6,3-7,3-8,3-9,3-10,4-11,4-12,4-13,4-15, 4-16,5-5,5-6,5-7,5-8,5-9,5-10,5-11,5-12,5-13,5-14,5-15,5-16,5-17" chaptersArray];
-
 		NSArray *test10R1 = [@"1-1, 1-2, 2-3, 2-4, 2-5, 3-6, 3-7, 3-8, 3-8.5, 3-8.6, 4-9, 4-10, 5-11" chaptersArray];
 
-		NSArray *test10R2 = [@"1-1,1-2,2-3,2-3.3,2-3.4,3-3.5,3-3.6,3-3.7,3-3.8,3-3.9,4-4,4-4.5,4-4.6,4-4.7, 4-4.8,5-5,5-6,5-7,5-8,5-9,5-10,5-11,5-12,5-13,5-14,5-15,5-16,5-17" chaptersArray];
+		NSArray *test10Q2 = [@"1-1,1-2,2-3,2-4,  2-5,  3-6,  3-7,  3-8,  3-9,  3-10, 4-11,4-12, 4-13, 4-15,  4-16, 5-5,5-6,5-7,5-8,5-9,5-10,5-11,5-12,5-13,5-14,5-15,5-16,5-17" chaptersArray];
+		NSArray *test10R2 = [@"1-1,1-2,2-3,2-3.3,2-3.4,3-3.5,3-3.6,3-3.7,3-3.8,3-3.9,4-4, 4-4.5,4-4.6,4-4.7, 4-4.8,5-5,5-6,5-7,5-8,5-9,5-10,5-11,5-12,5-13,5-14,5-15,5-16,5-17" chaptersArray];
 
 		//		NSLog(@"\n\n B0 -> %@", [test10Q1 componentsJoinedByString:@" "]);
 		AZErgoCountingConflictsSolver *instance = [AZErgoCountingConflictsSolver solverForChapters:test10Q1];
@@ -473,11 +484,11 @@ describe(@"AZErgoCountingConflictsSolver", ^{
 		//		NSLog(@"\n RX -> %@\n\n", [test10R1 componentsJoinedByString:@" "]);
 		[[[instance ordered] should] equal:test10R1];
 
-		NSLog(@"\n\n B0 -> %@", [test10Q2 componentsJoinedByString:@" "]);
+//		NSLog(@"\n\n B0 -> %@", [test10Q2 componentsJoinedByString:@" "]);
 		AZErgoCountingConflictsSolver *instance2 = [AZErgoCountingConflictsSolver solverForChapters:test10Q2];
 		[instance2 solveConflicts];
-		NSLog(@"\n R0 -> %@\n", [[instance2 ordered] componentsJoinedByString:@" "]);
-		NSLog(@"\n RX -> %@\n\n", [test10R2 componentsJoinedByString:@" "]);
+//		NSLog(@"\n R0 -> %@\n", [[instance2 ordered] componentsJoinedByString:@" "]);
+//		NSLog(@"\n RX -> %@\n\n", [test10R2 componentsJoinedByString:@" "]);
 		[[[instance2 ordered] should] equal:test10R2];
 });
 });

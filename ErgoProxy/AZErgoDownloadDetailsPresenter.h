@@ -26,6 +26,8 @@
 - (void) trashEntity;
 - (void) lockEntity;
 
+- (void) recursive:(id)sender block:(void(^)(id entity))block;
+
 @end
 
 @interface AZErgoDownloadDetailsPresenter : AZErgoEntityDetailsPresenter

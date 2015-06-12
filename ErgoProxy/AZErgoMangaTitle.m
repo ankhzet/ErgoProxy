@@ -17,8 +17,8 @@
 
 
 + (instancetype) mangaTitile:(NSString *)title {
-	return [self unique:[NSPredicate predicateWithFormat:@"title ==[c] %@", title] initWith:^(AZErgoMangaTitle *entity) {
-		entity.title = [title uppercaseFirstCharString];
+	return [self unique:AZF_ALL_OF(@"title ==[c] %@", title) initWith:^(AZErgoMangaTitle *entity) {
+		entity.title = [title stringByUppercaseFirstChar];
 	}];
 }
 

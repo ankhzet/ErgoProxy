@@ -8,13 +8,10 @@
 
 #import <Foundation/Foundation.h>
 
-#import "AZErgoSubstitutioner.h"
+#import "AZErgoDictionaryDataSupplier.h"
 
-@interface AZErgoMangaDataSupplier : NSObject  <AZErgoSubtitutionerDataSupplier> {
-	NSDictionary *data;
-}
+@interface AZErgoMangaDataSupplier : AZErgoDictionaryDataSupplier
 
-- (id)initWithDictionary:(NSDictionary *)dictionary;
 + (instancetype) dataWithDirectoryIndex:(NSString *)path;
 + (instancetype) dataWithReader:(NSString *)path;
 

@@ -8,7 +8,7 @@
 
 #import "AZCoreDataEntity.h"
 
-@class AZErgoMangaProgress, AZErgoMangaTag, AZErgoMangaTitle;
+@class AZErgoMangaProgress, AZErgoMangaTag, AZErgoMangaTitle, AZErgoUpdateChapterMapping;
 
 @interface AZErgoManga : AZCoreDataEntity
 
@@ -21,6 +21,8 @@
 @property (nonatomic, retain) AZErgoMangaProgress *progress;
 @property (nonatomic, retain) NSSet *downloads;
 @property (nonatomic, retain) NSDate *fsCheck;
+
+@property (nonatomic, retain) NSSet *chapterMappings;
 
 + (instancetype) mangaWithName:(NSString *)name;
 + (instancetype) mangaByName:(NSString *)name;
@@ -35,6 +37,9 @@
 
 - (BOOL) hasToCheckFS;
 - (void) checkFSWithCompletion:(void(^)(AZErgoManga *manga))complete;
+
+- (NSUInteger) remapChapters:(NSArray *)chapters;
+- (AZErgoUpdateChapterMapping *) mappingForChapter:(float)chapter inVolume:(NSUInteger)volume;
 
 @end
 
@@ -56,6 +61,7 @@
 
 - (NSArray *) tagNames;
 
+- (void) removeAllTags;
 - (void) toggle:(BOOL)on tag:(AZErgoMangaTag *)tag;
 - (AZErgoMangaTag *) toggle:(BOOL)on tagWithGUID:(NSUInteger)guid;
 - (AZErgoMangaTag *) toggle:(BOOL)on tagWithName:(NSString *)name;

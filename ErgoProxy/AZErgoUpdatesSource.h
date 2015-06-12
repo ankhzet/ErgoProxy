@@ -18,6 +18,15 @@
 
 @end
 
+@protocol AZErgoUpdatesSourceURLProvider <NSObject>
+
+- (NSString *) action:(NSString *)action URL:(NSString *)genData;
+- (NSString *) mangaURL:(NSString *)genData;
+- (NSString *) chapterURL:(NSString *)genData;
+- (NSString *) searchURL:(NSString *)genData;
+
+@end
+
 @protocol AZErgoUpdatesSourceParserProtocol <NSObject>
 
 - (BOOL) correspondsTo:(NSString *)resoureURL;
@@ -77,7 +86,7 @@ extern const NSUInteger LABEL_ELEMENT_CHAPTER;
 extern const NSUInteger LABEL_ELEMENT_TIP;
 
 
-@interface AZErgoUpdatesSource (SourceRelated) <AZErgoUpdatesSourceParserProtocol>
+@interface AZErgoUpdatesSource (SourceRelated) <AZErgoUpdatesSourceParserProtocol, AZErgoUpdatesSourceURLProvider>
 
 - (id) action:(NSString *)action request:(NSString *)genData;
 - (id) infoAction:(AZErgoUpdateWatch *)watch;

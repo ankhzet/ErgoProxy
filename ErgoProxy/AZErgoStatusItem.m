@@ -72,13 +72,15 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 
 - (void) queue {
 	while ([NSApp isRunning]) {
+		AZDownloadSpeedWatcher *watcher = [AZDownloadSpeedWatcher sharedSpeedWatcher];
 		@synchronized(self) {
-			NSTimeInterval shortTerm = [[NSDate dateWithTimeIntervalSinceNow:-UNACTIVITY_INTERVAL] timeIntervalSinceReferenceDate];
-			NSTimeInterval longsTerm = [[NSDate dateWithTimeIntervalSinceNow:-AVERAGE_INTERVAL] timeIntervalSinceReferenceDate];
-			
-			maxAverage = [[AZDownloadSpeedWatcher sharedSpeedWatcher] averageSpeedSince:longsTerm];
-			averageSpeed = MIN(maxAverage, [[AZDownloadSpeedWatcher sharedSpeedWatcher] averageSpeedSince:shortTerm]);
+			NSTimeInterval shortTerm = [AZDownloadSpeedWatcher timeWithTimeIntervalSinceNow:-UNACTIVITY_INTERVAL];
+			NSTimeInterval longsTerm = [AZDownloadSpeedWatcher timeWithTimeIntervalSinceNow:-AVERAGE_INTERVAL];
 
+			maxAverage = [watcher averageSpeedSince:longsTerm];
+			averageSpeed = [watcher averageSpeedSince:shortTerm];
+
+			averageSpeed = MIN(maxAverage, averageSpeed);
 			noActivity = averageSpeed < 0.1;
 		}
 
@@ -93,15 +95,18 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 
 	NSRect sourceRect = NSOffsetRect(dirtyRect, offsetX, offsetY);
 
-	float alpha = (![downloads count]) ? 1.0 : 0.5;
+	NSUInteger active = [downloads count];
+	BOOL isDownloading = !!active;
+
+	float alpha = isDownloading ? 0.5 : 1.0;
 	[appIcon drawInRect:dirtyRect fromRect:sourceRect operation:NSCompositeCopy fraction:alpha];
 
-	if (![downloads count])
+	if (!isDownloading)
 		return;
 
 	BOOL isHighlited = NO;
 
-	NSUInteger concurent = 2;
+	NSUInteger concurent = MIN(active, 2);
 
 	AZ_Mutable(Array, *percentage);
 
@@ -115,7 +120,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 	}
 
 	CGFloat gap = 1.0;
-	CGFloat inset = 3.0;
+	CGFloat inset = (active < 3) ? 3.0 : 1.0;
 	CGRect rect = self.bounds;
 	CGRect insetRect = NSInsetRect(rect, inset, inset);
 	CGFloat lineH = (insetRect.size.height - gap * (concurent - 1)) / concurent;
@@ -133,6 +138,41 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 		inrect.origin.y = (int)(inset + gap + i * (lineH + gap));
 		[self progress:percents inRect:inrect highlited:isHighlited];
 	}
+
+	NSTimeInterval longTerm = [AZDownloadSpeedWatcher timeWithTimeIntervalSinceNow:-(60*5)];
+	float longAverage = [[AZDownloadSpeedWatcher sharedSpeedWatcher] averageSpeedSince:longTerm];
+
+	if ((longAverage - 0.01) <= 0)
+		return;
+
+	NSString *sLong = [NSString cvtFileSize:longAverage withPrec:1 withLabel:NO];
+
+	NSFont *font = [self bpsFont];
+	NSDictionary *outline = @{
+															 NSFontAttributeName: font,
+															 NSStrokeWidthAttributeName: @(-30.0),
+															 NSStrokeColorAttributeName: [NSColor whiteColor],
+															 };
+	NSDictionary *foreground = @{
+															 NSFontAttributeName: font,
+															 NSForegroundColorAttributeName: [NSColor blackColor],
+//															 NSStrokeWidthAttributeName: @(-1.0),
+															 };
+
+	CGSize size = [sLong sizeWithAttributes:foreground];
+	CGPoint point = NSMakePoint(rect.origin.x + (rect.size.width - size.width) / 2., rect.origin.y + (rect.size.height - size.height) / 2.);
+
+	[sLong drawAtPoint:point withAttributes:outline];
+	[sLong drawAtPoint:point withAttributes:foreground];
+}
+
+- (NSFont *) bpsFont {
+	static NSFont *font;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+    font = [NSFont fontWithName:@"Helvetica" size:10];
+	});
+	return font;
 }
 
 - (void) progress:(CGFloat)progress inRect:(CGRect)rect highlited:(BOOL)isHighlited {
@@ -186,16 +226,15 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoStatusItem)
 	[NSApp activateIgnoringOtherApps:YES];
 }
 - (IBAction)actionShowReader:(id)sender {
-	AZErgoBrowserTab *tab = [AZErgoBrowserTab browserTab];
-	[[tab tabs] navigateTo:tab.tabIdentifier withNavData:nil];
+	[AZErgoBrowserTab navigateToWithData:nil];
 }
 
 - (void) menuNeedsUpdate:(NSMenu *)aMenu {
 	NSMenuItem *browserItem = [aMenu itemWithTag:1];
-	if (browserItem && [AZErgoBrowserTab browserTab]) {
-		NSString *title = [[AZErgoBrowserTab browserTab] title];
+	if (browserItem && [AZErgoBrowserTab sharedTab]) {
+		NSString *title = [[AZErgoBrowserTab sharedTab] title];
 		if (!title) {
-			NSString *uri = [[AZErgoBrowserTab browserTab] loadedURI];
+			NSString *uri = [[AZErgoBrowserTab sharedTab] loadedURI];
 			title = [self parseBrowserURI:uri];
 		}
 

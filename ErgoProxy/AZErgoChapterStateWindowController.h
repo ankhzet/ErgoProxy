@@ -8,8 +8,9 @@
 
 #import "AZSheetWindowController.h"
 
+@class AZErgoManga;
 @interface AZErgoChapterStateWindowController : AZSheetWindowController
 
-- (void) showStateController;
+- (void) showStateController:(AZErgoManga *)manga;
 
 @end

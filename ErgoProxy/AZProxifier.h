@@ -27,8 +27,9 @@
 - (AZStorage *) storageWithURL:(NSString *)url;
 - (AZDownload *) downloadForURL:(NSString *)url withParams:(AZDownloadParams *)params;
 - (AZErgoDownloader *) downloaderForURL:(NSString *)url;
-- (AZErgoDownloader *) newDownloaderForStorage:(AZStorage *)storage andParams:(AZDownloadParams *)params;
-- (void) reRegisterDownload:(AZDownload *)download;
+- (void) registerForDownloading:(AZDownload *)download;
+- (void) reRegisterDownloads;
+- (void) reRegisterDownloads:(BOOL(^)(AZDownload *download))filterBlock;
 
 - (NSEnumerator *) downloaders;
 

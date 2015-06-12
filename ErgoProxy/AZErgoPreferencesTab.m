@@ -23,6 +23,7 @@
 @property (weak) IBOutlet NSTextField *tfMangaStorage;
 @property (weak) IBOutlet NSButton *cbGroupDownloads;
 @property (weak) IBOutlet NSButton *cbHideFinishedDownloads;
+@property (weak) IBOutlet NSButton *cbShowOnlyUnfinished;
 
 @property (weak) IBOutlet NSTextField *tfSimultaneousDownloadsPerStorage;
 @property (weak) IBOutlet NSButton *cbDownloadsFullResolve;
@@ -37,7 +38,7 @@
 
 @implementation AZErgoPreferencesTab
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDPreferencesTab;
 }
 
@@ -62,6 +63,7 @@
 	self.tfMangaStorage.stringValue = PREF_STR(PREFS_COMMON_MANGA_STORAGE);
 	self.cbGroupDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_GROUPPED) ? NSOnState : NSOffState;
 	self.cbHideFinishedDownloads.state = PREF_BOOL(PREFS_UI_DOWNLOADS_HIDEFINISHED) ? NSOnState : NSOffState;
+	self.cbShowOnlyUnfinished.state = PREF_BOOL(PREFS_UI_DOWNLOADS_SHOWUNFINISHED) ? NSOnState : NSOffState;
 
 	// downloads prefs
 	self.tfSimultaneousDownloadsPerStorage.stringValue = PREF_STR(PREFS_DOWNLOAD_PER_STORAGE);
@@ -144,6 +146,9 @@
 }
 - (IBAction)actionHideFinishedDownloadChanged:(id)sender {
 	PREF_SAVE_UI_BOOL(self.cbHideFinishedDownloads, PREFS_UI_DOWNLOADS_HIDEFINISHED);
+}
+- (IBAction)actionShowOnlyUnfinishedMangaChanged:(id)sender {
+	PREF_SAVE_UI_BOOL(self.cbShowOnlyUnfinished, PREFS_UI_DOWNLOADS_SHOWUNFINISHED);
 }
 
 - (IBAction)actionWatcherAutocheckIntervalChanged:(id)sender {

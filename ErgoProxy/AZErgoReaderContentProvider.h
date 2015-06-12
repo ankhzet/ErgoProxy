@@ -37,7 +37,10 @@
 - (NSInteger) constraintIndex:(NSInteger)index;
 - (void) viewingContentAtIndex:(NSInteger)index;
 
+- (float) hasNext:(BOOL)backward;
 - (BOOL) seekNext:(BOOL)backward;
+
+- (NSArray *) corruptedScans;
 
 @end
 

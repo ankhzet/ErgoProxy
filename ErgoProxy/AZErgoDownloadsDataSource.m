@@ -90,15 +90,6 @@
 	}
 }
 
-- (IBAction) actionDelegatedClick:(id)sender {
-	if (self.delegate) {
-		AZConfigurableTableCellView *dcv = [self cellViewFromSender:sender];
-		if (!dcv) return;
-
-		[self.delegate showEntity:dcv.bindedEntity detailsFromSender:sender];
-	}
-}
-
 @end
 
 @implementation AZErgoDownloadsDataSource (DataFormatting)
@@ -154,7 +145,6 @@
 
 	if ([GroupsDictionary isDictionary:node]) {
 		// this is a root node with manga name in it, so - no chapter idx'es available
-		return nil;
 	} else
 		if ([ItemsDictionary isDictionary:node]) {
 			// this is a chapter node with chapter id in it
@@ -162,24 +152,22 @@
 			AZDownload *anyDownload = [[(CustomDictionary *)node allValues] firstObject];
 			if (anyDownload) {
 				return anyDownload.updateChapter;
-				manga = anyDownload.forManga.name;
-				chapterIdx = @(anyDownload.chapter);
 			} else {
 				AZErgoUpdateWatch *relatedManga = [self relatedManga:node];
 				manga = relatedManga.manga;
+
+				AZErgoUpdateChapter *related = nil;
+
+				if (!(!chapterIdx || !manga))
+					related = [AZErgoUpdateChapter any:@"(abs(persistentIdx - %lf) < 0.01) and (watch.manga ==[c] %@)", [chapterIdx floatValue], manga];
+
+				return related;
 			}
 		} else {
 			return ((AZDownload *)node).updateChapter;
-			manga = ((AZDownload *)node).forManga.name;
-			chapterIdx = @(((AZDownload *)node).chapter);
 		}
 
-	AZErgoUpdateChapter *related = nil;
-
-	if (!(!chapterIdx || !manga))
-		related = [AZErgoUpdateChapter any:@"watch.manga ==[c] %@ and abs(idx - %lf) < 0.01", manga, [chapterIdx floatValue]];
-
-	return related;
+	return nil;
 }
 
 @end
@@ -199,12 +187,23 @@
 }
 
 - (id) groupNodeOf:(AZDownload *)item {
-//	[AZErgoMangaChapter formatChapterID:<#(float)#>]
 	return [NSString stringWithFormat:@"%06.1f",item.chapter];
 }
 
 - (id<NSCopying>) orderedUID:(AZDownload *)item {
-	return @(truncf(item.chapter * 10) + (item.page / 1000.f));
+	return @(trunc(item.chapter * 10) + (item.page / 10000.f));
+}
+
+@end
+
+@implementation AZErgoDownloadsDataSource (AccessorsBehaviour)
+
+- (CGFloat) groupCellHeight:(id)item {
+	return 24.f;
+}
+
+- (CGFloat) cellHeight:(id)item {
+	return 24.f;
 }
 
 @end

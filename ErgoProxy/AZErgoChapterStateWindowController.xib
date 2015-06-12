@@ -91,7 +91,7 @@ Gw
                                             <font key="font" metaFont="menu"/>
                                             <menu key="menu" title="OtherViews" id="ORq-Xg-19j">
                                                 <items>
-                                                    <menuItem title="Item 1" id="gmr-vx-XA6"/>
+                                                    <menuItem title="Item 1" hidden="YES" id="gmr-vx-XA6"/>
                                                     <menuItem title="Item 2" id="nFH-4K-1ms"/>
                                                     <menuItem title="Item 3" id="Mfy-5T-LA4"/>
                                                 </items>
@@ -101,14 +101,14 @@ Gw
                                             <action selector="actionSelectedMangaChanged:" target="-2" id="rOt-3D-kbD"/>
                                         </connections>
                                     </popUpButton>
-                                    <scrollView autohidesScrollers="YES" horizontalLineScroll="26" horizontalPageScroll="10" verticalLineScroll="26" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="JhQ-ah-fMu">
+                                    <scrollView autohidesScrollers="YES" horizontalLineScroll="19" horizontalPageScroll="10" verticalLineScroll="19" verticalPageScroll="10" hasHorizontalScroller="NO" usesPredominantAxisScrolling="NO" horizontalScrollElasticity="none" translatesAutoresizingMaskIntoConstraints="NO" id="JhQ-ah-fMu">
                                         <rect key="frame" x="20" y="20" width="543" height="224"/>
                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                         <clipView key="contentView" id="wcH-W2-CGH">
                                             <rect key="frame" x="1" y="1" width="541" height="222"/>
                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                             <subviews>
-                                                <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowHeight="24" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="zzr-xo-3ik" id="88l-S5-1El">
+                                                <outlineView verticalHuggingPriority="750" allowsExpansionToolTips="YES" columnAutoresizingStyle="lastColumnOnly" columnReordering="NO" columnResizing="NO" multipleSelection="NO" autosaveColumns="NO" rowSizeStyle="automatic" viewBased="YES" indentationPerLevel="16" outlineTableColumn="zzr-xo-3ik" id="88l-S5-1El">
                                                     <rect key="frame" x="0.0" y="0.0" width="541" height="222"/>
                                                     <autoresizingMask key="autoresizingMask"/>
                                                     <size key="intercellSpacing" width="3" height="2"/>
@@ -134,7 +134,7 @@ Gw
                                                                     <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                                     <subviews>
                                                                         <textField verticalHuggingPriority="750" horizontalCompressionResistancePriority="250" translatesAutoresizingMaskIntoConstraints="NO" id="LKR-zG-5j4">
-                                                                            <rect key="frame" x="5" y="4" width="52" height="17"/>
+                                                                            <rect key="frame" x="5" y="4" width="252" height="17"/>
                                                                             <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                                             <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" placeholderString="Volume" id="nMu-pV-hl9">
                                                                                 <font key="font" metaFont="system"/>
@@ -142,12 +142,57 @@ Gw
                                                                                 <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                                             </textFieldCell>
                                                                         </textField>
+                                                                        <textField hidden="YES" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="rfg-bZ-65A">
+                                                                            <rect key="frame" x="306" y="2" width="80" height="22"/>
+                                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                            <constraints>
+                                                                                <constraint firstAttribute="width" constant="80" id="Jr3-eq-5Xa"/>
+                                                                            </constraints>
+                                                                            <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" selectable="YES" editable="YES" sendsActionOnEndEditing="YES" state="on" borderStyle="bezel" placeholderString="" drawsBackground="YES" id="AZJ-Wr-KnP">
+                                                                                <font key="font" metaFont="system"/>
+                                                                                <color key="textColor" name="textColor" catalog="System" colorSpace="catalog"/>
+                                                                                <color key="backgroundColor" name="textBackgroundColor" catalog="System" colorSpace="catalog"/>
+                                                                            </textFieldCell>
+                                                                            <connections>
+                                                                                <action selector="actionChapterIDChanged:" target="drQ-oV-c6U" id="yS5-lk-q2v"/>
+                                                                            </connections>
+                                                                        </textField>
+                                                                        <button hidden="YES" horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="ln5-AW-zKx">
+                                                                            <rect key="frame" x="282" y="4" width="18" height="18"/>
+                                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                            <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" state="on" inset="2" id="Cig-Sz-gA3">
+                                                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                                <font key="font" metaFont="system"/>
+                                                                            </buttonCell>
+                                                                            <connections>
+                                                                                <action selector="actionCheckedChanged:" target="drQ-oV-c6U" id="BeM-kD-A9X"/>
+                                                                            </connections>
+                                                                        </button>
+                                                                        <button horizontalHuggingPriority="251" translatesAutoresizingMaskIntoConstraints="NO" id="3E8-je-Nld">
+                                                                            <rect key="frame" x="260" y="4" width="18" height="18"/>
+                                                                            <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                                                                            <buttonCell key="cell" type="check" title="Check" bezelStyle="regularSquare" imagePosition="only" state="on" inset="2" id="VaS-3M-SIl">
+                                                                                <behavior key="behavior" changeContents="YES" doesNotDimImage="YES" lightByContents="YES"/>
+                                                                                <font key="font" metaFont="system"/>
+                                                                            </buttonCell>
+                                                                            <connections>
+                                                                                <action selector="actionDownloadedChanged:" target="IdT-g9-7iG" id="trj-1r-dOj"/>
+                                                                            </connections>
+                                                                        </button>
                                                                     </subviews>
                                                                     <constraints>
+                                                                        <constraint firstItem="rfg-bZ-65A" firstAttribute="leading" secondItem="ln5-AW-zKx" secondAttribute="trailing" constant="8" symbolic="YES" id="FRw-M9-O3c"/>
+                                                                        <constraint firstItem="3E8-je-Nld" firstAttribute="leading" secondItem="LKR-zG-5j4" secondAttribute="trailing" constant="8" symbolic="YES" id="FgZ-ak-Ukm"/>
+                                                                        <constraint firstItem="rfg-bZ-65A" firstAttribute="centerY" secondItem="ln5-AW-zKx" secondAttribute="centerY" id="Lvo-I6-czl"/>
+                                                                        <constraint firstAttribute="trailing" secondItem="rfg-bZ-65A" secondAttribute="trailing" constant="20" symbolic="YES" id="N0q-0i-MUE"/>
+                                                                        <constraint firstItem="3E8-je-Nld" firstAttribute="centerY" secondItem="ln5-AW-zKx" secondAttribute="centerY" id="Rse-vO-dHi"/>
                                                                         <constraint firstItem="LKR-zG-5j4" firstAttribute="leading" secondItem="IdT-g9-7iG" secondAttribute="leading" constant="8" id="cRU-X0-jCF"/>
                                                                         <constraint firstAttribute="centerY" secondItem="LKR-zG-5j4" secondAttribute="centerY" id="rNi-db-vTJ"/>
+                                                                        <constraint firstItem="ln5-AW-zKx" firstAttribute="leading" secondItem="3E8-je-Nld" secondAttribute="trailing" constant="8" symbolic="YES" id="tZw-tI-mT8"/>
+                                                                        <constraint firstItem="rfg-bZ-65A" firstAttribute="baseline" secondItem="LKR-zG-5j4" secondAttribute="baseline" id="wK6-Hf-hKJ"/>
                                                                     </constraints>
                                                                     <connections>
+                                                                        <outlet property="cbDownloaded" destination="3E8-je-Nld" id="cbU-Cl-G7q"/>
                                                                         <outlet property="textField" destination="LKR-zG-5j4" id="ph4-go-uuZ"/>
                                                                     </connections>
                                                                 </tableCellView>
@@ -198,7 +243,7 @@ Gw
                                                                                 <font key="font" metaFont="system"/>
                                                                             </buttonCell>
                                                                             <connections>
-                                                                                <action selector="actionDownloadChanged:" target="drQ-oV-c6U" id="WOq-zR-xAE"/>
+                                                                                <action selector="actionDownloadedChanged:" target="drQ-oV-c6U" id="dxL-ud-E4q"/>
                                                                             </connections>
                                                                         </button>
                                                                     </subviews>

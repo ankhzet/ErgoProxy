@@ -16,7 +16,4 @@
 
 + (instancetype) readerForManga:(AZErgoManga *)manga andChapter:(float)chapter;
 
-- (void) scanCached:(id)uid;
-- (void) updateScanView:(id)uid;
-
 @end

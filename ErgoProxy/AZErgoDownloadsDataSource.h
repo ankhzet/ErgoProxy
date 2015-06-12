@@ -11,17 +11,9 @@
 typedef struct {NSUInteger total, downloaded;} AZErgoDownloadedAmount;
 
 @class AZDownload;
-@protocol AZErgoDownloadsDataSourceDelegate <NSObject>
-
-- (void) showEntity:(id)entity detailsFromSender:(id)sender;
-
-@end
 
 @class AZErgoUpdateWatch, AZErgoUpdateChapter;
 @interface AZErgoDownloadsDataSource : AZGroupableDataSource
-
-@property (nonatomic) IBOutlet id<AZErgoDownloadsDataSourceDelegate> delegate;
-
 
 - (AZErgoDownloadedAmount) downloaded:(id)node;
 - (BOOL) unfinished:(id)node;

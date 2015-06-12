@@ -170,7 +170,21 @@
 
 	if (!![NSFileManager fileSize:previewFile])
 		dispatch_async_at_background(^{
-			NSImage *image = [[NSImage alloc] initWithContentsOfFile:previewFile];
+
+			NSImage *image = nil;
+
+			if ([NSImage isJPEG:previewFile]) {
+				NSData *data = [NSData dataWithContentsOfFile:previewFile];
+				if ([NSImage isCorruptJPEGWithData:data]) {
+					DDLogVerbose(@"Re-downloading preview: %@", previewFile);
+					[self downloadPreview];
+					return;
+				}
+
+				image = [[NSImage alloc] initWithData:data];
+			} else
+				image = [[NSImage alloc] initWithContentsOfFile:previewFile];
+
 			dispatch_async_at_main(^{
 				self.ivMangaPreview.animates = NO;
 				[self.ivMangaPreview setImage:image];

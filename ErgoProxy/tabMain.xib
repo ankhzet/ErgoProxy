@@ -46,11 +46,11 @@
                                         <tableColumnResizingMask key="resizingMask" resizeWithTable="YES"/>
                                         <prototypeCellViews>
                                             <tableCellView identifier="GroupCell" id="GFe-mM-vhF" customClass="AZErgoDownloadGroupCellView">
-                                                <rect key="frame" x="1" y="1" width="446" height="20"/>
+                                                <rect key="frame" x="1" y="1" width="446" height="22"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
                                                     <textField horizontalHuggingPriority="2" verticalHuggingPriority="750" horizontalCompressionResistancePriority="1" translatesAutoresizingMaskIntoConstraints="NO" id="XJ3-oR-eEi">
-                                                        <rect key="frame" x="32" y="1" width="103" height="17"/>
+                                                        <rect key="frame" x="32" y="3" width="103" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" widthSizable="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" lineBreakMode="truncatingTail" sendsActionOnEndEditing="YES" title="Manga/Chapter" id="YlE-f0-TJ3">
                                                             <font key="font" metaFont="system"/>
@@ -59,7 +59,7 @@
                                                         </textFieldCell>
                                                     </textField>
                                                     <textField horizontalHuggingPriority="251" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="8dK-Ei-jAZ">
-                                                        <rect key="frame" x="343" y="1" width="86" height="17"/>
+                                                        <rect key="frame" x="343" y="3" width="86" height="17"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" enabled="NO" allowsUndo="NO" sendsActionOnEndEditing="YES" alignment="right" title="1,2MB/12MB" id="uFD-9y-NIp">
                                                             <font key="font" metaFont="system"/>
@@ -67,8 +67,8 @@
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
                                                         </textFieldCell>
                                                     </textField>
-                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aSb-vC-OnK">
-                                                        <rect key="frame" x="0.0" y="-1" width="27" height="21"/>
+                                                    <button identifier="details" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="aSb-vC-OnK">
+                                                        <rect key="frame" x="0.0" y="0.0" width="27" height="21"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <constraints>
                                                             <constraint firstAttribute="width" constant="27" id="6wo-LA-PDm"/>
@@ -99,10 +99,10 @@
                                                 </connections>
                                             </tableCellView>
                                             <tableCellView identifier="ItemCell" id="gC2-lM-A8C" customClass="AZErgoDownloadCellView">
-                                                <rect key="frame" x="1" y="23" width="446" height="24"/>
+                                                <rect key="frame" x="1" y="25" width="446" height="24"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YOX-dg-nYc">
+                                                    <button identifier="details" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="YOX-dg-nYc">
                                                         <rect key="frame" x="0.0" y="3" width="27" height="19"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <constraints>
@@ -144,12 +144,6 @@
                                                             <constraint firstAttribute="width" priority="998" constant="48" id="FR5-8Y-Ofs"/>
                                                         </constraints>
                                                         <textFieldCell key="cell" scrollable="YES" lineBreakMode="clipping" sendsActionOnEndEditing="YES" alignment="right" title="666.6" id="8li-kq-9y3">
-                                                            <numberFormatter key="formatter" formatterBehavior="custom10_4" positiveFormat="#.#" negativeFormat="#.#" localizesFormat="NO" usesGroupingSeparator="NO" groupingSize="0" minimumIntegerDigits="0" maximumIntegerDigits="42" minimumFractionDigits="0" maximumFractionDigits="1" decimalSeparator="," groupingSeparator=" " currencyDecimalSeparator="," id="NYh-OQ-ogd">
-                                                                <real key="roundingIncrement" value="0.0"/>
-                                                                <metadata>
-                                                                    <bool key="localizesFormat" value="NO"/>
-                                                                </metadata>
-                                                            </numberFormatter>
                                                             <font key="font" metaFont="system"/>
                                                             <color key="textColor" name="controlTextColor" catalog="System" colorSpace="catalog"/>
                                                             <color key="backgroundColor" name="controlColor" catalog="System" colorSpace="catalog"/>
@@ -200,16 +194,19 @@
                                                 </connections>
                                             </tableCellView>
                                             <tableCellView identifier="HeaderCell" id="NNf-85-Kjx" customClass="AZConfigurableTableCellView">
-                                                <rect key="frame" x="1" y="49" width="446" height="21"/>
+                                                <rect key="frame" x="1" y="51" width="446" height="21"/>
                                                 <autoresizingMask key="autoresizingMask" widthSizable="YES" heightSizable="YES"/>
                                                 <subviews>
-                                                    <button verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qkb-em-YFl">
+                                                    <button identifier="filter" verticalHuggingPriority="750" translatesAutoresizingMaskIntoConstraints="NO" id="qkb-em-YFl">
                                                         <rect key="frame" x="-6" y="-7" width="458" height="32"/>
                                                         <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
                                                         <buttonCell key="cell" type="push" title="#" bezelStyle="rounded" alignment="center" borderStyle="border" imageScaling="proportionallyDown" inset="2" id="Rl3-ja-F1J">
                                                             <behavior key="behavior" pushIn="YES" lightByBackground="YES" lightByGray="YES"/>
                                                             <font key="font" metaFont="system"/>
                                                         </buttonCell>
+                                                        <connections>
+                                                            <action selector="actionDelegatedClick:" target="6Hd-z3-qS3" id="Ig2-Be-nMt"/>
+                                                        </connections>
                                                     </button>
                                                 </subviews>
                                                 <constraints>
@@ -231,7 +228,7 @@
                         <color key="backgroundColor" name="controlBackgroundColor" catalog="System" colorSpace="catalog"/>
                     </clipView>
                     <scroller key="horizontalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="YES" id="hev-H7-PNS">
-                        <rect key="frame" x="1" y="350" width="599" height="16"/>
+                        <rect key="frame" x="1" y="304" width="449" height="16"/>
                         <autoresizingMask key="autoresizingMask"/>
                     </scroller>
                     <scroller key="verticalScroller" hidden="YES" verticalHuggingPriority="750" horizontal="NO" id="0zj-5l-JYK">

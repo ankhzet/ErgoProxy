@@ -17,6 +17,8 @@
 
 @end
 
+MULTIDELEGATED_INJECT_LISTENER(AZErgoUpdatesGroupCellView)
+
 @implementation AZErgoUpdatesGroupCellView
 
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
@@ -30,10 +32,13 @@
 		[self watch:nil stateChanged:NO];
 	}) else
 		AZ_IFCLASS(self.bindedEntity, AZErgoUpdateWatch, *watch, {
-			watch.delegate = self;
+			[self bindAsDelegateTo:watch solo:NO];
 
 			NSString *mangaName = watch.manga ?: LOC_FORMAT(@"<manga name not set>");
-			NSString *title = watch.title ? LOC_FORMAT(@" ⟩ %@ (%@)", watch.title, mangaName) : mangaName;
+
+			AZErgoManga *manga = [AZErgoManga mangaByName:mangaName];
+
+			NSString *title = LOC_FORMAT(@" ⟩ %@", [manga description]);
 
 			[self showState:watch];
 			self.tfHeader.stringValue = title;
@@ -119,11 +124,6 @@
 - (void) watch:(AZErgoUpdateWatch *)watch stateChanged:(BOOL)checking {
 	__weak id wSelf = self;
 
-	dispatch_async_(YES, at_background, ^{
-		dispatch_async_(NO, at_main, ^{
-
-		});
-	});
 	dispatch_async_at_background(^{
 		dispatch_sync_at_main(^{
 			AZErgoUpdatesGroupCellView *sSelf = wSelf;

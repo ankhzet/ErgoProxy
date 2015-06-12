@@ -25,7 +25,7 @@
 	if ([server hasSuffix:@"/"])
 		server = [server substringToIndex:[server length]-1];
 
-	NSString *url = [NSString stringWithFormat:[super url], server];
+	NSString *url = [server stringByAppendingString:[super url]];
 	return url;
 }
 

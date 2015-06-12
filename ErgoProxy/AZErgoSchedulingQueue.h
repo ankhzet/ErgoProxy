@@ -6,24 +6,16 @@
 //  Copyright (c) 2015 Ankh. All rights reserved.
 //
 
-#import <Foundation/Foundation.h>
+#import "AZRequeuableTaskOperationQueue.h"
 
-typedef void(^AZScheduledTaskProcessBlock)(BOOL *requeue, id associatedObject);
+@class AZErgoUpdateChapter, AZErgoUpdateWatch;
+@interface AZErgoSchedulingQueue : AZRequeuableTaskOperationQueue
 
-@class AZErgoSchedulingQueueTask;
+@property (nonatomic) BOOL hasNewChapters;
 
-@interface AZErgoSchedulingQueue : NSOperationQueue
++ (instancetype) sharedQueue;
 
-- (void) enqueue:(AZScheduledTaskProcessBlock)process withAssociatedObject:(id)associated;
+- (void) queueChapterDownloadTask:(AZErgoUpdateChapter *)chapter;
+- (void) checkWatch:(AZErgoUpdateWatch *)watch;
 
 @end
-
-@interface AZErgoWaitBreakTask : NSObject
-@property() BOOL isRunning;
-
-typedef void(^AZErgoWaitBreakTaskProcessor)(AZErgoWaitBreakTask *task);
-+ (AZErgoWaitBreakTask *) executeTask:(AZErgoWaitBreakTaskProcessor)block;
-- (void) execute;
-- (void) break;
-@end
-

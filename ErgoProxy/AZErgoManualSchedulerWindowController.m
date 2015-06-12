@@ -14,6 +14,8 @@
 #import "AZErgoMangaCommons.h"
 #import "AZErgoUpdatesCommons.h"
 
+#import "AZErgoChapterDownloadParams.h"
+
 @interface AZErgoManualSchedulerWindowController ()
 
 @property (weak) IBOutlet NSComboBox *cbMangaFolder;
@@ -44,21 +46,16 @@
 	NSArray *scans = self.scansList;
 	if (![scans count]) return NO;
 
-	float chapter = self.mangaChapter;
-	NSUInteger pageIDX = 1;
+	AZErgoChapterDownloadParams *downloads = [AZErgoChapterDownloadParams new];
+	downloads.manga = manga;
+	downloads.chapterID = self.mangaChapter;
+	downloads.scans = scans;
+	downloads.scanDownloadParams = params;
 
-	AZProxifier *proxifier = [AZProxifier sharedProxifier];
-
-	for (NSString *scan in scans) {
-		AZDownload *download = [proxifier downloadForURL:scan withParams:params];
-		download.forManga = [manga inContext:download.managedObjectContext];
-		download.chapter = chapter;
-		download.page = pageIDX++;
-		download.state = AZErgoDownloadStateNone;
-	}
+	[downloads registerDownloads:[AZProxifier sharedProxifier]];
 
 	self.scansList = nil;
-	self.mangaChapter = ((int)chapter) + 1.f;
+	self.mangaChapter = ((int)self.mangaChapter) + 1.f;
 
 	return YES;
 }

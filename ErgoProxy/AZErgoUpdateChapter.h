@@ -9,6 +9,13 @@
 #import "AZErgoUpdatesCommons.h"
 #import "AZErgoChapterProtocol.h"
 
+@class AZErgoUpdateChapter, AZErgoManga, AZDownload, AZDownloadParams;
+@protocol AZErgoUpdateChapterProtocol <NSObject>
+
+- (void) update:(AZErgoUpdateChapter *)update stateChanged:(AZErgoUpdateChapterDownloads)state;
+
+@end
+
 @interface AZErgoUpdateChapter : AZCoreDataEntity <AZErgoChapterProtocol>
 
 @property (nonatomic, retain) NSString *title;
@@ -26,11 +33,24 @@
 
 - (BOOL) isDummy;
 
++ (instancetype) updateChapterForManga:(AZErgoManga *)manga chapter:(float)chapterID;
+
+@property (nonatomic) float persistentIdx;
+@property (nonatomic) AZErgoUpdateChapterDownloads persistentState;
+
+
 @end
 
 @interface AZErgoUpdateChapter (Formatting)
 
 - (NSString *) formattedString;
 - (NSString *) fullTitle;
+
+@end
+
+@interface AZErgoUpdateChapter (CoreDataAccessors)
+
+- (void)addDownloadsObject:(AZDownload *)value;
+- (void)removeDownloadsObject:(AZDownload *)value;
 
 @end

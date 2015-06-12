@@ -14,9 +14,9 @@
 @dynamic url;
 
 + (instancetype) serverWithURL:(NSString *)url {
-	AZProxyServer *server = [self insertNew];
-	server.url = url;
-	return server;
+	return [self unique:AZF_ALL_OF(@"url == %@", url) initWith:^(AZProxyServer *server) {
+		server.url = url;
+	}];
 }
 
 

@@ -15,6 +15,7 @@
 #import "AZDataProxy.h"
 
 #import "AZErgoMangaCommons.h"
+#import "AZErgoUpdatesCommons.h"
 
 #define API_AQUIRE_PARAM_URL @"url"
 #define API_AQUIRE_PARAM_WIDTH @"width"
@@ -40,17 +41,43 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 	if (state == _state)
 		return;
 
-	if (HAS_BIT(_state, AZErgoDownloadStateDownloaded) && !HAS_BIT(state, AZErgoDownloadStateDownloaded)) {
-		[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
-			AZErgoMangaProgress *p = self.forManga.progress;
-			[p setChapters:MAX(p.chapters, self.chapter)];
-			[p setUpdated:[NSDate new]];
-
-			self.proxifierHash = nil;
-		}];
-	}
-
+	AZErgoDownloadState old = state;
 	state = _state;
+
+	BOOL isDownloaded = HAS_BIT(_state, AZErgoDownloadStateDownloaded);
+	if (isDownloaded != HAS_BIT(old, AZErgoDownloadStateDownloaded))
+		[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
+
+			AZDownload *detouched = [self inContext:context];
+
+			AZErgoMangaProgress *p = detouched.forManga.progress;
+			[p setChapters:MAX(p.chapters, self.chapter)];
+			[p setUpdated:[NSDate date]];
+
+			detouched.proxifierHash = nil;
+
+			if (detouched.updateChapter) {
+				NSArray *downloads = [detouched.updateChapter.downloads allObjects];
+				BOOL hasDownloads = !![downloads count];
+				BOOL downloaded = YES;
+				if (hasDownloads)
+					for (AZDownload *download in downloads)
+						if (!HAS_BIT(download.state, AZErgoDownloadStateDownloaded)) {
+							downloaded = NO;
+							break;
+						}
+
+				if (downloaded)
+					detouched.updateChapter.state = hasDownloads
+						? AZErgoUpdateChapterDownloadsDownloaded
+						: AZErgoUpdateChapterDownloadsUnknown;
+				else
+					detouched.updateChapter.state = hasDownloads
+						? AZErgoUpdateChapterDownloadsPartial
+						: AZErgoUpdateChapterDownloadsNone;
+			}
+		}];
 
 	[self notifyStateChanged];
 }
@@ -107,7 +134,7 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 	return SIGN(state - other.state);
 }
 
-- (void) downloadError:(id)_error {
+- (void) setError:(id)_error {
 	if (_error)
 		self.state |= AZErgoDownloadStateFailed;
 	else {
@@ -115,20 +142,24 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 		self.httpError = 0;
 	}
 
-	self.error = _error;
+	error = _error;
 }
 
 + (NSUInteger) manga:(NSString *)manga countChapterDownloads:(float)chapter {
-	NSPredicate *filterPredicate = [NSPredicate predicateWithFormat:@"(abs(chapter - %lf) < 0.01) and (forManga.name == %@)", chapter, manga];
-	return [self countOf:filterPredicate];
+	return [self countOf:@"(abs(chapter - %lf) < 0.01) and (forManga.name == %@)", chapter, manga];
 }
 
-+ (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter {
-	NSArray *fetch = [self all:@"(abs(chapter - %lf) < 0.01) and (forManga.name == %@)", chapter, manga];
++ (NSArray *) manga:(AZErgoManga *)manga hasChapterDownloads:(float)chapter {
+	AZFR *r = AZF_ALL_OF(@"(abs(chapter - %lf) < 0.01) and (forManga.name == %@)", chapter, manga.name);
+	NSArray *fetch = [self fetch:[r prefetchEntities]];
 
-	for (AZDownload *download in fetch)
-		if (download.state == AZErgoDownloadStateNone)
-			[download fixState];
+	if (!![fetch count]) {
+//		[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
+			for (AZDownload *download in fetch)
+				[download fixState];
+//		}];
+	}
 
 	return fetch;
 }
@@ -154,23 +185,32 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 }
 
 - (void) fixState {
+	if (state != AZErgoDownloadStateNone)
+		return;
+
 	AZErgoDownloadState new = state;
-	if (new == AZErgoDownloadStateNone) {
 
-		if (self.proxifierHash && self.storage) {
-			new |= AZErgoDownloadStateResolved;
-		}
-
-		NSUInteger size = self.totalSize;
-		if (!!size) {
-			new |= AZErgoDownloadStateAquired;
-			if (self.downloaded >= size)
-				new |= AZErgoDownloadStateDownloaded;
-		}
-
-		if (new != state)
-			self.state = new;
+	if (self.proxifierHash && self.storage) {
+		new |= AZErgoDownloadStateResolved;
 	}
+
+	NSUInteger size = [[self primitiveValueForKey:@"totalSize"] intValue];
+	if (!!size) {
+		new |= AZErgoDownloadStateAquired;
+		BOOL downloaded = [[self primitiveValueForKey:@"downloaded"] intValue] >= size;
+		if (!downloaded)
+			if ([[self primitiveValueForKey:@"localFileSize"] intValue] >= size) {
+				downloaded = YES;
+				[self setPrimitiveValue:@(size) forKey:@"downloaded"];
+			}
+
+		if (downloaded)
+			new |= AZErgoDownloadStateDownloaded;
+	}
+
+	if (new != state)
+		[self setPrimitiveValue:@(state = new) forKey:@"state"];
+//		self.state = new;
 }
 
 - (void) reset:(AZDownloadParams *)withParams {
@@ -184,7 +224,7 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 	if (!!withParams)
 		self.downloadParameters = withParams;
 
-	[self downloadError:nil];
+	self.error = nil;
 
 	UNSET_BIT(state, AZErgoDownloadStateResolved);
 	UNSET_BIT(state, AZErgoDownloadStateAquired);
@@ -231,10 +271,18 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 @implementation AZDownload (Instantiation)
 
 + (AZDownload *) downloadForURL:(NSString *)url withParams:(AZDownloadParams *)params {
-	AZDownload *download = [self unique:[NSPredicate predicateWithFormat:@"sourceURL = %@", url] initWith:^(AZDownload *instantiated) {
-		instantiated.sourceURL = url;
-	}];
-	download.downloadParameters = params;
+	NSArray *duplicates = [self all:@"sourceURL = %@", url];
+
+	AZDownload *download = [duplicates firstObject];
+	if (!download) {
+		download = [AZDownload insertNew];
+		download.sourceURL = url;
+	} else
+		for (AZDownload *duplicate in duplicates)
+			if (duplicate != download)
+				[duplicate delete];
+
+	download.downloadParameters = [params inContext:download.managedObjectContext];
 	return download;
 }
 
@@ -248,8 +296,8 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 	NSString *url = self.sourceURL;
 	if (base64)
 		url = [NSString stringWithFormat:@"@64!%@",[[url dataUsingEncoding:NSASCIIStringEncoding] base64Encoding]];
-	else
-		url = [url stringByAddingPercentEscapesUsingEncoding:NSUTF8StringEncoding];
+//	else
+//		url = [url stringByAddingPercentEscapes];
 
 	NSAssert(!!url, @"URL is nil (%@, %@)!", self.sourceURL, base64 ? @"base-64" : @"percent-encoded");
 	params[API_AQUIRE_PARAM_URL] = url;
@@ -280,21 +328,8 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownload)
 
 @implementation AZDownload (Validity)
 
-// thnx to http://stackoverflow.com/questions/3848280/catching-error-corrupt-jpeg-data-premature-end-of-data-segment
 - (BOOL) isFileCorrupt {
-	NSData *data = [NSData dataWithContentsOfFile:[self localFilePath]];
-
-	if (!data || data.length <= 0) return NO;
-
-	if (data.length < 4) return YES;
-
-	NSInteger totalBytes = data.length;
-	const char *bytes = (const char*)[data bytes];
-
-	return !(bytes[0] == (char)0xff &&
-					bytes[1] == (char)0xd8 &&
-					bytes[totalBytes - 2] == (char)0xff &&
-					bytes[totalBytes - 1] == (char)0xd9);
+	return [NSImage isCorruptJPEGAtPath:[self localFilePath]];
 }
 
 @end

@@ -15,6 +15,7 @@
 #import "AZErgoManga.h"
 
 #import "AZDownloadSpeedWatcher.h"
+#import "AZDataProxy.h"
 
 #import "AZJSONUtils.h"
 
@@ -29,16 +30,14 @@
 #pragma mark - Downloads
 
 - (void) make:(AZDownload *)download error:(NSString *)error {
-	download.httpError++;
-	[download downloadError:LOC_FORMAT(@"Download error%@: %@",
-																		 (download.httpError > 1) ? [NSString stringWithFormat:@" (x%lu)", download.httpError] : @"",
-																		 error)];
+	NSString *sequence = (++download.httpError > 1) ? LOC_FORMAT(@" (x%lu)", download.httpError) : @"";
+	download.error = LOC_FORMAT(@"Download error%@: %@", sequence, error);
 }
 
 - (void) aquireFailReason:(AZDownload *)download onRequest:(AZErgoAPIRequest *)request {
 //	request.simulateHeadRequest = YES;
 
-	request.httpMethod = @"GET";
+	request.httpMethod = HTTP_HEAD;
 	[[[request error:^BOOL(AZHTTPRequest *action, NSString *response) {
 		DDLogVerbose(@"Aquire error, headers: %@", [action.response allHeaderFields]);
 		DDLogVerbose(@"%@", response);
@@ -66,7 +65,8 @@
 			if ((t = JSON_S(json, @"data")))
 				s = [t stringByReplacingOccurrencesOfString:@"\n" withString:@" "];
 
-			[self make:download error:s];
+			NSString *contentType = [[action.response contentType] lowercaseString];
+			[self make:download error:s ?: ([contentType isLike:@"*image*"] ? LOC_FORMAT(@"No error") : LOC_FORMAT(@"Unknown response type: %@", contentType))];
 		}
 		return NO;
 	} firstly:YES] executeSynked];
@@ -75,28 +75,16 @@
 - (BOOL) resolveStorage:(AZDownload *)download {
 	AZProxifier *proxifier = download.proxifier;
 
-	AZErgoDownloader *_downloader = [proxifier downloaderForURL:download.sourceURL];
-
 	AZErgoAPIRequest *proxifyRequest = [self action:@"aquire"];
 	proxifyRequest.serverURL = [NSURL URLWithString:proxifier.url];
-	[proxifyRequest setParameters:[download fetchParams:!!download.httpError]];
+	proxifyRequest.parameters = [download fetchParams:!!download.httpError];
 
 	[[[proxifyRequest success:^(AZHTTPRequest *request, id *data) {
-		AZErgoDownloader *downloader = _downloader;
-		AZStorage *storage = [proxifier storageWithURL:[AZDownload storageToken:*data]];
-
-		if (downloader.storage != storage) {
-			[downloader removeDownload:download];
-
-			downloader = [proxifier newDownloaderForStorage:storage andParams:download.downloadParameters];
-		}
-
-		[downloader addDownload:download];
-
+		download.storage = [proxifier storageWithURL:[AZDownload storageToken:*data]];
 		download.proxifierHash = [AZDownload hashToken:*data];
 		download.scanID = [AZDownload scanToken:*data];
 		download.state |= AZErgoDownloadStateResolved;
-		[download downloadError:nil];
+		download.error = nil;
 		return YES;
 	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
 		[self make:download error:response];
@@ -129,19 +117,29 @@
 		download.totalSize = [_request.response contentLength];
 		download.supportsPartialDownload = [_request.response serverSupportsPartialDownload];
 		download.state |= AZErgoDownloadStateAquired;
-		[download downloadError:nil];
+		download.error = nil;
 		return YES;
 	}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
 		[self make:download error:response];
 		return YES;
 	}] processRedirects:^NSURLRequest *(NSURLConnection *_connection, NSURLRequest *URLRequest, id response) {
+		AZDownload *_download = download;// [download inContext:[AZDataProxy contextForCurrentThread]];
 
 		if ([response isRedirectResponse]) {
 			NSString *url = [[response locationHeader] cropHTTPParameters];
 
 			if (url.isRelativeURL) {
-				download.fileURL = url;
-				[download downloadError:nil];
+				_download.fileURL = url;
+				_download.error = nil;
+			} else {
+				NSString *reason = [response allHeaderFields][@"X-Redirect-Reason"];
+				if (!!reason) {
+					[self make:_download error:reason];
+
+					if ([reason isCaseInsensitiveLike:@"Damaged image"]) {
+						_download.fileURL = url;
+					}
+				}
 			}
 		}
 
@@ -149,7 +147,17 @@
 			NSMutableURLRequest *copy = [URLRequest mutableCopy];
 			[copy setHTTPMethod:request.httpMethod];
 			URLRequest = copy;
+		} else {
+			if (!response) {
+				if (_download.httpError++ > 2) {
+					[_download reset:nil];
+					[_download.proxifier registerForDownloading:_download];
+				}
+			}
 		}
+
+//		if ([_download hasChanges])
+//			[_download.managedObjectContext save:nil];
 
 		return URLRequest;
 	}] executeSynked];
@@ -165,7 +173,7 @@
 	if (downloadedSize >= download.totalSize) {
 		[download setDownloadedAmount:downloadedSize];
 		download.state |= AZErgoDownloadStateDownloaded;
-		[download downloadError:nil];
+		download.error = nil;
 		return YES;
 	}
 
@@ -182,8 +190,9 @@
 		if (partial)
 			[downloadRequest setContentRange:downloadedSize to:0];
 
+		downloadRequest.timeout = 60;
 		downloadRequest.showErrors = NO;
-		[[downloadRequest progress:^BOOL(AZHTTPRequest *action, NSData *receivedData) {
+		[[[downloadRequest progress:^BOOL(AZHTTPRequest *action, NSData *receivedData) {
 			if (action.response.isOkResponse) {
 				NSUInteger length = [receivedData length];
 				if (length) {
@@ -194,9 +203,11 @@
 						[action cancel];
 						return NO;
 					}
-					[download setDownloadedAmount:download.downloaded + length];
-
-					[download downloadError:nil];
+					[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+						AZDownload *detouched = [download inContext:context];
+						detouched.downloadedAmount = detouched.downloaded + length;
+						detouched.error = nil;
+					}];
 
 					[[AZDownloadSpeedWatcher sharedSpeedWatcher] downloaded:length];
 				}
@@ -213,11 +224,16 @@
 				[action cancel];
 
 			return NO; // forbidd azhttprequest to collect downloaded data to it's storage
+		}] error:^BOOL(AZHTTPRequest *action, NSString *response) {
+			if ([action.response isNotFoundResponse])
+				UNSET_BIT(download.state, AZErgoDownloadStateAquired);
+
+			return YES;
 		}] executeSynked];
 
 		if (download.downloaded >= download.totalSize) {
 			download.state |= AZErgoDownloadStateDownloaded;
-			[download downloadError:nil];
+			download.error = nil;
 		}
 	}
 	@finally {

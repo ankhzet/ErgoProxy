@@ -45,7 +45,7 @@
 	float chapterID = self.contentProvider.chapterID;
 	title = [NSString stringWithFormat:@"%@ ⟩ ch. %@/%@", title, @(chapterID), @([AZErgoMangaChapter lastChapter:manga.name])];
 
-	AZErgoUpdateChapter *chapter = [AZErgoUpdateChapter any:@"abs(idx - %f) < 0.01 and watch.manga ==[c] %@", chapterID, manga.name];
+	AZErgoUpdateChapter *chapter = [AZErgoUpdateChapter any:@"abs(persistentIdx - %f) < 0.01 and watch.manga ==[c] %@", chapterID, manga.name];
 
 	if (chapter)
 		title = [NSString stringWithFormat:@"%@ %@", title, chapter.title];
@@ -84,7 +84,7 @@
 }
 
 - (void) showContent:(NSInteger)index {
-	
+	[self.delegate contentShow:[self.contentProvider contentID:index]];
 }
 
 - (void) notifyEnd:(BOOL)backward {
@@ -100,10 +100,15 @@
 	@synchronized(self) {
 		[self unsetKeyMonitor];
 
+		AZErgoReader *reader = self;
 		keyMonitor = [NSEvent addLocalMonitorForEventsMatchingMask:NSKeyDownMask handler:^NSEvent *(NSEvent *event) {
+//			AZErgoReader *reader = _reader;
+//			if (!reader)
+//				return event;
+
 			BOOL validEvent = !!([event modifierFlags] & NSNumericPadKeyMask);
 
-			if (!([self isKey] && validEvent))
+			if (!([reader isKey] && validEvent))
 				return event;
 
 			NSString *charachters = [event charactersIgnoringModifiers];
@@ -111,14 +116,14 @@
 			BOOL isBackward = AZCH_STR(charachters, NSLeftArrowFunctionKey);
 			BOOL isForward = AZCH_STR(charachters, NSRightArrowFunctionKey);
 			if (isBackward || isForward) {
-				NSInteger next = self.currentContentIndex + (isBackward ? -1 : +1);
+				NSInteger next = reader.currentContentIndex + (isBackward ? -1 : +1);
 
-				NSInteger clamp= [self.contentProvider constraintIndex:next];
+				NSInteger clamp= [reader.contentProvider constraintIndex:next];
 				BOOL outOfRange = next != clamp;
 				if (outOfRange || AZ_KEYDOWN(Command))
-					[self navigate:isBackward];
+					[reader navigate:isBackward];
 				else
-					self.currentContentIndex = next;
+					reader.currentContentIndex = next;
 
 				return nil;
 			}
@@ -158,6 +163,14 @@
 	return self.contentView.frame.size;
 }
 
+- (void) updateScanView:(id)uid {
+
+}
+
+- (void) scanCached:(id)uid {
+
+}
+
 #pragma mark - Content loading
 
 - (void) flushCaches {
@@ -177,9 +190,15 @@
 	[self cacheContents];
 }
 
+- (int) scanCount {
+	return (int)[self.contentProvider.content count];
+}
+
+
 #pragma mark - View tree building
 
 - (void) attachToView:(NSView *)superview {
+	[_contentView setSubviews:@[]];
 	[_contentView removeFromSuperview];
 
 	_contentView = [[NSView alloc] initWithFrame:superview.frame];

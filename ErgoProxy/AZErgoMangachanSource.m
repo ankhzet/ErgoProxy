@@ -53,14 +53,14 @@
 	AZHTMLRequest *request = [super action:action request:genData];
 
 	if ([action isCaseInsensitiveLike:@"search"]) {
+		request.url = [self action:@"" URL:@""];
 		[request setParameters:@{@"do": @"search",
 														 @"subaction": @"search",
 														 @"result_num": @"100",
 														 @"story": genData}];
 
 		request.httpMethod = HTTP_POST;
-	} else
-		request.url = [NSString stringWithFormat:@"%@/%@/%@.html", request.url, action, genData];
+	}
 
 	return request;
 }
@@ -113,6 +113,9 @@
 			NSString *genData = [href substringWithRange:[match rangeAtIndex:1]];
 
 			float idx = MAX(0.1, [[self class] chapterIdx:[link text]]);
+			if (idx > 999)
+				idx /= 10.;
+
 			int volume = [[self class] chapterVolume:[link text]];
 
 			NSString *title = [[self class] chapterTitle:[link text]];
@@ -129,8 +132,6 @@
 
 		}
 	}
-
-	[[AZErgoCountingConflictsSolver solverForChapters:result] solveConflicts];
 
 	return result;
 }

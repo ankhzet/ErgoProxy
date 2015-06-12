@@ -16,6 +16,8 @@
 - (void) contentCached:(id)uid;
 - (void) willRecache;
 
+- (void) contentShow:(id)uid;
+
 - (void) noContents:(float)chapter navigatedBackward:(BOOL)navigatedBackward;
 
 @end
@@ -53,6 +55,11 @@
 
 - (void) showContents:(BOOL)flushCaches;
 - (void) showContent:(NSInteger)index;
+
+- (int) scanCount;
+
+- (void) updateScanView:(id)uid;
+- (void) scanCached:(id)uid;
 
 - (CGSize) contentSize;
 

@@ -11,7 +11,14 @@
 #import "AZErgoRelatedMangaCellView.h"
 #import "AZErgoTagCellView.h"
 
-@interface AZErgoTagBrowser () <AZErgoTagsDataSourceDelegate> {
+#import "AZErgoTabsComons.h"
+
+#import "AZErgoTemplateProcessor.h"
+#import "AZErgoSubstitutioner.h"
+#import "AZErgoMangaDataSupplier.h"
+#import "AZErgoUpdatesCommons.h"
+
+@interface AZErgoTagBrowser () <AZErgoTagsDataSourceDelegate, AZActionDelegate> {
 	AZGroupableDataSource *relatedManga;
 
 	BOOL showOnlyRelatedManga;
@@ -41,7 +48,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoTagBrowser)
 @implementation AZErgoTagBrowser
 @synthesize tags = _tags;
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDTagBrowserTab;
 }
 
@@ -116,7 +123,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoTagBrowser)
 	NSString *tagGuidText = self.tfTagGuid.stringValue ?: @"";
 	NSNumber *tagGuid = (!![tagGuidText length]) ? @([tagGuidText integerValue]) : nil;
 
-	AZErgoMangaTag *tag = [AZErgoMangaTag unique:[NSPredicate predicateWithFormat:@"tag ==[c] %@", tagName] initWith:nil];
+	AZErgoMangaTag *tag = [AZErgoMangaTag unique:AZF_ALL_OF(@"tag ==[c] %@", tagName) initWith:nil];
 
 	tag.tag = tagName;
 	tag.annotation = annotation;
@@ -157,19 +164,35 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoTagBrowser)
 
 - (void) fetchRelated {
 	[self delayed:@"fetch-manga" withBlock:^{
-		NSMutableSet *cross = nil;
-		for (AZErgoMangaTag *tag in pickedTags) {
-			if (![cross count])
-				cross = [tag.manga mutableCopy];
-			else
-				[cross intersectSet:tag.manga];
-		}
+		NSArray *tagged;
 
-		NSArray *tagged = [cross allObjects];
-		if (!showOnlyRelatedManga) {
-			NSMutableArray *mangas = [[AZErgoManga all] mutableCopy];
-			[mangas removeObjectsInArray:tagged];
-			tagged = [tagged arrayByAddingObjectsFromArray:mangas];
+		if (!![pickedTags count]) {
+			NSMutableSet *cross = nil;
+			for (AZErgoMangaTag *tag in pickedTags) {
+				if (![cross count])
+					cross = [tag.manga mutableCopy];
+				else
+					[cross intersectSet:tag.manga];
+			}
+
+			tagged = [cross allObjects];
+			if (!showOnlyRelatedManga) {
+				NSMutableArray *mangas = [[AZErgoManga all] mutableCopy];
+				[mangas removeObjectsInArray:tagged];
+				tagged = [tagged arrayByAddingObjectsFromArray:mangas];
+			}
+		} else {
+			tagged = [AZErgoManga all];
+
+			NSArray *tags = [AZErgoMangaTag fetch:AZF_ALL_OF(@"skip > 0")];
+			if ([tags count]) {
+				NSMutableArray *mfetch = [tagged mutableCopy];
+				for (AZErgoMangaTag *tag in tags)
+					[mfetch removeObjectsInArray:[tag.manga allObjects]];
+
+				tagged = mfetch;
+			}
+
 		}
 
 		relatedManga.data = tagged;
@@ -194,8 +217,10 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoTagBrowser)
 	if (!tag)
 		pickedTags = nil;
 
-	if (![tag isKindOfClass:[AZErgoMangaTag class]])
+	if (![tag isKindOfClass:[AZErgoMangaTag class]]) {
+		[self fetchRelated];
 		return;
+	}
 
 	if (!pickedTags)
 		pickedTags = @[tag];
@@ -210,37 +235,108 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoTagBrowser)
 		return;
 
 	[tag delete];
+
+	pickedTags = [pickedTags mutableCopy];
+	[(id)pickedTags removeObject:tag];
+
 	[self delayedFetch:YES];
 }
 
-- (IBAction)actionDelegatedClick:(id)sender {
+- (void) delegatedAction:(AZActionIntent *)action {
+	if ([action is:@"delete"]) {
+		[self tagDeleted:action.initiatorRelatedEntity];
+	}
 
-	while (sender && ![sender isKindOfClass:[AZErgoRelatedMangaCellView class]])
-		sender = [sender superview];
+	if ([action is:@"check"]) {
+		if (!action.initiator)
+			return;
 
-	if (!sender)
-		return;
+		AZErgoRelatedMangaCellView *mangaCellView = (id)action.initiatorContainedBy;
+		BOOL checked = mangaCellView.isChecked;
 
-	AZErgoRelatedMangaCellView *view = (id)sender;
+		for (AZErgoMangaTag *tag in pickedTags) {
+			[action.initiatorRelatedEntity toggle:checked tag:tag];
 
-	for (AZErgoMangaTag *tag in pickedTags) {
-		[(id)view.bindedEntity toggle:view.isChecked tag:tag];
-
-
-		NSInteger row = [self.ovTags rowForItem:tag];
-		if (row >= 0) {
-			AZErgoTagCellView *view = [self.ovTags viewAtColumn:0 row:row makeIfNecessary:NO];
-			if (!!view) {
-				[view configureForEntity:tag inOutlineView:self.ovTags];
+			NSInteger row = [self.ovTags rowForItem:tag];
+			if (row >= 0) {
+				AZErgoTagCellView *tagCellView = [self.ovTags viewAtColumn:0 row:row makeIfNecessary:NO];
+				if (!!tagCellView) {
+					[tagCellView configureForEntity:tag inOutlineView:self.ovTags];
+				}
 			}
 		}
+
+	}
+
+	if ([action is:@"filter"]) {
+		showOnlyRelatedManga = [action.initiator state] == NSOnState;
+
+		[self fetchRelated];
+	}
+
+	if ([action is:@"info"]) {
+		[AZErgoMangaInfoTab navigateToWithData:action.initiatorRelatedEntity];
+	}
+	if ([action is:@"read"]) {
+		[AZErgoBrowserTab navigateToWithData:action.initiatorRelatedEntity];
 	}
 }
 
-- (IBAction)actionToggleFilter:(id)sender {
-	showOnlyRelatedManga = [sender state] == NSOnState;
+- (NSArray *) jenresList:(NSArray *)jenres {
+	NSArray *list = [[[jenres mapWithKeyFromValueMapper:^id(AZErgoMangaTag *tag) {
+		return tag.tag;
+	}] allKeys] sortedArray];
 
-	[self fetchRelated];
+	return list;
+}
+
+- (IBAction)actionExport:(id)sender {
+
+	NSString *mangaItemTemplate = [AZErgoTextTemplateProcessor template:@"jenre-manga-item"];
+	AZErgoTextTemplateProcessor *mitemProcessor = [AZErgoTextTemplateProcessor new];
+	AZErgoSubstitutioner *itemSubstitutioner = [AZErgoSubstitutioner substitutionerWithDataSupplier:nil];
+
+	const NSUInteger descLimit = 300;
+	NSMutableArray *items = [NSMutableArray new];
+	for (AZErgoManga *manga in [relatedManga.data sortedArray]) {
+		AZErgoUpdateWatch *watch = [AZErgoUpdateWatch watchByManga:manga.name];
+		NSString *annotation = manga.annotation ?: @"";
+		NSUInteger length = [annotation length];
+		if (!!length && (length > descLimit + 3))
+			annotation = [[annotation substringToIndex:MIN(descLimit, [annotation length] - 1)] stringByAppendingString:@"..."];
+
+		NSArray *jenres = [self jenresList:[manga.tags allObjects]];
+
+		NSString *previewURL = watch.source ? [NSString stringWithFormat:@"http://%@", watch.source.serverURL] : nil;
+		previewURL = previewURL ? [[NSURL URLWithString:manga.preview
+																		 relativeToURL:[NSURL URLWithString:previewURL]] absoluteString] : @"";
+
+		itemSubstitutioner.dataSupplier =
+		[AZErgoDictionaryDataSupplier dataSupplier:@{@"title": [manga description],
+																								 @"link": watch.mangaURL ?: @"",
+																								 @"jenres": [jenres componentsJoinedByString:@", "] ?: @"",
+																								 @"description": annotation,
+																								 @"preview": previewURL,
+																								 }];
+		NSString *item = [mitemProcessor processString:mangaItemTemplate withDataSubstitutioner:itemSubstitutioner];
+		[items addObject:item];
+	}
+
+	NSString *jenresPlainList = [[self jenresList:pickedTags] componentsJoinedByString:@", "] ?: @"all";
+	AZErgoSubstitutioner *substitutioner =
+	[AZErgoDictionaryDataSupplier dataSubstitutioner:@{@"title": [@"ErgoProxy Reader - Manga list - " stringByAppendingString:jenresPlainList],
+																										 @"jenres": jenresPlainList,
+																										 @"list": [items componentsJoinedByString:@"\n"] ?: @""
+																										 }];
+
+	NSString *result = [AZErgoTextTemplateProcessor processTemplate:@"jenre-export" withDataSubstitutioner:substitutioner];
+
+	NSURL *url = [NSURL URLWithString:@"jenre-manga.html" relativeToURL:[AZUtils applicationDocumentsDirectory]];
+	if (![result writeToURL:url
+							 atomically:NO
+								 encoding:NSUTF8StringEncoding
+										error:nil])
+		AZErrorTip(LOC_FORMAT(@"Failed to save report to [%@]", url));
 }
 
 @end

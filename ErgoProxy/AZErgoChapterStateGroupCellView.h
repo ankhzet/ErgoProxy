@@ -10,4 +10,7 @@
 
 @interface AZErgoChapterStateGroupCellView : AZConfigurableTableCellView
 
+- (IBAction) actionDownloadedChanged:(id)sender;
+- (BOOL) isMarkedAsDownloaded;
+
 @end

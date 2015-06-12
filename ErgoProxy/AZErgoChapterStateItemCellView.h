@@ -6,8 +6,8 @@
 //  Copyright (c) 2015 Ankh. All rights reserved.
 //
 
-#import "AZConfigurableTableCellView.h"
+#import "AZErgoChapterStateGroupCellView.h"
 
-@interface AZErgoChapterStateItemCellView : AZConfigurableTableCellView
+@interface AZErgoChapterStateItemCellView : AZErgoChapterStateGroupCellView
 
 @end

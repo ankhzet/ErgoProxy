@@ -10,6 +10,8 @@
 #import "AZDataProxy.h"
 
 #import "AZErgoUpdateChapter.h"
+#import "AZErgoChapterProtocol.h"
+#import "AZErgoUpdateChapterMapping.h"
 
 @implementation AZErgoManga {
 	AZErgoMangaProgress *__progress;
@@ -24,9 +26,10 @@
 @dynamic downloads;
 @dynamic preview;
 @dynamic fsCheck;
+@dynamic chapterMappings;
 
 + (instancetype) mangaWithName:(NSString *)name {
-	return [self unique:AZ_Predicate(@"name ==[c] %@", name) initWith:^(AZErgoManga *entity) {
+	return [self unique:AZF_ALL_OF(@"name ==[c] %@", name) initWith:^(AZErgoManga *entity) {
 		entity.name = name;
 		[AZErgoMangaTitle mangaTitile:[name capitalizedString]].manga = entity;
 	}];
@@ -58,7 +61,12 @@
 }
 
 - (NSString *) description {
-	return [NSString stringWithFormat:@"%@ (%@)", self.mainTitle, self.name];
+	NSString *title = self.mainTitle;
+	NSString *name = self.name;
+
+	return ([title caseInsensitiveCompare:name] == NSOrderedSame)
+	? title
+	: [NSString stringWithFormat:@"%@ (%@)", self.mainTitle, self.name];
 }
 
 - (NSString *) mangaFolder {
@@ -127,7 +135,7 @@
 
 		if (!__progress) {
 			__progress = [AZErgoMangaProgress insertNew];
-			__progress.manga = self;
+			__progress.manga = [self inContext:__progress.managedObjectContext];
 			__progress.chapter = 1;
 			__progress.page = 1;
 			__progress.updated = [NSDate date];
@@ -135,6 +143,28 @@
 	}
 
 	return __progress;
+}
+
+- (NSUInteger) remapChapters:(NSArray *)chapters {
+	NSUInteger remapped = 0;
+	for (AZErgoUpdateChapterMapping *mapping in [self.chapterMappings allObjects]) {
+		for (id<AZErgoChapterProtocol> c in chapters)
+			if ((c.volume == mapping.volume) && [AZErgoMangaChapter same:c.idx as:mapping.sourceIDX]) {
+				c.idx = mapping.mappedIDX;
+				remapped++;
+				break;
+			}
+	}
+
+	return remapped;
+}
+
+- (AZErgoUpdateChapterMapping *) mappingForChapter:(float)chapter inVolume:(NSUInteger)volume {
+	for (AZErgoUpdateChapterMapping *mapping in [self.chapterMappings allObjects])
+		if ((volume == mapping.volume) && [AZErgoMangaChapter same:chapter as:mapping.sourceIDX])
+			return mapping;
+
+	return nil;
 }
 
 @end
@@ -249,6 +279,11 @@
 	return tags;
 }
 
+- (void) removeAllTags {
+	for (AZErgoMangaTag *tag in [self.tags allObjects])
+		[self removeTagsObject:tag];
+}
+
 - (void) toggle:(BOOL)on tag:(AZErgoMangaTag *)tag {
 	if (on)
 		[tag addMangaObject:self];
@@ -267,13 +302,14 @@
 }
 
 - (AZErgoMangaTag *) toggle:(BOOL)on tag:(AZErgoTagGroup)guid chain:(NSSet *)chain {
-	if (chain && [chain containsObject:@(guid)])
+	NSNumber *idGUID = @(guid);
+	if (chain && [chain containsObject:idGUID])
 		return nil;
 
-	AZErgoMangaTag *tag = [AZErgoMangaTag tagWithGuid:@(guid)];
+	AZErgoMangaTag *tag = [AZErgoMangaTag tagWithGuid:idGUID];
 	[self toggle:on tag:tag];
 
-	[(NSMutableSet *)(chain = chain ?: [NSMutableSet new]) addObject:@(guid)];
+	[(id)GET_OR_INIT(chain, [NSMutableSet new]) addObject:idGUID];
 
 	switch (guid) {
 		case AZErgoTagGroupComplete:
@@ -281,10 +317,10 @@
 				[self toggle:NO tag:AZErgoTagGroupDownloaded chain:chain];
 			break;
 		case AZErgoTagGroupDownloaded:
-			if (!on)
-				[self toggle:NO tag:AZErgoTagGroupReaded chain:chain];
-			else
+			if (on)
 				[self toggle:YES tag:AZErgoTagGroupComplete chain:chain];
+			else
+				[self toggle:NO tag:AZErgoTagGroupReaded chain:chain];
 			break;
 		case AZErgoTagGroupReaded:
 			if (on)
@@ -299,8 +335,8 @@
 
 - (AZErgoMangaTag *) hasTagWithGUID:(NSUInteger)guid {
 	__block AZErgoMangaTag *r = nil;
-	[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
-		*propagateChanges = NO;
+	[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 		for (AZErgoMangaTag *tag in [self.tags allObjects])
 			if ([tag.guid unsignedIntegerValue] == guid) {
 				r = tag;

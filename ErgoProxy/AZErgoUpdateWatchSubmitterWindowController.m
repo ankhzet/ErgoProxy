@@ -86,7 +86,7 @@
 			return code;
 
 		mangaEntity = watch;
-		AZErgoUpdatesSource *source = [self source]; //TODO: source selection
+		AZErgoUpdatesSource *source = [self source];
 
 		if ([source correspondsTo:controller.identifier]) {
 			NSString *parsed = [source parseURL:controller.identifier];
@@ -225,7 +225,8 @@
 				mainTitle = [NSString stringWithFormat:@"%@ (%@)", mainTitle, bestCandinateForAdditional];
 				[titles removeObject:bestCandinateForAdditional];
 			}
-			
+
+			[titles insertObject:mainTitle atIndex:0];
 			[(NSMutableDictionary *)searchResults setObject:info->genData forKey:proposedDir];
 			[(NSMutableDictionary *)searchTitles setObject:[titles componentsJoinedByString:@"; "]?:@"" forKey:proposedDir];
 

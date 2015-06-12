@@ -11,20 +11,27 @@
 
 #import "AZErgoMangaCommons.h"
 #import "AZErgoUpdatesCommons.h"
+#import "AZErgoCountingConflictsSolver.h"
 
 @interface AZErgoChapterStateWindowController () {
 	AZErgoChapterStateDataSource *_dataSource;
 	NSArray *mangas;
+
+	AZErgoManga *pickedManga;
 }
 @property (weak) IBOutlet NSOutlineView *ovChaptersState;
 @property (weak) IBOutlet NSPopUpButton *bSelectedManga;
 @property (weak) IBOutlet NSMenu *mMangaList;
 
+@property (nonatomic) AZErgoManga *selectedManga;
+
 @end
 
 @implementation AZErgoChapterStateWindowController
 
-- (void) showStateController {
+- (void) showStateController:(AZErgoManga *)manga {
+	pickedManga = manga;
+
 	[self showWithSetup:^AZDialogReturnCode(AZErgoChapterStateWindowController *c) {
 		return [self beginSheet];
 	} andFiltering:^AZDialogReturnCode(AZDialogReturnCode code, AZErgoChapterStateWindowController *controller) {
@@ -40,44 +47,85 @@
 - (void) prepareWindow {
 	[super prepareWindow];
 
-	NSString *title = [[self.bSelectedManga selectedItem] title];
+	NSArray *watches = [AZErgoUpdateWatch fetch:[AZF_ALL prefetchEntities]];//:@"updates.@count > 0"];
+	AZ_Mutable(Dictionary, *mangaCandidates);
+	for (AZErgoUpdateWatch *watch in watches) {
+		NSString *name = watch.manga;
+		AZErgoManga *manga = [AZErgoManga mangaWithName:name];
+		if (!manga) {
+			manga = [AZErgoManga mangaWithName:name];
+			DDLogInfo(@"Created manga instance for watch: %@", name);
+		}
+		mangaCandidates[manga.mainTitle ?: name] = manga;
+	}
 
-	[self.mMangaList removeAllItems];
-
-	NSArray *watches = [AZErgoUpdateWatch all:@"updates.@count > 0"];
-	AZ_Mutable(Array, *mangaCandidates);
-	for (AZErgoUpdateWatch *watch in watches)
-    [mangaCandidates addObject:[AZErgoManga mangaWithName:watch.manga]];
-
-	NSDictionary *map = [mangaCandidates mapWithMapper:^id(AZErgoManga *manga) {
-		return manga.mainTitle ?: [NSString stringWithFormat:@"<title format failed for %@>", manga.objectID];
+	NSDictionary *map = [[mangaCandidates allValues] mapWithKeyFromValueMapper:^id(AZErgoManga *manga) {
+		return [self titleOf:manga];
 	}];
 
-	NSArray *titles = (id)[[map allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)];
+	NSArray *titles = [[[map allKeys] sortedArrayUsingSelector:@selector(localizedCaseInsensitiveCompare:)] unshiftObject:@""];
 
 	mangas = [titles sortValuesOf:map];
 
+
+	if (!pickedManga) {
+		NSString *title = [[self.bSelectedManga selectedItem] title];
+		pickedManga = title ? mangaCandidates[title] : nil;
+	}
+
+	[self.mMangaList removeAllItems];
 	[self.bSelectedManga addItemsWithTitles:titles];
 
-	if ([self.mMangaList numberOfItems] > 0)
-		[self.bSelectedManga selectItemAtIndex:MAX(0, [self.mMangaList indexOfItemWithTitle:title])];
+	self.selectedManga = pickedManga;
+}
+
+- (NSString *) titleOf:(AZErgoManga *)manga {
+	return manga.mainTitle ?: [NSString stringWithFormat:@"<title format failed for %@>", manga.objectID];
+}
+
+- (NSInteger) selectedIndex {
+	return CLAMP(self.bSelectedManga.indexOfSelectedItem, -1, (NSInteger)[mangas count] - 1);
+}
+
+- (void) setSelectedIndex:(NSInteger)index {
+	index = CLAMP(index, 0, (NSInteger)[mangas count] - 1);
+
+	[self.bSelectedManga selectItemAtIndex:index];
+	[self.bSelectedManga setTitle:[self.bSelectedManga itemTitleAtIndex:index]];
+
+	for (NSMenuItem *item in [self.mMangaList itemArray])
+		[item setState:NSOffState];
+
+	[[self.mMangaList itemAtIndex:index] setState:NSOnState];
 
 	[self fetchChapters];
 }
 
 - (AZErgoManga *) selectedManga {
-	NSInteger index = MAX(MIN(self.bSelectedManga.indexOfSelectedItem, [mangas count] - 1), 0);
+	NSInteger index = self.selectedIndex;
+	if (index < 0)
+		return nil;
+
 	AZErgoManga *item = mangas[index];
 
-	return item;
+	return ((id)item != [NSNull null]) ? item : nil;
+}
+
+- (void) setSelectedManga:(AZErgoManga *)manga {
+	NSUInteger index = [mangas indexOfObject:manga];
+
+	if (index == NSNotFound)
+		self.selectedIndex = -1;
+	else
+		self.selectedIndex = index;
 }
 
 - (AZErgoUpdateWatch *) associatedWatch {
-	AZErgoManga *manga = [self selectedManga];
+	AZErgoManga *manga = self.selectedManga;
 	if (!manga)
 		return nil;
 
-	return [AZErgoUpdateWatch any:@"manga ==[c] %@", manga.name];
+	return [AZErgoUpdateWatch watchByManga:manga.name];
 }
 
 - (AZErgoChapterStateDataSource *) dataSource {
@@ -93,18 +141,12 @@
 }
 
 - (IBAction)actionSelectedMangaChanged:(id)sender {
-	NSInteger index = MAX(MIN(self.bSelectedManga.indexOfSelectedItem, [mangas count] - 1), 0);
-	[self.bSelectedManga setTitle:[self.bSelectedManga itemTitleAtIndex:index]];
+	AZErgoManga *selected = self.selectedManga;
 
-
-	for (NSMenuItem *item in [self.mMangaList itemArray])
-		[item setState:NSOffState];
-
-	[[self.mMangaList itemAtIndex:index] setState:NSOnState];
-	[self fetchChapters];
+	self.selectedManga = selected;
 }
 
-- (void) fetchChapters {
+- (NSArray *) pickChapters {
 	AZ_Mutable(Array, *delete);
 	NSMutableArray *fetch = [[[[self associatedWatch] updates] allObjects] mutableCopy];
 
@@ -112,16 +154,45 @@
 		if (chapter.idx < 0)
 			[delete addObject:chapter];
 
-	if (!![delete count])
+	if (!![delete count]) {
 		[fetch removeObjectsInArray:delete];
+		DDLogInfo(@"Deleted from fetch %lu chapters", [delete count]);
+	}
 
+	return fetch;
+}
+
+- (void) fetchChapters {
+	[self fetchChapters:[self pickChapters]];
+}
+
+- (void) fetchChapters:(NSArray *)chapters {
 //	[self.ovChaptersState performWithSavedScroll:^{
-		self.dataSource.data = fetch;
+		self.dataSource.data = chapters;
 
 		[self.ovChaptersState reloadData];
 
 		[self.ovChaptersState expandItem:nil expandChildren:YES];
 //	}];
+}
+
+- (BOOL) applyChanges {
+	NSArray *chapters = [self pickChapters];
+
+//	AZ_Mutable(Array, *cloned);
+//	for (AZErgoUpdateChapter *chapter in chapters) {
+//    Chapter *clone = [Chapter chapter:chapter.baseIdx ofVolume:chapter.volume];
+//		[cloned addObject:clone];
+//	}
+//
+	AZErgoManga *manga = self.selectedManga;
+	[manga remapChapters:chapters];
+
+	[[AZErgoCountingConflictsSolver solverForChapters:chapters] solveConflicts];
+
+	[self fetchChapters:chapters];
+
+	return YES;
 }
 
 @end

@@ -8,6 +8,7 @@
 
 #import "AZErgoMangaProgress.h"
 #import "AZErgoManga.h"
+#import "AZErgoMangaChapter.h"
 #import "AZErgoChapterProtocol.h"
 
 @implementation AZErgoMangaProgress
@@ -37,6 +38,16 @@
 	BOOL afterLast = self.manga.isWebtoon || !hasPage;
 
 //	if (afterLast)
+
+	if (_FRC(lastChapter)) {
+		float idx = _IDI(current);
+		float prev = [AZErgoMangaChapter seekManga:self.manga.name chapter:idx withDelta:-1];
+		if ([AZErgoMangaChapter same:idx as:prev])
+			idx -= 1.f;
+
+		current = _IDX(idx);
+
+	} else
 		current -= _IDX(1.f);
 
 	BOOL hasChapter = current > 0;
@@ -65,8 +76,10 @@
 
 - (BOOL) hasUnreaded {
 	float last = self.chapters, current = 0.f;
+
 	[self has:last readed:NULL chapters:&current];
-	return current < last;
+
+	return (last < 1) || (current < last);
 }
 
 @end

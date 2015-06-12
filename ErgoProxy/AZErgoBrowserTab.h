@@ -10,10 +10,10 @@
 
 @interface AZErgoBrowserTab : AZTabProvider
 
-+ (AZErgoBrowserTab *) browserTab;
-
 - (NSString *) loadedURI;
 
 - (NSString *) title;
+
+- (id) reader;
 
 @end

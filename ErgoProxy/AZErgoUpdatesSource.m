@@ -13,7 +13,8 @@
 #import "AZDataProxy.h"
 
 #import "AZErgoMangaCommons.h"
-#import "AZErgoSchedulingQueue.h"
+#import "AZWaitableTask.h"
+#import "AZErgoCountingConflictsSolver.h"
 
 #define _synchronized(_block) ({\
 NSMutableDictionary *sources;\
@@ -42,7 +43,7 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 + (BOOL) inProcess {
 	_synchronized({
 		for (AZErgoUpdatesSource *source in [sources allValues])
-			if (!!source.inProcess)
+			if (source.inProcess > 0)
 				return YES;
 
 		return NO;
@@ -87,7 +88,7 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 
 	NSString *url = [[self class] serverURL];
 
-	_descriptor = [AZErgoUpdatesSourceDescription unique:[NSPredicate predicateWithFormat:@"serverURL ==[c] %@", url] initWith:^(AZErgoUpdatesSourceDescription *instantiated) {
+	_descriptor = [AZErgoUpdatesSourceDescription unique:AZF_ALL_OF(@"serverURL == %@", url) initWith:^(AZErgoUpdatesSourceDescription *instantiated) {
 		instantiated.serverURL = url;
 	}];
 
@@ -125,7 +126,7 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 	if (self.delegate)
 		[self.delegate updatesSource:self checkingWatch:watch];
 
-	[AZErgoWaitBreakTask executeTask:^(AZErgoWaitBreakTask *task) {
+	[AZWaitableTask executeTask:^(AZWaitableTask *task) {
 		[AZ_API(ErgoUpdates) updates:self watch:watch infoWithCompletion:^(BOOL isOk, AZErgoUpdateMangaInfo *info) {
 			[self updates:watch retrived:info];
 
@@ -138,7 +139,8 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 	__block NSUInteger updates = 0;
 	if (!!info) {
 		__block AZErgoManga *manga;
-		[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+		[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 			manga = [AZErgoManga mangaByName:watch.manga];
 
 			BOOL new = (!manga) || (![manga.annotation length]);
@@ -157,17 +159,16 @@ const NSUInteger LABEL_ELEMENT_TIP     = 1;
 					[AZErgoMangaTitle mangaTitile:title].manga = manga;
 			}
 
-			if (!manga.annotation)
-				manga.annotation = info->annotation;
+			manga.annotation = info->annotation;
+			manga.preview = info->preview;
 
-			if (!manga.preview)
-				manga.preview = info->preview;
-
-			if (![manga.tags count])
+			if (![info->tags isEqualWithTags:[manga.tags allObjects]]) {
+				[manga removeAllTags];
 				for (NSString *tag in info->tags) // tag names must already be mapped
 					[manga toggle:YES tagWithName:tag];
+			}
 
-			if ([info->chapters count]) {
+			if (!![info->chapters count]) {
 				updates = [self synk:watch chapters:info->chapters];
 
 				if (!!updates)
@@ -212,10 +213,16 @@ typedef void(^__blockWithBlockParameter)(__guardedBlock block);
 }
 
 - (NSUInteger) synk:(AZErgoUpdateWatch *)watch chapters:(NSArray *)chapters {
+
+	[watch.relatedManga remapChapters:chapters];
+
+	[[AZErgoCountingConflictsSolver solverForChapters:chapters] solveConflicts];
+
 	void (^initBlock)(AZErgoUpdateChapter *chapter, id<AZErgoChapterProtocol> chapterData) = ^void(AZErgoUpdateChapter *chapter, id<AZErgoChapterProtocol> chapterData) {
 		chapter.genData = chapterData.genData;
 		chapter.title = chapterData.title;
 		chapter.idx = chapterData.idx;
+		chapter.baseIdx = chapterData.baseIdx;
 		chapter.volume = chapterData.volume;
 		chapter.date = chapterData.date;
 		chapter.mangaName = chapterData.mangaName;
@@ -244,28 +251,33 @@ typedef void(^__blockWithBlockParameter)(__guardedBlock block);
 	if (!![newChapters count]) {
 		AZ_Mutable(Array, *newEntities);
 
-		if ([[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+		[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 			for (id<AZErgoChapterProtocol> data in newChapters) {
 				AZErgoUpdateChapter *new = [AZErgoUpdateChapter insertNew];
 				initBlock(new, data);
 				[newEntities addObject:new];
 			}
-		}])
-			for (AZErgoUpdateChapter *inserted in newEntities)
-				[allChapters addObject:[inserted inContext:nil]];
+		}];
+
+		for (AZErgoUpdateChapter *inserted in newEntities)
+			[allChapters addObject:[inserted inContext:nil]];
 	}
 
-	[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
-		for (AZErgoUpdateChapter *update in allChapters)
-			if (!([update isDeleted] || update.watch)) {
-				update.watch = watch;
+	[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
+		AZErgoUpdateWatch *_watch = [watch inContext:context];
 
-				if (update.mangaName && !watch.title)
-					watch.title = update.mangaName;
+		for (AZErgoUpdateChapter *update in [allChapters transitCoreDataObjects])
+			if (!([update isDeleted] || update.watch)) {
+				update.watch = _watch;
+
+				if (update.mangaName && !_watch.title)
+					_watch.title = update.mangaName;
 			}
 	}];
 
-	old = [[old sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
+	old = [[old sortedArray] mutableCopy];
 	[old removeObjectsInArray:allChapters];
 	for (AZErgoUpdateChapter *chapter in old)
 		[chapter delete];
@@ -310,6 +322,30 @@ typedef void(^__blockWithBlockParameter)(__guardedBlock block);
 	return [self parseURL:url];
 }
 
+- (NSString *) action:(NSString *)action URL:(NSString *)genData {
+	NSString *url = [NSString stringWithFormat:@"http://%@", self.descriptor.serverURL];
+
+	if (!![action length])
+		url = [NSString stringWithFormat:@"%@/%@", url, action];
+
+	if (!![genData length])
+		url = [NSString stringWithFormat:@"%@/%@.html", url, genData];
+
+	return url;
+}
+
+- (NSString *) mangaURL:(NSString *)genData {
+	return [self action:@"manga" URL:genData];
+}
+
+- (NSString *) chapterURL:(NSString *)genData {
+	return [self action:@"manga" URL:genData];
+}
+
+- (NSString *) searchURL:(NSString *)genData {
+	return [self action:@"manga" URL:genData];
+}
+
 - (id) infoAction:(AZErgoUpdateWatch *)watch {
 	return [self action:@"manga" request:watch.genData];
 }
@@ -324,7 +360,7 @@ typedef void(^__blockWithBlockParameter)(__guardedBlock block);
 
 - (id) action:(NSString *)action request:(NSString *)genData {
 	AZHTMLRequest *request = [AZHTMLRequest actionWithName:action];
-	request.url = [@"http://" stringByAppendingString:self.descriptor.serverURL];
+	request.url = [self action:action URL:[genData stringByAddingPercentEscapes]];
 	return request;
 }
 

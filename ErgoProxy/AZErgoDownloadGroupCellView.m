@@ -11,6 +11,8 @@
 
 #import "AZErgoUpdatesCommons.h"
 
+#import "AZErgoMangaCommons.h"
+
 @implementation AZErgoDownloadGroupCellView
 
 - (void) configureForEntity:(id)entity inOutlineView:(NSOutlineView *)view {
@@ -20,19 +22,17 @@
 	if ([GroupsDictionary isDictionary:entity]) {
 		// this is a manga group
 
-		AZErgoUpdateWatch *manga = [AZErgoDownloadsDataSource relatedManga:entity];
+		AZErgoUpdateWatch *mangaWatch = [AZErgoDownloadsDataSource relatedManga:entity];
+		AZErgoManga *manga = [AZErgoManga mangaByName:mangaWatch.manga];
 
-		title = manga ? (manga.title ?: manga.manga) : [self plainTitle];
+		title = [manga description] ?: [self plainTitle];
 	} else
 		if ([ItemsDictionary isDictionary:entity]) {
 			// this is a manga chapter group
 
 			AZErgoUpdateChapter *chapter = [AZErgoDownloadsDataSource relatedChapter:entity];
 
-			title = [self plainTitle];
-			float idx = [title floatValue];
-			title = [AZErgoDownloadsDataSource formattedChapterIDX:idx];
-			title = [title stringByAppendingString:chapter ? [@" \t- " stringByAppendingString:chapter.title] : @""];
+			title = chapter.fullTitle;
 		} else
 			;
 

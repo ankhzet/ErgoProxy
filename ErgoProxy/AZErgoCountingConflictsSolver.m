@@ -43,14 +43,14 @@
 	NSMutableDictionary *_conflicts;
 	NSArray *_ordered;
 	NSMutableArray *_volumes;
-	NSArray *chapters;
+	NSArray *_chapters;
 
 	BOOL orderChanged, conflictsChanged, volumesChanged;
 }
 
 + (instancetype) solverForChapters:(NSArray *)chapters {
 	AZErgoCountingConflictsSolver *i = [self new];
-	i->chapters = chapters;
+	i->_chapters = chapters;
 	return i;
 }
 
@@ -60,7 +60,7 @@
 
 	orderChanged = NO;
 
-	return _ordered = [chapters sortedArrayUsingComparator:^NSComparisonResult(Chapter *c1, Chapter *c2) {
+	return _ordered = [_chapters sortedArrayUsingComparator:^NSComparisonResult(Chapter *c1, Chapter *c2) {
 		double v1 = c1.volume + c1.baseIdx / 10000.f;
 		double v2 = c2.volume + c2.baseIdx / 10000.f;
 		return SIGN(v1 - v2);
@@ -105,11 +105,27 @@
 	return result;
 }
 
+- (BOOL) hasConflicts {
+	NSUInteger conflicts = 0;
+	for (NSNumber *c in [self.conflicts allValues])
+		if ([c unsignedIntegerValue] > 1)
+			conflicts++;
+
+	return conflicts > 0;
+}
+
 - (void) solveConflicts {
+
 	int tries = 20;
 
 	while (tries--) {
-		if ([self.volumes count] > 2)
+		if (![self hasConflicts])
+			return;
+
+		if ([self isSeasoned])
+			[self seasonedShifts];
+
+		if ([self.volumes count] > 1)
 			[self solveShifts];
 
 		for (NSNumber *volume in self.volumes)
@@ -170,7 +186,7 @@
 					if (![bonuses count])
 						continue;
 
-					NSUInteger min = _IDX(9999), max = _IDX(0);
+					NSUInteger min = _IDX(99999), max = _IDX(0);
 					for (Chapter *c in bonuses) {
 						NSUInteger idx = _FRC(c.idx);
 						if (idx > max) max = idx;
@@ -214,6 +230,8 @@
 			[_volumes addObject:@(chapter.volume)];
 		}
 
+	_volumes = [[_volumes sortedArrayUsingSelector:@selector(compare:)] mutableCopy];
+
 	return _volumes;
 }
 
@@ -243,19 +261,54 @@
 	return value;
 }
 
+- (BOOL) isSeasoned {
+	NSMutableArray *volumes = [[self volumes] mutableCopy];
+	[volumes removeObject:[volumes firstObject]];
+
+	for (NSNumber *volumeN in volumes) {
+		NSInteger volume = [volumeN integerValue];
+		NSArray *conflicted = [self hasConflictedChapters:volume];
+		if ([conflicted count] > 5) {
+			NSArray *chapters = [self volumeChapters:volume];
+			Chapter *first = [chapters firstObject];
+			NSInteger idx = _IDX(first.idx);
+			if ((idx) <= _IDX(1.f))
+				return YES;
+		}
+	}
+
+	return NO;
+}
+
+- (void) seasonedShifts {
+	for (NSNumber *volumeN in self.volumes) {
+    NSInteger volume = [volumeN integerValue];
+
+		for (Chapter *c in [self volumeChapters:volume]) {
+			NSInteger bonus = _FRC(c.idx);
+			NSInteger idx = _IDX(c.idx) - bonus;
+			idx += _IDX(1000 * volume) + bonus;
+
+			[self changeChapter:c index:idx];
+		}
+	}
+}
+
 - (void) solveShifts {
 	NSUInteger nextLoverBound = NSUIntegerMax;
 	for (NSNumber *v in [self.volumes reverseObjectEnumerator]) {
 		NSInteger volume = [v unsignedIntegerValue];
-		NSInteger vIdx = _IDX(volume);
+		NSInteger vIdx = _IDX(MAX(volume, 1));
 
     NSArray *vChapters = [self volumeChapters:volume];
 
 		NSInteger selfUpperBound = nextLoverBound;
 
 		Chapter *first = [vChapters firstObject];
+		Chapter *last = [vChapters lastObject];
 		NSInteger firstIdx = _IDX(first.idx);
-		if (firstIdx < vIdx) {
+		NSInteger lastIdx = _IDX(last.idx);
+		if ((firstIdx < vIdx) || (lastIdx >= nextLoverBound)) {
 			NSInteger newIdx = selfUpperBound;
 			for (Chapter *c in [vChapters reverseObjectEnumerator]) {
 				NSInteger last = _IDX(c.idx);
@@ -263,9 +316,15 @@
 				if (selfUpperBound == NSUIntegerMax)
 					selfUpperBound = (newIdx = last);
 
-				if (last >= selfUpperBound)
-					newIdx = MIN(last, selfUpperBound);
-				else {
+				if (last >= selfUpperBound) {
+					NSInteger tryIdx = MIN(last, selfUpperBound);
+					if ((tryIdx == newIdx) && ([[self hasConflictedChapters:volume + 1] count] == 1)) {
+						tryIdx -= _IDX(0.1f);
+						[self changeChapter:c index:tryIdx];
+					} else
+						newIdx = tryIdx;
+
+				} else {
 					newIdx = MAX(newIdx - _IDX(1.f), _IDX(1.f));
 					[self changeChapter:c index:newIdx];
 				}
@@ -295,7 +354,8 @@
 		if (lower) {
 			NSArray *between = [self between:lower and:chapter];
 
-			NSInteger bCount = [between count], origin = _IDX(0.5f + bCount / 10.f);
+			NSInteger bCount = [between count];
+			NSInteger origin = _IDX(0.5f + bCount / 10.f);
 			while (origin >= _IDX(1.f)) {
 				NSInteger delta = origin - _IDX(0.9f);
 				origin -= delta;

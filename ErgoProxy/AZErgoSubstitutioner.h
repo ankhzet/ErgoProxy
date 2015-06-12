@@ -16,6 +16,8 @@
 
 @interface AZErgoSubstitutioner : NSObject
 
+@property (nonatomic) id<AZErgoSubtitutionerDataSupplier> dataSupplier;
+
 + (instancetype) substitutionerWithDataSupplier:(id<AZErgoSubtitutionerDataSupplier>)dataSupplier;
 
 - (NSString *) getSubstitution:(NSString *)key;

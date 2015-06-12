@@ -15,4 +15,8 @@
 	return [self.serverURL compare:another.serverURL];
 }
 
+- (NSString *) description {
+	return [self serverURL];
+}
+
 @end

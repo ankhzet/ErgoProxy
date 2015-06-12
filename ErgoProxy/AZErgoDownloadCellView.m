@@ -10,6 +10,7 @@
 
 #import "AZDownload.h"
 #import "AZProgressIndicator.h"
+#import "AZErgoUpdateChapter.h"
 
 @interface AZErgoDownloadCellView () <AZErgoDownloadStateListener>
 
@@ -27,7 +28,13 @@
 
 	self.tfURL.stringValue = [[NSURL URLWithString:entity.sourceURL] path];
 	self.tfPage.integerValue = entity.page;
-	self.tfChapter.floatValue = entity.chapter;
+
+  int chapterIDX = _IDX(entity.chapter) % _IDX(1000.);
+	double chapter = _IDI(chapterIDX);
+
+	self.tfChapter.stringValue = (!!_FRC(chapter))
+	/**/ ? [NSString stringWithFormat:@"%.1f", chapter]
+	/**/ : [NSString stringWithFormat:@"%lu", (u_long)chapter];
 
 	[self setState:entity.state forDownload:entity];
 	[self setProgress:entity];

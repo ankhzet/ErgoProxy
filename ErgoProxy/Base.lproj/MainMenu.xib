@@ -477,12 +477,18 @@ CA
                             </tabViewItem>
                         </tabViewItems>
                     </tabView>
+                    <progressIndicator hidden="YES" horizontalHuggingPriority="750" verticalHuggingPriority="750" maxValue="100" displayedWhenStopped="NO" bezeled="NO" style="spinning" translatesAutoresizingMaskIntoConstraints="NO" id="ixI-XD-scI">
+                        <rect key="frame" x="245" y="162" width="32" height="32"/>
+                        <autoresizingMask key="autoresizingMask" flexibleMaxX="YES" flexibleMinY="YES"/>
+                    </progressIndicator>
                 </subviews>
                 <constraints>
+                    <constraint firstAttribute="centerY" secondItem="ixI-XD-scI" secondAttribute="centerY" id="464-fs-HPZ"/>
                     <constraint firstItem="RFE-6F-4fQ" firstAttribute="leading" secondItem="372" secondAttribute="leading" id="4OY-er-yXW"/>
                     <constraint firstAttribute="bottom" secondItem="RFE-6F-4fQ" secondAttribute="bottom" id="99E-xh-SNU"/>
                     <constraint firstItem="RFE-6F-4fQ" firstAttribute="top" secondItem="372" secondAttribute="top" id="9gK-Fq-XZc"/>
                     <constraint firstAttribute="trailing" secondItem="RFE-6F-4fQ" secondAttribute="trailing" id="RpV-pK-xDw"/>
+                    <constraint firstAttribute="centerX" secondItem="ixI-XD-scI" secondAttribute="centerX" id="x8Y-OB-Wbw"/>
                 </constraints>
             </view>
             <toolbar key="toolbar" implicitIdentifier="3C0228CB-4D9E-4485-B716-DA30CC8F819D" displayMode="iconAndLabel" sizeMode="small" id="7fk-CB-Hum">
@@ -536,6 +542,7 @@ CA
             <connections>
                 <outlet property="mNavMenu" destination="f8y-8F-8Gy" id="i6g-uX-Y3B"/>
                 <outlet property="miToggleDownloaders" destination="Ouh-Pa-k8d" id="qaV-Nq-ArJ"/>
+                <outlet property="piProgressIndicator" destination="ixI-XD-scI" id="d8Q-Db-ecJ"/>
                 <outlet property="tbToolBar" destination="7fk-CB-Hum" id="EaD-zZ-OaK"/>
                 <outlet property="tvTabView" destination="RFE-6F-4fQ" id="daH-SF-H22"/>
                 <outlet property="window" destination="371" id="532"/>

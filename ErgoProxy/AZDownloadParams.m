@@ -8,6 +8,8 @@
 
 #import "AZDownloadParams.h"
 #import "AZDownloadParameter.h"
+#import "AZErgoManga.h"
+#import "AZDownloadPresets.h"
 
 NSString *kDownloadParamMaxWidth = @"kDownloadParamMaxWidth";
 NSString *kDownloadParamMaxHeight = @"kDownloadParamMaxHeight";
@@ -25,29 +27,49 @@ NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 + (instancetype) params:(NSDictionary *)parameters {
 	NSString *hash = [self hashedParams:parameters];
 
-	AZDownloadParams *instance = [self unique:[NSPredicate predicateWithBlock:^BOOL(AZDownloadParams *entity, NSDictionary *bindings) {
+	AZDownloadParams *instance = [self unique:[AZF_ALL predicateWithBlock:^BOOL(AZDownloadParams *entity, NSDictionary *bindings) {
 		return [entity.hashed isEqualToString:hash];
 	}] initWith:^(id instantiated) {
 		[instantiated applyParams:parameters];
 	}];
 
+	AZ_Mutable(Array, *empty);
+	for (NSString *param in [parameters allKeys])
+		if (![instance downloadParameter:param])
+			[empty addObject:param];
+
+	if (!![empty count])
+		[instance applyParams:[empty mapWithValueFromKeyMapper:^id(NSString *param) {
+			return parameters[param];
+		}]];
+
 	return instance;
 }
 
-+ (instancetype) defaultParams {
-	NSMutableDictionary *params = [NSMutableDictionary dictionary];
++ (NSDictionary *) defaultParamsDictionary:(AZErgoManga *)manga {
+	static NSDictionary *map;
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+    map = @{
+						kDownloadParamNameWidth: kDownloadParamMaxWidth,
+						kDownloadParamNameHeight: kDownloadParamMaxHeight,
+						kDownloadParamNameQuality: kDownloadParamQuality,
+						kDownloadParamNameIsWebtoon: kDownloadParamIsWebtoon,
+						};
+	});
 
-	NSInteger width = PREF_INT(PREFS_DOWNLOAD_WIDTH);
-	NSInteger height = PREF_INT(PREFS_DOWNLOAD_HEIGHT);
-	NSInteger quality = PREF_INT(PREFS_DOWNLOAD_QUALITY);
-	NSInteger webtoon = PREF_BOOL(PREFS_DOWNLOAD_WEBTOON);
+	AZDownloadPresets *presets = [AZDownloadPresets new];
+	NSDictionary *defaults = [presets fetchDefaults:[presets pickPreset:manga]];
 
-	if (width) params[kDownloadParamMaxWidth] = @(width);
-	if (height) params[kDownloadParamMaxHeight] = @(height);
-	if (quality) params[kDownloadParamQuality] = @(quality);
-	if (webtoon) params[kDownloadParamIsWebtoon] = @(webtoon);
+	defaults = [defaults mapWithKeyRemapper:^id(id entity) {
+		return map[entity];
+	}];
 
-	return [self params:params];
+	return defaults;
+}
+
++ (instancetype) defaultParams:(AZErgoManga *)manga {
+	return [self params:[self defaultParamsDictionary:manga]];
 }
 
 - (void) addParametersObject:(AZDownloadParameter *)object {
@@ -88,8 +110,9 @@ NSString *kDownloadParamIsWebtoon = @"kDownloadParamIsWebtoon";
 }
 
 - (NSDictionary *) paramsDictionary {
-	NSMutableDictionary *d = [NSMutableDictionary dictionaryWithCapacity:[self.parameters count]];
-	for (AZDownloadParameter *param in self.parameters)
+	NSMutableDictionary *d = [[[self class] defaultParamsDictionary:nil] mutableCopy];
+
+	for (AZDownloadParameter *param in [self.parameters allObjects])
 		d[param.name] = param.value;
 
 	return d;

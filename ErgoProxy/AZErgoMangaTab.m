@@ -28,14 +28,14 @@
 		return self;
 
 	skipWithoutUnread = 1;
-	skipWithoutChapters = 1;
+	skipWithoutChapters = 0;
 	skipNotTagged = 0;
 	skipSkipped = 0;
 
 	return self;
 }
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDMangaTab;
 }
 
@@ -55,10 +55,10 @@
 
 - (NSArray *) fetchList {
 	NSString *filter = skipNotTagged ? @"tags.@count > 0" : nil;
-	NSArray *fetch = [AZErgoManga all:filter];
+	NSArray *fetch = [AZErgoManga fetch:AZF_ALL_OF(filter)];
 
 	if (skipSkipped) {
-		NSArray *tags = [AZErgoMangaTag all:@"skip > 0"];
+		NSArray *tags = [AZErgoMangaTag fetch:AZF_ALL_OF(@"skip > 0")];
 		if ([tags count]) {
 			NSMutableArray *mfetch = [fetch mutableCopy];
 			for (AZErgoMangaTag *tag in tags)
@@ -142,7 +142,13 @@
 				AZErgoMangaProgress *p1 = m1.progress;
 				AZErgoMangaProgress *p2 = m2.progress;
 
-				NSComparisonResult r = [p2.updated compare:p1.updated];
+				BOOL both = p1.updated && p2.updated;
+
+				NSComparisonResult r = NSOrderedSame;
+				if (both)
+					r = [p2.updated compare:p1.updated];//[@(p2.updated.timeIntervalSinceReferenceDate) compare:@(p1.updated.timeIntervalSinceReferenceDate)];
+				else
+					r = (!p1.updated) ? NSOrderedDescending : NSOrderedAscending;
 
 				//    2. Order equalities by name
 				if (r == NSOrderedSame)

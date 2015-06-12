@@ -22,7 +22,7 @@
 
 @implementation AZErgoDowdloadPriorityTab
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDDownloadPriorityTab;
 }
 
@@ -44,14 +44,12 @@
 	NSArray *fetched = [AZErgoManga allDownloaded:NO];
 	AZ_Mutable(Array, *data);
 
-	NSPredicate *p = [NSPredicate predicateWithFormat:@"(forManga.name == $manga) and ((totalSize == 0) or (downloaded < totalSize))"];
 	for (AZErgoManga *manga in fetched) {
 		if (!manga.name) {
 			DDLogWarn(@"! %@", manga.objectID);
 			continue;
 		}
-		NSPredicate *filter = [p predicateWithSubstitutionVariables:@{@"manga": manga.name}];
-		NSUInteger count = [AZDownload countOf:filter];
+		NSUInteger count = [AZDownload countOf:@"(forManga.name == %@) and ((totalSize == 0) or (downloaded < totalSize))", manga.name];
 		if (count > 0)
 			[data addObject:manga];
 	}

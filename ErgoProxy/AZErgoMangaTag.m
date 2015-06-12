@@ -22,14 +22,14 @@
 }
 
 + (instancetype) tagWithGuid:(NSNumber *)guid {
-	return [self unique:[NSPredicate predicateWithFormat:@"guid == %@", guid] initWith:^(AZErgoMangaTag *tag) {
+	return [self unique:AZF_ALL_OF(@"guid == %@", guid) initWith:^(AZErgoMangaTag *tag) {
 		tag.guid = guid;
 		tag.tag = [NSString stringWithFormat:@":%@", guid];
 	}];
 }
 
 + (instancetype) tagWithName:(NSString *)name {
-	return [self unique:[NSPredicate predicateWithFormat:@"tag ==[c] %@", name] initWith:^(AZErgoMangaTag *tag) {
+	return [self unique:AZF_ALL_OF(@"tag ==[c] %@", name) initWith:^(AZErgoMangaTag *tag) {
 		tag.tag = name;
 	}];
 }
@@ -63,3 +63,27 @@
 }
 
 @end
+
+@implementation NSArray (ErgoTagsUtils)
+
+- (BOOL) isEqualWithTags:(NSArray *)tags {
+	if ([self count] != [tags count])
+		return NO;
+
+	for (AZErgoMangaTag *tag in tags)
+		if (![self containsLocalizedCaseInsencetiveString:tag.tag])
+			return NO;
+
+	return YES;
+}
+
+- (BOOL) containsLocalizedCaseInsencetiveString:(NSString *)string {
+	for (NSString *o in self)
+		if ([o caseInsensitiveCompare:string] == NSOrderedSame)
+			return YES;
+
+	return NO;
+}
+
+@end
+

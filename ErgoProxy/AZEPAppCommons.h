@@ -11,34 +11,7 @@
 
 #import "AZUtils.h"
 
-#define API_ACTION_BASE_URL @"%@/a-p-i/ergo/"
-
-#define PREF_SAVE_STR(_string, _pref_key) \
-[[NSUserDefaults standardUserDefaults] setObject:(_string) forKey:(_pref_key)];
-
-#define PREF_SAVE_BOOL(_bool, _pref_key) \
-[[NSUserDefaults standardUserDefaults] setBool:!!_bool forKey:(_pref_key)];
-
-#define PREF_SAVE_INT(_int, _pref_key) \
-[[NSUserDefaults standardUserDefaults] setInteger:_int forKey:(_pref_key)];
-
-#define PREF_SAVE_UI_STR(_string, _pref_key) \
-PREF_SAVE_STR((_string).stringValue, _pref_key)
-
-#define PREF_SAVE_UI_INT(_integer, _pref_key) \
-PREF_SAVE_INT((_integer).integerValue, _pref_key)
-
-#define PREF_SAVE_UI_BOOL(_checkbox, _pref_key) \
-PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)
-
-#define PREF_STR(_key)\
-({id value = [[NSUserDefaults standardUserDefaults] stringForKey:(_key)]; (value != nil) ? value : @"";})
-
-#define PREF_BOOL(_key)\
-({[[NSUserDefaults standardUserDefaults] boolForKey:(_key)];})
-
-#define PREF_INT(_key)\
-({[[NSUserDefaults standardUserDefaults] integerForKey:(_key)];})
+#define API_ACTION_BASE_URL @"/a-p-i/ergo/"
 
 
 #define DEF_USER_LOGIN @"user.credentials.login"
@@ -65,14 +38,12 @@ PREF_SAVE_BOOL(([(_checkbox) state] == NSOnState), _pref_key)
 
 #define PREFS_UI_DOWNLOADS_GROUPPED @"ui.downloads.groupped"
 #define PREFS_UI_DOWNLOADS_HIDEFINISHED @"ui.downloads.hidefinished"
+#define PREFS_UI_DOWNLOADS_SHOWUNFINISHED @"ui.downloads.showunfinished"
 
 
 #define PREFS_WATCHER_AUTOCHECK_INTERVAL @"watcher.autocheck.interval"
 #define PREFS_UI_WATCHER_HIDEFINISHED @"ui.watcher.hidefinished"
 
 #define MANGA_STORAGE_FOLDERS [AZUtils fetchDirs:PREF_STR(PREFS_COMMON_MANGA_STORAGE)]
-
-#define AZ_MutableI(_class, _variable, _initializer) NSMutable##_class _variable = [NSMutable##_class _initializer]
-#define AZ_Mutable(_class, _variable) AZ_MutableI(_class, _variable, new)
 
 #endif

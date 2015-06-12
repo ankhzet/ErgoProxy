@@ -17,6 +17,7 @@
 @end
 
 @implementation AZErgoSubstitutioner
+@synthesize dataSupplier = dataSupplier;
 
 + (instancetype) substitutionerWithDataSupplier:(id<AZErgoSubtitutionerDataSupplier>)dataSupplier {
 	AZErgoSubstitutioner *s = [self new];

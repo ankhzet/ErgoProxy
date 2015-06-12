@@ -61,6 +61,8 @@
 
 	if (!![self cachedScan:displayedScan])
 		[self updateScanView:displayedScan];
+
+	[super showContent:index];
 }
 
 - (void) scanCached:(id)uid {
@@ -76,6 +78,8 @@
 }
 
 - (void) updateScanView:(id)uid {
+	[super updateScanView:uid];
+
 	for (NSView *holder in [self.contentView subviews])
 		[holder setHidden:YES];
 
@@ -104,7 +108,14 @@
 
 		dispatch_sync(processQueue, ^{ @autoreleasepool {
 			CGSize shrinken = [self shrinkenFit:pImage];
-			CGImageRef imageToFilter = [pImage CGImageForProposedRect:NULL context:[NSGraphicsContext currentContext] hints:nil];
+			CGRect rect;
+			rect.origin = CGPointZero;
+			rect.size = shrinken;
+			CGImageRef imageToFilter = [pImage CGImageForProposedRect:&rect
+																												context:nil
+																													hints:@{
+																																	NSImageHintInterpolation: @(NSImageInterpolationHigh),
+																																	}];
 
 			GPUImagePicture *picture = [[GPUImagePicture alloc] initWithCGImage:imageToFilter smoothlyScaleOutput:self.mipmapImages];
 
@@ -128,7 +139,7 @@
 
 - (CGSize) shrinkenFit:(NSImage *)source {
 	CGSize outS = self.contentView.bounds.size;
-	CGSize inpS = source.size;
+	CGSize inpS = source.pixelSize;
 
 	CGSize offS = CGSizeMake(outS.width * 1.05f, outS.height * 1.05f);
 
@@ -139,18 +150,21 @@
 	if (needRescale) {
 		float aspect = inpS.width / inpS.height;
 		if (tooWide) {
-			inpS.width = (int) offS.width;
-			inpS.height = (int) (inpS.width / aspect);
+			inpS.width = offS.width;
+			inpS.height = inpS.width / aspect;
 		}
 
 		BOOL tooTall = offS.height < inpS.height;
 		if (tooTall) {
-			inpS.height = (int) offS.height;
-			inpS.width = (int) (inpS.height * aspect);
+			inpS.height = offS.height;
+			inpS.width = inpS.height * aspect;
 		}
 
-		[source setSize:inpS];
-		[source recache];
+		inpS.width = MAX((int) inpS.width, 1);
+		inpS.height = MAX((int) inpS.height, 1);
+
+//		[source setSize:inpS];
+//		[source recache];
 	}
 
 	return inpS;

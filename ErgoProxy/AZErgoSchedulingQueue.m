@@ -8,88 +8,107 @@
 
 #import "AZErgoSchedulingQueue.h"
 
-@interface AZErgoSchedulingQueueTask : NSOperation {
-@public
-	id associatedObject;
-	AZScheduledTaskProcessBlock process;
-	__weak AZErgoSchedulingQueue *queue;
-}
-
-+ (instancetype) task:(AZScheduledTaskProcessBlock)process withAssociatedObject:(id)associated;
-
-@end
-
-@implementation AZErgoSchedulingQueueTask
-
-+ (instancetype) task:(AZScheduledTaskProcessBlock)process withAssociatedObject:(id)associated {
-	AZErgoSchedulingQueueTask *task = [self new];
-	task->process = process;
-	task->associatedObject = associated;
-	return task;
-}
-
-- (NSString *) description {
-	return [associatedObject description];
-}
-
-- (void) main {
-	BOOL requeue = NO;
-	process(&requeue, associatedObject);
-	if (requeue)
-		[queue enqueue:process withAssociatedObject:associatedObject];
-}
-
-@end
+#import "AZErgoUpdatesCommons.h"
+#import "AZErgoMangaCommons.h"
+#import "AZDownload.h"
+#import "AZProxifier.h"
+#import "AZWaitableTask.h"
+#import "AZErgoDownloadPrefsWindowController.h"
+#import "AZErgoChapterDownloadParams.h"
+#import "AZDataProxy.h"
 
 @implementation AZErgoSchedulingQueue
 
-+ (instancetype) new {
-	AZErgoSchedulingQueue *queue = [super new];
-	[queue setMaxConcurrentOperationCount:1];
++ (instancetype) sharedQueue {
+	static AZErgoSchedulingQueue *queue;
+
+	static dispatch_once_t onceToken;
+	dispatch_once(&onceToken, ^{
+    queue = [self new];
+	});
 
 	return queue;
 }
 
-- (void) enqueue:(AZScheduledTaskProcessBlock)process withAssociatedObject:(id)associated {
-	AZErgoSchedulingQueueTask *task = [AZErgoSchedulingQueueTask task:process withAssociatedObject:associated];
-	task->queue = self;
-	[self addOperation:task];
+- (void) checkWatch:(AZErgoUpdateWatch *)watch {
+	[self enqueue:^(BOOL *requeue, AZErgoUpdateWatch *associatedObject) {
+		AZErgoUpdateWatch *watch = [associatedObject inContext:nil];
+
+		[[watch.source relatedSource] checkWatch:watch];
+	} withAssociatedObject:watch];
 }
 
-@end
+- (void) queueChapterDownloadTask:(AZErgoUpdateChapter *)chapter {
+	[self enqueue:^(BOOL *requeue, AZErgoUpdateChapter *aChapter) {
+		AZErgoUpdateChapter *chapter = [aChapter inContext:nil];
 
-@implementation AZErgoWaitBreakTask {
-	dispatch_semaphore_t sem;
-	AZErgoWaitBreakTaskProcessor block;
+		AZErgoUpdateWatch *checkable = [chapter.watch deepSearch:^BOOL(AZErgoUpdateWatch *entity) {
+			return [[(id)entity md_delegate] hasDelegates];
+		}];
+		checkable.checking = YES;
+		[self checkChapter:chapter requeue:requeue];
+		checkable.checking = NO;
+	} withAssociatedObject:chapter];
 }
 
-+ (AZErgoWaitBreakTask *) executeTask:(AZErgoWaitBreakTaskProcessor)block {
-	AZErgoWaitBreakTask *task = [self new];
-	task->block = block;
-	[task execute];
-	return task;
+- (void) checkChapter:(AZErgoUpdateChapter *)aChapter requeue:(BOOL *)requeue {
+
+	[AZWaitableTask executeTask:^(AZWaitableTask *task) {
+		AZErgoUpdateChapter *chapter = [aChapter inContext:nil];
+
+		AZErgoUpdatesSource *source = [chapter.watch.source relatedSource];
+		[source checkUpdate:chapter withBlock:^(NSArray *scans) {
+			AZErgoUpdateChapter *chapter = [aChapter inContext:nil];
+
+			if (!(*requeue = ![scans count]))
+				*requeue = ![self chapter:chapter infoRetrived:scans];
+			else
+				AZErrorTip(LOC_FORMAT(@"Scans aquire failed for %@!", chapter.genData));
+
+			[task break];
+		}];
+
+	}];
 }
 
-- (void) execute {
-	self.isRunning = YES;
-	@try {
-		dispatch_sync_at_background(^{
-			sem = dispatch_semaphore_create(0);
-			block(self);
+- (BOOL) chapter:(AZErgoUpdateChapter *)chapter infoRetrived:(NSArray *)scans {
+	chapter = [chapter inContext:nil];
 
-			double delayInSeconds = 0.2;
-			while (self.isRunning)
-				if (!dispatch_semaphore_wait(sem, dispatch_time(DISPATCH_TIME_NOW, (int64_t)(delayInSeconds * NSEC_PER_SEC))))
-					break;
-		});
+	AZErgoUpdateChapter *configured = [chapter.watch lastChapter];
+	AZDownload *anyDownload = nil;
+
+	do {
+		configured = [chapter.watch chapterBefore:configured];
+		anyDownload = [configured.downloads anyObject];
+	} while (!(anyDownload || !configured));
+
+	AZErgoManga *manga = chapter.watch.relatedManga;
+	AZDownloadParams *params;
+	if (anyDownload)
+		params = anyDownload.downloadParameters;
+	else
+		params = [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:NO forManga:manga];
+
+	if (!params) {
+		chapter.state = AZErgoUpdateChapterDownloadsFailed;
+		AZErrorTip(LOC_FORMAT(@"Download params not aquired!"));
+		return NO;
 	}
-	@finally {
-		self.isRunning = NO;
-	}
+
+	AZ_CDDetatch({
+		AZProxifier *proxifier = [AZProxifier sharedProxifier];
+
+		AZErgoChapterDownloadParams *downloads = [AZErgoChapterDownloadParams new];
+		downloads.manga = manga;
+		downloads.chapterID = chapter.idx;
+		downloads.scanDownloadParams = [params inContext:nil];
+		downloads.scans = scans;
+		[downloads registerDownloads:proxifier];
+	});
+
+	self.hasNewChapters = YES;
+	return YES;
 }
 
-- (void) break {
-	dispatch_semaphore_signal(sem);
-}
 
 @end

@@ -50,6 +50,14 @@
 	return nil;
 }
 
+- (void) recursive:(id)sender block:(void(^)(id entity))block {
+	AZ_IFCLASS(sender, CustomDictionary, *dictionary, {
+		for (id entity in [dictionary allValues])
+			[self recursive:entity block:block];
+	}) else
+		block(sender);
+}
+
 - (void) dropHash {
 
 }
@@ -75,9 +83,9 @@
 @end
 
 @implementation AZErgoDownloadDetailsPresenter {
-	AZDownload *download;
+	AZDownload *__download;
 }
-@synthesize entity = download;
+@synthesize entity = __download;
 
 // TODO: refactor uggly direct param access
 
@@ -128,11 +136,11 @@
 		idxes = @"";
 
 	NSString *chapterTitle = relatedChapter ? relatedChapter.title : nil;
-	NSString *mangaTitle = relatedManga ? relatedManga.title : nil;
+	NSString *mangaTitle = relatedManga.relatedManga.mainTitle ?: nil;
 
 	if (!mangaTitle) {
 		if (pageIDX)
-			mangaTitle = download.forManga.mainTitle;
+			mangaTitle = __download.forManga.mainTitle;
 		else {
 			if ([GroupsDictionary isDictionary:self.entity])
 				mangaTitle = [self plainTitle];
@@ -171,9 +179,12 @@
 	[[popover.tfURL superview] setCollapsed:NO];
 	[popover.bPreview setCollapsed:NO];
 
+
+	AZDownload *download = __download;
 #define _LABEL(_key, _add) ({\
 id val = [download.downloadParameters downloadParameter:(_key)].value;\
-[NSString stringWithFormat:(_add), (!val) ? @"server-default" : val];\
+val = (!val) ? LOC_FORMAT(@"server-default") : val;\
+LOC_FORMAT((_add), val);\
 })
 
 	popover.tfURL.stringValue = download.sourceURL;
@@ -181,7 +192,7 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 	popover.tfHeight.stringValue = _LABEL(kDownloadParamMaxHeight, @"Height: %@ or less");
 	popover.tfQuality.stringValue = _LABEL(kDownloadParamQuality, @"Quality: %@");
 
-	popover.tfStorage.stringValue = download.storage.url ? download.storage.url : @"<storage not saved to db!>";
+	popover.tfStorage.stringValue = download.storage.url ?: LOC_FORMAT(@"<storage not saved to db!>");
 
 	popover.tfScanID.stringValue = [NSString stringWithFormat:@"scans/id/%lu",download.scanID];
 
@@ -195,30 +206,34 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 	[popover.bLock setImage:[NSImage imageNamed:lock ? NSImageNameLockLockedTemplate : NSImageNameLockUnlockedTemplate]];
 
 	NSDecimalNumber *isWebtoon = [download.downloadParameters downloadParameter:kDownloadParamIsWebtoon].value;
-	popover.tfIsWebtoon.stringValue = [isWebtoon boolValue] ? @"Is a webtoon" : @"";
+	popover.tfIsWebtoon.stringValue = [isWebtoon boolValue] ? LOC_FORMAT(@"Is a webtoon") : @"";
 
-	popover.tfHash.stringValue = download.proxifierHash ? download.proxifierHash : @"<hash not aquired yet>";
+	[popover.tfHash.cell setPlaceholderString:LOC_FORMAT(@"<hash not aquired yet>")];
+	popover.tfHash.stringValue = download.proxifierHash ?: @"";
 
 	[popover.tfError setCollapsed:!HAS_BIT(download.state, AZErgoDownloadStateFailed)];
-	popover.tfError.stringValue = download.error ? download.error : @"";
+	popover.tfError.stringValue = download.error ?: @"";
 }
 
 - (void) deleteEntity {
-	[download delete];
+	[self recursive:self.entity block:^(AZDownload *entity) {
+		[entity delete];
+	}];
+
 	[[AZDataProxy sharedProxy] notifyChangedWithUserInfo:nil];
 }
 
 - (void) previewEntity {
-	[[NSWorkspace sharedWorkspace] openFile:[download localFilePath]];
+	[[NSWorkspace sharedWorkspace] openFile:[__download localFilePath]];
 }
 
 - (void) browseEntityStorage {
-	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:download.storage.url]];
+	[[NSWorkspace sharedWorkspace] openURL:[NSURL URLWithString:__download.storage.url]];
 }
 
 - (void) browseEntity {
-	NSURL *url = [NSURL URLWithString:download.storage.url];
-	url = [url URLByAppendingPathComponent:[NSString stringWithFormat:@"scans/id/%lu",download.scanID]];
+	NSURL *url = [NSURL URLWithString:__download.storage.url];
+	url = [url URLByAppendingPathComponent:[NSString stringWithFormat:@"scans/id/%lu", __download.scanID]];
 	[[NSWorkspace sharedWorkspace] openURL:url];
 }
 
@@ -229,54 +244,51 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 - (void) lockEntity {
 	BOOL lock = [self.popover.bLock.image.name isEqualToString:NSImageNameLockUnlockedTemplate];
 
-	[self recursive:self.entity lock:lock];
+	NSTimeInterval distantFuture = [[NSDate distantFuture] timeIntervalSinceReferenceDate];
+
+	AZProxifier *proxifier = [AZProxifier sharedProxifier];
+	[self recursive:self.entity block:^(AZDownload *download) {
+		if (lock) // paused already
+			download.lastDownloadIteration = distantFuture;
+		else {
+			download.lastDownloadIteration = 0;
+			[proxifier registerForDownloading:download];
+		}
+
+		[download notifyStateChanged];
+	}];
 
 	[self setLockState:lock];
 }
 
-- (void) recursive:(id)sender lock:(BOOL)lock {
-	NSTimeInterval distantFuture = [[NSDate distantFuture] timeIntervalSinceReferenceDate];
-
-	if ([sender isKindOfClass:[AZDownload class]]) {
-		AZDownload *_download = sender;
-		if (lock) // paused already
-			_download.lastDownloadIteration = distantFuture;
-		else {
-			_download.lastDownloadIteration = 0;
-			[[AZProxifier sharedProxifier] reRegisterDownload:_download];
-		}
-
-		[_download notifyStateChanged];
-	} else
-		if ([sender isKindOfClass:[CustomDictionary class]])
-			for (id sub in [(CustomDictionary *)sender allValues])
-				[self recursive:sub lock:lock];
-}
-
-- (void) recursiveDrop:(id)sender withPrefs:(AZDownloadParams *)prefs {
-	if ([sender isKindOfClass:[AZDownload class]]) {
-		[(AZDownload *)sender reset:prefs];
-		[[AZProxifier sharedProxifier] reRegisterDownload:sender];
-	} else
-		if ([sender isKindOfClass:[CustomDictionary class]])
-			for (id sub in [(CustomDictionary *)sender allValues])
-				[self recursiveDrop:sub withPrefs:prefs];
-}
-
 - (void) dropHash {
-	BOOL keepParams = !([NSEvent modifierFlags] & NSCommandKeyMask);
+	__block BOOL keepParams = !([NSEvent modifierFlags] & NSCommandKeyMask);
 	BOOL peekSpecificParams = (!keepParams) && ([NSEvent modifierFlags] & NSShiftKeyMask);
 
-	AZErgoManga *manga = [self.entity isKindOfClass:[AZDownload class]] ? ((AZDownload *)self.entity).forManga : nil;
-	AZDownloadParams *prefs = keepParams ? nil : [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:!peekSpecificParams forManga:manga];
-	[self recursiveDrop:self.entity withPrefs:prefs];
+	__block AZDownloadParams *prefs = nil;
+
+	if (!keepParams)
+		[self recursive:self.entity block:^(AZDownload *entity) {
+			if (keepParams)
+				return;
+
+			prefs = [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:!peekSpecificParams forManga:entity.forManga];
+			keepParams = YES;
+		}];
+
+	AZProxifier *proxifier = [AZProxifier sharedProxifier];
+	[self recursive:self.entity block:^(AZDownload *entity) {
+		[entity reset:prefs];
+		[proxifier registerForDownloading:entity];
+	}];
+
 	self.popover.tfHash.stringValue = @"";
 }
 
-
-
 - (void) trashEntity {
-	[self trashDownload:[NSURL fileURLWithPath:[download localFilePath]]];
+	[self recursive:self.entity block:^(AZDownload *entity) {
+		[self trashDownload:[NSURL fileURLWithPath:entity.localFilePath]];
+	}];
 }
 
 - (void) trashDownload:(NSURL *)url {
@@ -322,7 +334,7 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 														 if ([fm moveItemAtURL:url toURL:local error:&error])
 															 [self trashDownload:local];
 														 else
-															 [AZUtils notifyErrorMsg:[NSString stringWithFormat:@"%@:\n%@", NSLocalizedString(@"Can't move to Downloads directory", @""), [error localizedDescription]]];
+															 AZErrorTip(LOC_FORMAT(@"Can't move to Downloads directory:\n%@", [error localizedDescription]));
 
 														 break;
 													 }
@@ -335,7 +347,7 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 				return;
 			}
 
-		[AZUtils notifyErrorMsg:[error localizedDescription]];
+		AZErrorTip([error localizedDescription]);
 	}
 }
 
@@ -358,24 +370,6 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 	[self setLockState:NO];
 }
 
-//- (void) dropHash {
-//	AZErgoDownloadDetailsPresenter *ddp = [AZErgoDownloadDetailsPresenter new];
-//	for (AZDownload *download in [group allValues])
-//		[[ddp presenterForEntity:download in:self.popover] dropHash];
-//}
-
-- (void) deleteEntity {
-	AZErgoDownloadDetailsPresenter *ddp = [AZErgoDownloadDetailsPresenter new];
-	for (AZDownload *download in [group allValues])
-		[[ddp presenterForEntity:download in:self.popover] deleteEntity];
-}
-
-- (void) lockEntity {
-	AZErgoDownloadDetailsPresenter *ddp = [AZErgoDownloadDetailsPresenter new];
-
-	[[ddp presenterForEntity:self.entity in:self.popover] lockEntity];
-}
-
 - (void) previewEntity {
 }
 
@@ -383,18 +377,6 @@ id val = [download.downloadParameters downloadParameter:(_key)].value;\
 }
 
 - (void) browseEntity {
-}
-
-- (void) trashEntity {
-	[self recursiveTrash:group];
-}
-
-- (void) recursiveTrash:(id)entity {
-	if ([entity isKindOfClass:[AZDownload class]])
-		[[super presenterForEntity:entity in:self.popover] trashDownload:[NSURL fileURLWithPath:[entity localFilePath]]];
-	//	else
-	//		for (id sub in [entity allValues])
-	//			[self recursiveTrash:sub];
 }
 
 @end

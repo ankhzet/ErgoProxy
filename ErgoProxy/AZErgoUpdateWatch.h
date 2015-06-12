@@ -8,14 +8,13 @@
 
 #import "AZErgoUpdatesCommons.h"
 
-@class AZErgoUpdateWatch;
+@class AZErgoUpdateWatch, AZErgoManga;
 @protocol AZErgoUpdateWatchDelegate <NSObject>
 
 - (void) watch:(AZErgoUpdateWatch *)watch stateChanged:(BOOL)checking;
 
 @end
 
-@class AZErgoUpdatesSourceDescription, AZErgoUpdateChapter;
 @interface AZErgoUpdateWatch : AZCoreDataEntity
 
 @property (nonatomic, retain) NSString *title;
@@ -26,17 +25,23 @@
 @property (nonatomic, retain) AZErgoUpdatesSourceDescription *source;
 
 @property (nonatomic) BOOL checking;
-@property (nonatomic, weak) id<AZErgoUpdateWatchDelegate> delegate;
 
 - (AZErgoUpdateChapterDownloads) chapterState:(AZErgoUpdateChapter *)chapter;
 - (void) clearChapterState:(AZErgoUpdateChapter *)chapter;
+- (void) clearChaptersState;
 
 - (BOOL) requiresCheck;
 
 - (AZErgoUpdateChapter *) chapterByIDX:(float)chapter;
 - (AZErgoUpdateChapter *) lastChapter;
 - (AZErgoUpdateChapter *) firstChapter;
+- (AZErgoUpdateChapter *) chapterBefore:(AZErgoUpdateChapter *)next;
+- (AZErgoUpdateChapter *) chapterAfter:(AZErgoUpdateChapter *)next;
+
+- (AZErgoManga *) relatedManga;
 
 + (AZErgoUpdateWatch *) watchByManga:(NSString *)manga;
+
+- (NSString *) mangaURL;
 
 @end

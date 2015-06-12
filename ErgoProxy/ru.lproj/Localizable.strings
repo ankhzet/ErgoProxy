@@ -13,3 +13,12 @@
 "Rated content (18+)" = "Контент для взрослых";
 
 "Common tags" = "Общие теги";
+
+"Width: %@ or less" = "Ширина: %@ или меньше";
+"Height: %@ or less" = "Высота: %@ или меньше";
+"Quality: %@" = "Качество: %@";
+"Is a webtoon" = "Вебтун";
+"server-default" = "серверные настройки";
+
+"<storage not saved to db!>" = "<адрес хранилища еще неизвестен>";
+"<hash not aquired yet>" = "<хеш еще не получен>";

@@ -12,9 +12,12 @@
 #import "AZErgoChapterProtocol.h"
 
 #import "AZDataProxy.h"
+#import "AZDownload.h"
 
 @implementation AZErgoReaderContentProvider {
 	NSArray *scansList;
+
+	NSMutableArray *corrupted;
 
 	NSMutableDictionary *contentCache;
 }
@@ -41,6 +44,7 @@
 		_chapterID = chapterID;
 
 		scansList = nil;
+		corrupted = nil;
 		[self flushCache];
 	}
 }
@@ -51,8 +55,11 @@
 
 - (NSArray *) content {
 	@synchronized(self) {
-		if (!scansList)
+		if (!scansList) {
 			scansList = [AZUtils fetchFiles:self.contentPath];
+
+			corrupted = [NSMutableArray arrayWithCapacity:[scansList count]];
+		}
 
 		return scansList;
 	}
@@ -66,6 +73,10 @@
 
 @implementation AZErgoReaderContentProvider (Commons)
 
+- (NSArray *) corruptedScans {
+	return corrupted;
+}
+
 - (void) flushCache {
 	for (NSImage *image in [contentCache allValues])
 		[image recache];
@@ -75,7 +86,7 @@
 }
 
 - (NSInteger) constraintIndex:(NSInteger)index {
-	return CLAMP(index, 0, [self.content count] - 1);
+	return CLAMP(index, 0, (int)[self.content count] - 1);
 }
 
 - (NSString *) contentPath {
@@ -115,15 +126,23 @@
 	}
 
 	//TODO: BAD!
-	[[AZDataProxy sharedProxy] saveContext];
+	[[AZDataProxy sharedProxy] saveContext:YES];
+}
+
+- (float) hasNext:(BOOL)backward {
+	return [AZErgoMangaChapter seekManga:self.manga.name chapter:self.chapterID withDelta:backward ? -1 : 1];
 }
 
 - (BOOL) seekNext:(BOOL)backward {
 	float old = self.chapterID;
+	float new = [self hasNext:backward];
 
-	self.chapterID = [AZErgoMangaChapter seekManga:self.manga.name chapter:old withDelta:backward ? -1 : 1];
+	BOOL diff = ![AZErgoMangaChapter same:new as:old];
 
-	return ![AZErgoMangaChapter same:self.chapterID as:old];
+	if (diff)
+		self.chapterID = new;
+
+	return diff;
 }
 
 - (id) contentOf:(id)uid {
@@ -150,8 +169,23 @@
 			NSString *scanFileName = [self.contentPath stringByAppendingPathComponent:imageName];
 
 			dispatch_async_at_background(^{
+				NSImage *image = nil;
 
-				NSImage *image = scanFileName ? [[NSImage alloc] initByReferencingFile:scanFileName] : [NSImage imageNamed:NSImageNameApplicationIcon];
+				if (scanFileName && [NSImage isImageFile:scanFileName]) {
+					if ([NSImage isJPEG:scanFileName]) {
+						NSData *data = [NSData dataWithContentsOfFile:scanFileName];
+
+						if ([NSImage isCorruptJPEGWithData:data]) {
+//							image = [NSImage imageNamed:NSImageNameApplicationIcon];
+							image = [[NSImage alloc] initWithData:data];
+
+							[corrupted addObject:imageName];
+						} else
+							image = [[NSImage alloc] initWithData:data];
+					} else
+						image = [[NSImage alloc] initByReferencingFile:scanFileName];
+				} else
+					image = [NSImage imageNamed:NSImageNameApplicationIcon];
 
 				[image setName:imageName];
 

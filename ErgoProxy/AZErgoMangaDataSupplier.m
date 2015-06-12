@@ -14,6 +14,22 @@
 
 @implementation AZErgoMangaDataSupplier
 
+- (id) getDataByKey:(NSString *)key {
+	id data = [super getDataByKey:key];
+
+	if (data)
+		return data;
+
+	if ([key isEqualToString:@"title"])
+		return LOC_FORMAT(@"ErgoProxy");
+
+	if ([key caseInsensitiveCompare:@"is_fullscreen"]==NSOrderedSame)
+		return @([[NSApp delegate] window].isInFullScreenMode);
+
+	return nil;
+}
+
+
 + (NSArray *) componentsFromAbsolutePath:(NSString *)path {
 	path = [path stringByReplacingOccurrencesOfString:[[AZErgoMangaChapter mangaStorage] stringByAppendingString:@"/"] withString:@""];
 
@@ -37,14 +53,6 @@
 		[components addObject:@(chapter)];
 
 	return components;
-}
-
-- (id)initWithDictionary:(NSDictionary *)dictionary {
-	if (!(self = [self init]))
-		return self;
-
-	self->data = dictionary;
-	return self;
 }
 
 + (instancetype) dataWithDirectoryIndex:(NSString *)path {
@@ -101,7 +109,7 @@
 			[manga toggle:YES tagWithGUID:AZErgoTagGroupReaded];
 	}
 
-	[[AZDataProxy sharedProxy] saveContext];
+	[[AZDataProxy sharedProxy] saveContext:YES];
 
 	NSWindow *window = [[NSApp delegate] window];
 	NSView *view = [window contentView];
@@ -160,29 +168,6 @@
 		result = @{@"result": @"err", @"message": LOC_FORMAT(@"Manga \"%@\" not found", mangaRoot)};
 
 	return [[self alloc] initWithDictionary:result];
-}
-
-- (id) getDataByKey:(NSString *)key {
-	key = [key lowercaseString];
-
-	if ([data objectForKey:key])
-		return [data objectForKey:key];
-
-	if ([key isEqualToString:@"title"])
-		return LOC_FORMAT(@"ErgoProxy");
-
-	if ([key caseInsensitiveCompare:@"is_fullscreen"]==NSOrderedSame)
-		return @([[NSApp delegate] window].isInFullScreenMode);
-	
-	return nil;
-}
-
-+ (instancetype) dataSupplier:(NSDictionary *)originalData {
-	return [[self alloc] initWithDictionary:originalData];
-}
-
-+ (AZErgoSubstitutioner *) dataSubstitutioner:(NSDictionary *)originalData {
-	return [AZErgoSubstitutioner substitutionerWithDataSupplier:[self dataSupplier:originalData]];
 }
 
 @end

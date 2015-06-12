@@ -29,20 +29,16 @@
 	return [self groupNodeOf:item];
 }
 
-- (id) rootNodeOf:(AZErgoUpdateChapter *)item {
-	return [AZErgoManga mangaByName:item.watch.manga];
+- (id) rootNodeOf:(id<AZErgoChapterProtocol>)item {
+	return [AZErgoManga mangaByName:item.mangaName];
 }
 
-- (id) groupNodeOf:(AZErgoUpdateChapter *)item {
+- (id) groupNodeOf:(id<AZErgoChapterProtocol>)item {
 	return [NSString stringWithFormat:@"Volume %03lu", item.volume];
 }
 
-- (id<NSCopying>) orderedUID:(AZErgoUpdateChapter *)item {
+- (id<NSCopying>) orderedUID:(id<AZErgoChapterProtocol>)item {
 	return @(item.idx);
-}
-
-- (IBAction) actionDelegatedClick:(id)sender {
-
 }
 
 @end

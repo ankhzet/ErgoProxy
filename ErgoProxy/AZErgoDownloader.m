@@ -119,12 +119,17 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZErgoDownloader)
 }
 
 - (NSArray *) doneTasks {
+	BOOL resolver = !self.storage;
+
 	@synchronized(self.downloads) {
 		NSMutableArray *all = [NSMutableArray arrayWithCapacity:[self.downloads count]];
 
-		for (AZDownload *download in [self.downloads allValues])
-			if (HAS_BIT(download.state, AZErgoDownloadStateDownloaded) || download.isDeleted)
+		for (AZDownload *download in [self.downloads allValues]) {
+			AZErgoDownloadState state = download.state;
+
+			if (HAS_BIT(state, AZErgoDownloadStateDownloaded) || download.isDeleted || (resolver && HAS_BIT(state, AZErgoDownloadStateResolved)))
 				[all addObject:download];
+		}
 
 		return all;
 	}
@@ -258,6 +263,9 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZErgoDownloader)
 
 - (void) detouchTask:(AZDownload *)download {
 	@synchronized(self.downloads) {
+		if ([download isDeleted])
+			return;
+
 		download.state |= AZErgoDownloadStateProcessing;
 	}
 

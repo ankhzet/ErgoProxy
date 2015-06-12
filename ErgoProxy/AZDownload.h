@@ -9,6 +9,7 @@
 #import "AZCoreDataEntity.h"
 
 #import "AZMultipleTargetDelegate.h"
+#import "AZDownloadParams.h"
 
 typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 	AZErgoDownloadStateNone        = 0 << 0, // newly created download
@@ -31,10 +32,13 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 @end
 
-@class AZDownloadParams, AZProxifier, AZStorage, AZErgoManga, AZErgoUpdateChapter;
+@class AZProxifier, AZStorage, AZErgoManga, AZErgoUpdateChapter;
 @interface AZDownload : AZCoreDataEntity
 
 @property (nonatomic, retain) NSString *sourceURL;
+
+@property (nonatomic, retain) AZErgoManga *forManga;
+@property (nonatomic, retain) AZErgoUpdateChapter *updateChapter;
 
 @property (nonatomic) float chapter;
 @property (nonatomic) NSInteger page;
@@ -53,9 +57,6 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 @property (nonatomic, retain) AZProxifier *proxifier;
 @property (nonatomic, retain) AZStorage *storage;
 
-@property (nonatomic, retain) AZErgoManga *forManga;
-@property (nonatomic, retain) AZErgoUpdateChapter *updateChapter;
-
 @property (nonatomic, retain) NSString *proxifierHash;
 @property (nonatomic) NSUInteger scanID;
 
@@ -70,11 +71,9 @@ typedef NS_ENUM(NSUInteger, AZErgoDownloadState) {
 
 - (NSUInteger) indexHash;
 
-+ (NSArray *) manga:(NSString *)manga hasChapterDownloads:(float)chapter;
++ (NSArray *) manga:(AZErgoManga *)manga hasChapterDownloads:(float)chapter;
 + (NSUInteger) manga:(NSString *)manga countChapterDownloads:(float)chapter;
 + (NSArray *) mangaDownloads:(NSString *)manga limit:(NSUInteger)limit;
-
-- (void) downloadError:(id)error;
 
 - (void) setDownloadedAmount:(NSUInteger)_downloaded;
 

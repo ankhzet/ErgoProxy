@@ -11,6 +11,8 @@
 #import "AZErgoUpdatesCommons.h"
 #import "AZErgoMangachanSource.h"
 
+#import "AZErgoChapterDownloadParams.h"
+
 #import "AZProxifier.h"
 #import "AZDownload.h"
 #import "AZDownloadParams.h"
@@ -18,7 +20,8 @@
 #import "AZErgoDownloadPrefsWindowController.h"
 #import "AZErgoUpdateWatchSubmitterWindowController.h"
 
-#import "AZErgoMangaStatePopoverController.h"
+#import "AZErgoMangaDetailsPopover.h"
+#import "AZErgoChaptersSchedulingPopover.h"
 
 #import "AZErgoWatcherScheduler.h"
 
@@ -27,6 +30,7 @@
 #import "AZDataProxy.h"
 
 #import "AZErgoSchedulingQueue.h"
+#import "AZWaitableTask.h"
 
 typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	AZErgoWatcherStateIddle = 0,
@@ -34,7 +38,7 @@ typedef NS_ENUM(NSUInteger, AZErgoWatcherState) {
 	AZErgoWatcherStateHasUpdates = 2,
 };
 
-@interface AZErgoWatchTab () <AZErgoUpdatesSourceDelegate, AZErgoUpdatesDataSourceDelegate> {
+@interface AZErgoWatchTab () <AZErgoUpdatesSourceDelegate, AZErgoUpdateWatchDelegate> {
 	AZErgoWatcherScheduler *scheduler;
 	AZErgoSchedulingQueue *schedulingQueue;
 }
@@ -61,7 +65,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 		[sSelf runChecker];
 	}];
 
-	schedulingQueue = [AZErgoSchedulingQueue new];
+	schedulingQueue = [AZErgoSchedulingQueue sharedQueue];
 
 	[AZErgoMangachanSource sharedSource].delegate = self;
 	self.updateOnPrefsChange = YES;
@@ -69,7 +73,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 	return self;
 }
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDWatchTab;
 }
 
@@ -100,7 +104,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 		NSToolbarItem *found = nil;
 		NSArray *items = [toolbar items];
 		for (NSToolbarItem *item in items)
-			if ([item.itemIdentifier isEqualToString:[self tabIdentifier]]) {
+			if ([item.itemIdentifier isEqualToString:[[self class] tabIdentifier]]) {
 				found = item;
 				break;
 			}
@@ -108,6 +112,9 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 		if (found) {
 			NSString *imageName = NSImageNameRevealFreestandingTemplate;
 			switch (state) {
+				case AZErgoWatcherStateIddle:
+					if (!schedulingQueue.hasNewChapters)
+						break;
 				case AZErgoWatcherStateWatching:
 					imageName = NSImageNameNetwork;
 					break;
@@ -124,6 +131,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 }
 
 - (void) watch:(AZErgoUpdateWatch *)watch inProcess:(AZErgoWatcherState)state {
+	watch = [watch inContext:nil];
 	AZErgoWatcherState all = state;
 	if (all == AZErgoWatcherStateIddle)
 		if (!![watch.source relatedSource].inProcess)
@@ -137,7 +145,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 		else
 			switch (state) {
 				case AZErgoWatcherStateWatching:
-					c.state = AZErgoUpdateChapterDownloadsDownloaded;
+//					c.state = AZErgoUpdateChapterDownloadsDownloaded;
 					break;
 
 				case AZErgoWatcherStateHasUpdates:
@@ -149,7 +157,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 					break;
 			}
 
-	if (state == AZErgoWatcherStateWatching) {
+	if ((state == AZErgoWatcherStateWatching) && ![watch.updates count]) {
 		AZErgoUpdateChapter *node = [self dummyUpdateNode];
 		node.watch = watch;
 	}
@@ -158,6 +166,10 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 - (void) watchers:(AZErgoUpdatesSourceDescription *)source inProcess:(AZErgoWatcherState)inProcess {
 	for (AZErgoUpdateWatch *watch in [source.watches allObjects])
 		[self watch:watch inProcess:inProcess];
+}
+
+- (void) watch:(AZErgoUpdateWatch *)watch stateChanged:(BOOL)checking {
+	[self watch:watch inProcess:checking ? AZErgoWatcherStateWatching : AZErgoWatcherStateIddle];
 }
 
 - (void) runChecker {
@@ -177,66 +189,62 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 	}];
 }
 
-- (void) scheduleDownloads:(id)from recursive:(BOOL)recursive {
-	if ([from isKindOfClass:[AZErgoUpdatesSourceDescription class]]) {
-		AZErgoUpdatesSourceDescription *source = from;
+- (void) scheduleDownloads:(id)from recursive:(BOOL)recursive sender:(id)sender {
+	AZ_IFCLASS(from, AZErgoUpdatesSourceDescription, *source, {
 		for (AZErgoUpdateWatch *watch in [source.watches allObjects])
-			[self scheduleDownloads:watch recursive:YES];
-	} else
+			[self scheduleDownloads:watch recursive:YES sender:sender];
+	}) else
+		AZ_IFCLASS(from, AZErgoUpdateWatch, *watch, {
+			if (recursive) {
+				AZErgoManga *manga = watch.relatedManga;
+				if (manga.isDownloaded)
+					return;
+			}
 
-		if ([from isKindOfClass:[AZErgoUpdateWatch class]]) {
-			AZErgoUpdateWatch *watch = from;
-			for (AZErgoUpdateChapter *chapter in [watch.updates allObjects])
-				[self scheduleDownloads:chapter recursive:YES];
-		} else
+			NSArray *chapters = [[watch.updates allObjects] sortedArray];
 
-			if ([from isKindOfClass:[AZErgoUpdateChapter class]]) {
-				AZErgoUpdateChapter *chapter = from;
-				switch (chapter.state ?: [chapter.watch chapterState:chapter]) {
+			NSMutableArray *schedule = [NSMutableArray new];
+			for (AZErgoUpdateChapter *chapter in [chapters reverseObjectEnumerator]) {
+				AZErgoUpdateChapterDownloads state = [watch chapterState:chapter];
+				switch (state) {
 					case AZErgoUpdateChapterDownloadsDownloaded:
-						break;
-
 					case AZErgoUpdateChapterDownloadsPartial:
-						if (recursive)
-							break;
-
-					case AZErgoUpdateChapterDownloadsFailed:
-					case AZErgoUpdateChapterDownloadsUnknown:
-					case AZErgoUpdateChapterDownloadsNone: {
-						AZErgoManga *manga = [AZErgoManga mangaWithName:chapter.watch.manga];
-						if (manga.isDownloaded)
-							return;
-
-						[self queueSchedulingTask:chapter];
-
 						break;
-					}
 
 					default:
+						if (!chapter.isDummy)
+							[schedule addObject:chapter];
 						break;
 				}
 			}
 
+			if (![schedule count])
+				return;
+
+			[AZErgoChaptersSchedulingPopover showAlignedTo:sender
+																		withConfigurator:[AZPopoverConfigurator with:schedule]];
+
+		}) else
+			AZ_IFCLASS(from, AZErgoUpdateChapter, *chapter, {
+				[schedulingQueue queueChapterDownloadTask:chapter];
+			});
 }
 
 - (void) refreshChaptersList:(id)source {
-	if ([source isKindOfClass:[AZErgoUpdateWatch class]]) {
+	AZ_IFCLASS(source, AZErgoUpdateWatch, *watch, {
 		if (AZ_KEYDOWN(Command))
-			[[AZErgoUpdateWatchSubmitterWindowController sharedController] showWatchSubmitter:source];
+			[[AZErgoUpdateWatchSubmitterWindowController sharedController] showWatchSubmitter:watch];
 		else
 			if (AZ_KEYDOWN(Shift) && AZ_KEYDOWN(Alternate)) {
-				[source delete];
+				[watch delete];
 				[self delayFetch:YES];
 			} else {
-				AZErgoUpdateWatch *watch = source;
-				[schedulingQueue enqueue:^(BOOL *requeue, id associatedObject) {
-					[self watchers:watch.source inProcess:AZErgoWatcherStateIddle];
-					[[watch.source relatedSource] checkWatch:associatedObject];
-				} withAssociatedObject:watch];
+				[schedulingQueue checkWatch:watch];
 			}
-	} else
-		if ([source isKindOfClass:[AZErgoUpdatesSourceDescription class]])
+	}) else
+		AZ_IFCLASS(source, AZErgoUpdatesSourceDescription, *source, {
 			[self runChecker];
+		});
 }
 
 - (void) markWatchDownloaded:(AZErgoUpdateWatch *)watch {
@@ -246,8 +254,9 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 	if (!AZConfirm(LOC_FORMAT(@"Mark last chapter (%@) of %@ as downloaded?", chapter.formattedString, manga)))
 		return;
 
+	AZDownloadParams *params = [AZDownloadParams defaultParams:manga];
 	NSString *path = [manga previewFile] ?: [manga mangaFolder];
-	AZDownload *download = [[AZProxifier sharedProxifier] downloadForURL:path withParams:[AZDownloadParams defaultParams]];
+	AZDownload *download = [[AZProxifier sharedProxifier] downloadForURL:path withParams:params];
 	download.state = AZErgoDownloadStateDownloaded;
 	download.chapter = chapter.idx;
 	download.page = 1;
@@ -265,18 +274,21 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 		[self refreshChaptersList:action.initiatorRelatedEntity];
 
 	if ([action is:@"scans"]) {
-		if ([action key:NSCommandKeyMask]) {
+		if (action.commandKey) {
 			if (![action.initiatorRelatedEntity isKindOfClass:[AZErgoUpdateWatch class]])
 				AZErrorTip(LOC_FORMAT(@"Works only on watches!"));
 			else
 				[self markWatchDownloaded:action.initiatorRelatedEntity];
 		} else {
-			[self scheduleDownloads:action.initiatorRelatedEntity recursive:NO];
+			[self scheduleDownloads:action.initiatorRelatedEntity recursive:NO sender:action.initiator];
 		}
 	}
 
-	if ([action is:@"info"])
-		[[[AZErgoMangaStatePopoverController sharedController] popover] showDetailsOf:action.initiatorRelatedEntity alignedTo:action.initiator];
+	if ([action is:@"info"]) {
+		AZErgoUpdateWatch *watch = action.initiatorRelatedEntity;
+		[AZErgoMangaDetailsPopover showAlignedTo:action.initiator
+														withConfigurator:[AZPopoverConfigurator with:watch.relatedManga]];
+	}
 }
 
 - (AZErgoUpdateChapter *) dummyUpdateNode {
@@ -290,7 +302,7 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 }
 
 - (void) updatesSource:(AZErgoUpdatesSource *)source checkingWatch:(AZErgoUpdateWatch *)watch {
-	dispatch_async(dispatch_get_main_queue(), ^{
+	dispatch_async_at_main(^{
 		[self watch:watch inProcess:AZErgoWatcherStateWatching];
 
 		self.updates.expanded = YES;
@@ -312,8 +324,12 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 }
 
 - (void) fetchUpdates:(BOOL)fullFetch {
+	if ([AZErgoUpdatesSource inProcess])
+		return;
+
 	dispatch_async_at_background(^{
-		[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+		[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 			NSArray *data = [AZErgoUpdateChapter all];
 
 			BOOL hasUpdates = NO;
@@ -349,171 +365,136 @@ MULTIDELEGATED_INJECT_LISTENER(AZErgoWatchTab)
 	});
 }
 
-- (NSArray *) filter:(BOOL)fullFetch data:(NSArray *)data withUpdates:(BOOL *)_hasUpdates {
-	BOOL hasUpdates = NO;
-	
+- (NSArray *) filter:(BOOL)fullFetch data:(NSArray *)dataToFilter withUpdates:(BOOL *)_hasUpdates {
+	__block BOOL hasUpdates = NO;
+	__block NSArray *filtered = dataToFilter;
+
 	BOOL dontCheck = AZ_KEYDOWN(Shift);
+	BOOL checkFinished = PREF_BOOL(PREFS_UI_WATCHER_HIDEFINISHED);
 
-	if (PREF_BOOL(PREFS_UI_WATCHER_HIDEFINISHED)) {
-		NSUInteger ehs = 0;
-		for (AZErgoUpdateChapter *chapter in data) {
-			if (!chapter.watch) {
-				ehs++;
-				if (chapter.idx < 0)
-					[chapter delete];
-			}
-		}
+	[self.tabs progressed:^(AZProgressCallback progress) {
 
-		if (ehs)
-			DDLogWarn(@"Updates without established ->watch relationship: %lu", ehs);
+		if (checkFinished) {
+//			NSUInteger ehs = 0;
+//			for (AZErgoUpdateChapter *chapter in filtered) {
+//				if (!chapter.watch) {
+//					ehs++;
+//					if (chapter.idx < 0)
+//						[chapter delete];
+//				}
+//			}
+//
+//			if (ehs)
+//				DDLogWarn(@"Updates without established ->watch relationship: %lu", ehs);
 
-		NSArray *watches = [AZErgoUpdateWatch all];
+			NSArray *watches = [AZErgoUpdateWatch all];
 
-		NSMutableArray *filteredData = [NSMutableArray arrayWithCapacity:[data count]];
-		for (AZErgoUpdateWatch *watch in watches) {
-			if (dontCheck) {
-//				NSUInteger chapters = 0;
-				for (AZErgoUpdateChapter *chapter in [watch.updates allObjects])
-					if (chapter.idx >= 0)
-						chapter.state = AZErgoUpdateChapterDownloadsNone;
-//						chapters++;
-					else
-						[chapter delete];
+			NSMutableArray *filteredData = [NSMutableArray arrayWithCapacity:[filtered count]];
 
-				NSArray *updates = [watch.updates allObjects];
-				if (![updates count]) {
-					AZErgoUpdateChapter *update = [self dummyUpdateNode];
-					update.title = LOC_FORMAT(@"No chapters aquired");
-					update.watch = watch;
-					[filteredData addObject:update];
-				} else
-					[filteredData addObjectsFromArray:[watch.updates allObjects]];
+			NSMutableArray *toCheck = [NSMutableArray new];
+			for (AZErgoUpdateWatch *watch in watches) {
+				if (dontCheck) {
+//					for (AZErgoUpdateChapter *chapter in [watch.updates allObjects])
+//						if (chapter.idx >= 0)
+//							chapter.state = AZErgoUpdateChapterDownloadsNone;
+////						else
+////							[chapter delete];
 
-				continue;
-			}
+					NSArray *updates = [watch.updates allObjects];
+					if (![updates count]) {
+						AZErgoUpdateChapter *update = [self dummyUpdateNode];
+						update.title = LOC_FORMAT(@"No chapters aquired");
+						update.watch = watch;
+						[filteredData addObject:update];
+					} else
+						[filteredData addObjectsFromArray:[watch.updates allObjects]];
 
-			if (!watch.requiresCheck) {
-				DDLogVerbose(@"No need to check %@", [AZErgoManga mangaByName:watch.manga]);
-				continue;
-			}
+					continue;
+				}
 
-			BOOL done = YES;
-			NSArray *sorted = [[watch.updates allObjects] sortedArrayUsingComparator:^NSComparisonResult(AZErgoUpdateChapter *c1, AZErgoUpdateChapter *c2) {
-				return SIGN(c2.idx - c1.idx);
-			}];
-
-			NSMutableArray *c = [NSMutableArray arrayWithCapacity:[sorted count]];
-			AZErgoUpdateChapter *last = [sorted lastObject];
-
-			done = !(last && last.idx < 0);
-			if (!done) {
-				last.state = AZErgoUpdateChapterDownloadsFailed;
-				if (fullFetch)
-					[c addObject:last];
+				if (watch.requiresCheck)
+					[toCheck addObject:watch];
 			}
 
-			for (AZErgoUpdateChapter *chapter in sorted)
-				if (chapter.idx >= 0)
-					switch ([watch chapterState:chapter]) {
-						case AZErgoUpdateChapterDownloadsDownloaded:
-							goto skip;
+			watches = toCheck;
 
-						case AZErgoUpdateChapterDownloadsNone:
-							hasUpdates = YES;
+			for (AZErgoUpdateWatch *watch in watches) {
+				BOOL done = YES;
+				NSArray *sorted = [[watch.updates allObjects] sortedArrayUsingComparator:^NSComparisonResult(AZErgoUpdateChapter *c1, AZErgoUpdateChapter *c2) {
+					return SIGN(c2.idx - c1.idx);
+				}];
 
-						case AZErgoUpdateChapterDownloadsPartial:
-						default:
-							done = NO;
-							[c addObject:chapter];
+				NSMutableArray *c = [NSMutableArray arrayWithCapacity:[sorted count]];
+				AZErgoUpdateChapter *last = [sorted lastObject];
+
+				if ([watch.manga rangeOfString:@"negima" options:NSCaseInsensitiveSearch].location != NSNotFound)
+					last = last;
+
+				done = !(last && last.idx < 0);
+				if (!done) {
+					last.state = AZErgoUpdateChapterDownloadsFailed;
+					if (fullFetch)
+						[c addObject:last];
+				}
+
+				if (dontCheck)
+					goto skip;
+
+				double piece = 1. / [watches count];
+				NSInteger index = [watches indexOfObject:watch];
+				double thruProgress = index * piece;
+
+				for (AZErgoUpdateChapter *chapter in sorted)
+					if (chapter.idx >= 0) {
+						switch ([watch chapterState:chapter]) {
+							case AZErgoUpdateChapterDownloadsDownloaded:
+								goto skip;
+
+							case AZErgoUpdateChapterDownloadsNone:
+								hasUpdates = YES;
+
+							case AZErgoUpdateChapterDownloadsPartial:
+							default:
+								done = NO;
+								[c addObject:chapter];
+						}
+
+						progress(thruProgress + piece * _PROGRESSED(sorted, chapter));
 					}
 
-		skip:
+			skip:
 
-			if (!done)
-				[filteredData addObjectsFromArray:c];
+				if (!done) {
+					[filteredData addObjectsFromArray:c];
+
+					[self bindAsDelegateTo:watch solo:NO];
+				}
+			}
+
+			filtered = filteredData;
+		} else {
+			NSMutableDictionary *r = [NSMutableDictionary new];
+			for (AZErgoUpdateChapter *chapter in filtered)
+				[GET_OR_INIT(r[@(chapter.state)], [NSMutableArray new]) addObject:chapter];
+
+			NSArray *at = r[@(AZErgoUpdateChapterDownloadsUnknown)];
+			NSUInteger count = [at count];
+			for (int i = 0; i < count; i++) {
+				AZErgoUpdateChapter *chapter = at[i];
+
+				if ([chapter.watch chapterState:chapter] == AZErgoUpdateChapterDownloadsNone)
+					hasUpdates = YES;
+				
+				progress((i + 1) / (double)count);
+			}
 		}
-
-		data = filteredData;
-	} else
-		for (AZErgoUpdateChapter *chapter in data)
-			if ([chapter.watch chapterState:chapter] == AZErgoUpdateChapterDownloadsNone)
-				hasUpdates = YES;
-
+		
+	}];
 
 	if (_hasUpdates != NULL)
 		*_hasUpdates = hasUpdates;
 
-	return data;
-}
-
-#pragma mark - Serial scheduling queue
-
-- (void) queueSchedulingTask:(AZErgoUpdateChapter *)chapter {
-	if (chapter.idx >= 0)
-		[schedulingQueue enqueue:^(BOOL *requeue, AZErgoUpdateChapter *chapter) {
-			__block BOOL needRequeue = *requeue;
-
-			chapter.watch.checking = YES;
-			[self watch:chapter.watch inProcess:AZErgoWatcherStateIddle];
-			[self watcherState:AZErgoWatcherStateWatching];
-
-			[AZErgoWaitBreakTask executeTask:^(AZErgoWaitBreakTask *task) {
-				AZErgoUpdatesSource *source = [chapter.watch.source relatedSource];
-
-				[source checkUpdate:chapter withBlock:^(NSArray *scans) {
-					if (![scans count]) {
-						chapter.state = AZErgoUpdateChapterDownloadsFailed;
-						needRequeue = YES;
-						[AZUtils notifyErrorMsg:LOC_FORMAT(@"Scans aquire failed for %@!", chapter.genData)];
-
-						[task break];
-						return;
-					}
-
-					AZDownloadParams *params;
-					AZDownload *anyDownload = (id)[AZDownload mangaDownloads:chapter.watch.manga limit:1];
-					if (anyDownload)
-						params = anyDownload.downloadParameters;
-					else
-						params = [[AZErgoDownloadPrefsWindowController sharedController] aquireParams:NO forManga:[AZErgoManga mangaByName:chapter.watch.manga]];
-
-					if (!params) {
-						chapter.state = AZErgoUpdateChapterDownloadsFailed;
-						[AZUtils notifyErrorMsg:LOC_FORMAT(@"Download params not aquired!")];
-						[task break];
-						return;
-					}
-
-					AZProxifier *proxifier = [AZProxifier sharedProxifier];
-
-					[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
-						NSUInteger pageIDX = 1;
-						for (NSString *scan in scans) {
-							AZDownload *download = [proxifier downloadForURL:scan withParams:params];
-							download.forManga = [AZErgoManga mangaWithName:chapter.watch.manga];
-							download.chapter = chapter.idx;
-							download.page = pageIDX++;
-							download.state = AZErgoDownloadStateNone;
-						}
-					}];
-
-					if (source.inProcess <= 1) {
-						[self watcherState:(source.inProcess > 1) ? AZErgoWatcherStateWatching : AZErgoWatcherStateHasUpdates];
-					}
-
-					[chapter.watch clearChapterState:chapter];
-					chapter.state = AZErgoUpdateChapterDownloadsUnknown;
-
-					[task break];
-				}];
-
-			}];
-
-			chapter.watch.checking = NO;
-			[self delayFetch:NO];
-			
-			*requeue = needRequeue;
-		} withAssociatedObject:chapter];
+	return filtered;
 }
 
 @end

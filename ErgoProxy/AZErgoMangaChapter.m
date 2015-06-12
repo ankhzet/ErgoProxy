@@ -83,14 +83,14 @@
 	int old = chapter;
 
 	if (delta > 0) {
-		chapter = [next intValue] ?: chapter;
+		chapter = next ? [next intValue] : chapter;
 		if (chapter == old) {
 			int last = _IDX([[chapters firstObject] floatValue]);
-			chapter = last + _IDX(1);
+			chapter = (last - _FRC(_IDI(last))) + _IDX(1);
 		}
 	} else
 		if (delta < 0) {
-			chapter = [prev intValue] ?: chapter;
+			chapter = prev ? [prev intValue] : chapter;
 		}
 
 	return _IDI(chapter);

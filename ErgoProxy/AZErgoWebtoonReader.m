@@ -64,6 +64,7 @@
 }
 
 - (void) updateScanView:(id)uid {
+	
 }
 
 - (void) alignViewTree:(NSView *)contentTree withContents:(NSArray *)content withNodes:(NSArray *)contentNodes {
@@ -74,7 +75,7 @@
 	if (![contentNodes count])
 		return;
 
-	NSDictionary *map = [contentNodes mapWithMapper:^id(id entity) {
+	NSDictionary *map = [contentNodes mapWithKeyFromValueMapper:^id(id entity) {
 		return [NSString stringWithFormat:@"node%@", @([contentNodes indexOfObjectIdenticalTo:entity])];
 	}];
 

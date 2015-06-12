@@ -10,7 +10,7 @@
 
 #define _IDX(_idx) ({(int)((_idx) * 100);})
 #define _IDI(_idx) ({((_idx) / 100.f);})
-#define _FRC(_idx) ({(_IDX(_idx) % 100);})
+#define _FRC(_idi) ({(_IDX(_idi) % 100);})
 
 @protocol AZErgoChapterProtocol <NSObject>
 
@@ -18,6 +18,7 @@
 @property (nonatomic, retain) NSString *genData;
 @property (nonatomic) NSInteger volume;
 @property (nonatomic) float idx;
+@property (nonatomic) float baseIdx;
 @property (nonatomic, retain) NSDate *date;
 
 @property (nonatomic) NSString *mangaName;

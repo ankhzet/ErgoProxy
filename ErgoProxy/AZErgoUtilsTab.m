@@ -34,7 +34,7 @@
 
 @implementation AZErgoUtilsTab
 
-- (NSString *) tabIdentifier {
++ (NSString *) tabIdentifier {
 	return AZEPUIDUtilsTab;
 }
 
@@ -77,7 +77,7 @@
 }
 
 - (void) synkDBs {
-	NSDictionary *mangas = [[AZErgoManga all] mapWithMapper:^id(AZErgoManga *entity) {
+	NSDictionary *mangas = [[AZErgoManga all] mapWithKeyFromValueMapper:^id(AZErgoManga *entity) {
 		return [entity.name lowercaseString];
 	}];
 
@@ -95,7 +95,8 @@
 			for (NSDictionary *data in mangaData) {
 				NSString *dirName = JSON_S(data, @"link");
 				if (dirName) {
-					[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+					[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 						AZErgoManga *manga = mangas[[dirName lowercaseString]];
 						if (!manga) {
 							manga = [AZErgoManga mangaWithName:dirName];
@@ -167,7 +168,7 @@
     AZErgoManga *linked = [AZErgoManga mangaByName:folder];
 
 		if (!linked) {
-			if (![AZDownload countOf:AZ_Predicate(@"forManga.name ==[c] %@", folder)])
+			if (![AZDownload countOf:@"forManga.name ==[c] %@", folder])
 				[unlinkedNonDld addObject:folder];
 			else
 				[unlinkedHasDld addObject:folder];
@@ -191,10 +192,15 @@
 }
 
 - (IBAction)actionRecalcDownloaded:(id)sender {
-	NSArray * downloads = [AZDownload all:@"downloaded > 0"];
-	NSUInteger downloaded = 0;
-	for (AZDownload *download in downloads)
-		downloaded += download.downloaded;
+
+	NSDictionary *sum = [AZDownload fetch:[AZF_ANY pick:[[AZFE of:@"downloads" as:NSDecimalAttributeType] sum:@"downloaded"]]];
+
+	NSUInteger downloaded = [sum[@"downloads"] unsignedIntegerValue];
+	
+//	NSArray * downloads = [AZDownload all:@"downloaded > 0"];
+//	NSUInteger downloaded = 0;
+//	for (AZDownload *download in downloads)
+//		downloaded += download.downloaded;
 
 	downloaded -= [[AZDownloadSpeedWatcher sharedSpeedWatcher] totalDownloaded];
 	PREF_SAVE_INT(downloaded, PREFS_COMMON_MANGA_DOWNLOADED);
@@ -249,6 +255,13 @@
 	AZ_Mutable(Set, *sameGData);
 	AZ_Mutable(Set, *sameManga);
 	for (AZErgoUpdateWatch *watch in watches) {
+		if (watch.genData) {
+			NSString *genData = [[watch.source relatedSource] parseURL:watch.genData];
+			if (![genData isEqualToString:watch.genData]) {
+				watch.genData = genData;
+			}
+		}
+
     for (AZErgoUpdateWatch *test in [watches copy])
 			if (watch != test) {
 				if ([watch.genData isEqualToString:test.genData])
@@ -262,22 +275,20 @@
 	if (!!([sameGData count] + [sameManga count])) {
 		if (AZConfirm(LOC_FORMAT(@"There %lu colliding watches with same generic data and %lu pointed to same manga. Delete collisions?", [sameGData count], [sameManga count]))) {
 
-			NSUInteger d = 0;
+			NSMutableArray *d = [NSMutableArray new];
 			for (AZErgoUpdateWatch *watch in sameGData) {
 				if (![AZErgoManga mangaByName:watch.manga]) {
-					[watch delete];
-					d++;
+					[d addObject:watch];
 				}
 			}
 
 			for (AZErgoUpdateWatch *watch in sameManga) {
 				if (![watch.updates count]) {
-					[watch delete];
-					d++;
+					[d addObject:watch];
 				}
 			}
 
-			AZInfoTip((!d) ? LOC_FORMAT(@"Nothing can be deleted automatically") : LOC_FORMAT(@"Deleted %lu colliding watches", d));
+			AZInfoTip((![d count]) ? LOC_FORMAT(@"Nothing can be deleted automatically") : LOC_FORMAT(@"Delete %lu colliding watches?\n\n%@", [d count], [d componentsJoinedByString:@"\n"]));
 		}
 	}
 
@@ -314,7 +325,8 @@
 
 					for (AZProxifier *proxifier in copy)
 						if ([proxifier.storages count] + [proxifier.downloads count] > 0) {
-							[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+							[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 								base.storages = [base.storages setByAddingObjectsFromSet:proxifier.storages];
 								base.downloads = [base.downloads setByAddingObjectsFromSet:proxifier.downloads];
 							}];
@@ -372,7 +384,8 @@
 
 					for (AZStorage *storage in copy)
 						if ([storage.downloads count] > 0) {
-							[[AZDataProxy sharedProxy] securedTransaction:^(NSManagedObjectContext *context, BOOL *propagateChanges) {
+							[[AZDataProxy sharedProxy] detachContext:^(NSManagedObjectContext *context) {
+			//TODO:detached context
 								base.downloads = [base.downloads setByAddingObjectsFromSet:storage.downloads];
 							}];
 						} else

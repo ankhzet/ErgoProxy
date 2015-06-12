@@ -28,10 +28,12 @@
 @synthesize downloads = _downloads;
 
 - (AZDownload *) addDownload:(AZDownload *)download {
-	@synchronized(_downloads) {
+	@synchronized(self) {
 		if (!_downloads)
 			_downloads = [NSMutableDictionary dictionary];
+	}
 
+	@synchronized(_downloads) {
 		AZDownload *old = _downloads[download.sourceURL];
 		_downloads[download.sourceURL] = download;
 
@@ -41,14 +43,26 @@
 }
 
 - (void) removeDownload:(AZDownload *)download {
+	if (!_downloads)
+		return;
+
 	@synchronized(_downloads) {
 		[_downloads removeObjectForKey:download.sourceURL];
 	}
 }
 
 - (AZDownload *) hasDownloadForURL:(NSString *)url {
+	if (!_downloads)
+		return nil;
+
 	@synchronized(_downloads) {
 		return _downloads[url];
+	}
+}
+
+- (NSDictionary *) downloads {
+	@synchronized(self) {
+		return _downloads;
 	}
 }
 

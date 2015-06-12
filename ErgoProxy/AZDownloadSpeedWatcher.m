@@ -131,7 +131,10 @@ MULTIDELEGATED_INJECT_MULTIDELEGATED(AZDownloadSpeedWatcher)
 }
 
 - (void) purge {
-	if ([NSDate timeIntervalSinceReferenceDate] - lastPurge < PURGE_DELAY)
+	NSTimeInterval now = [NSDate timeIntervalSinceReferenceDate];
+	if (lastPurge > now) lastPurge = now;
+
+	if (now - lastPurge < PURGE_DELAY)
 		return;
 
 	NSUInteger count = [downloadedPacks count];

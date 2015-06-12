@@ -50,16 +50,16 @@
 	if (![cleanedTitles count])
 		return NO;
 
-	AZErgoManga *manga = [AZErgoManga any:@"name ==[c] %@", dir];
+	AZErgoManga *manga = [AZErgoManga mangaByName:dir];
 	if (manga) {
-		[AZUtils notifyErrorMsg:[NSString stringWithFormat:NSLocalizedString(@"Manga with source directory \"%@\" already registered in DB", @"Manga registered message"), dir]];
+		AZErrorTip(LOC_FORMAT(@"Manga with source directory \"%@\" already registered in DB", dir));
 		return NO;
 	}
 
 	manga = [AZErgoManga any:@"any titles.title in %@", cleanedTitles];
 
 	if (manga) {
-		[AZUtils notifyErrorMsg:[NSString stringWithFormat:NSLocalizedString(@"Manga with such titles already registered in DB", @"Manga registered with titles message"), dir]];
+		AZErrorTip(LOC_FORMAT(@"Manga with such titles (%@) already registered in DB", [[cleanedTitles allObjects] componentsJoinedByString:@"; "]));
 		return NO;
 	}
 
